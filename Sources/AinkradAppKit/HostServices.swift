@@ -1,11 +1,16 @@
 import SwiftUI
 import Observation
 
+/// The complete set of host capabilities a loaded app may touch. Deliberately
+/// narrow: no access to the registry, other apps, or window management.
 @MainActor public protocol HostServices {
+    /// Namespaced key→data storage scoped to this app.
     var documents: PluginDocumentStore { get }
+    /// Namespaced secret storage scoped to this app (Keychain-backed in the host).
     var secrets: PluginSecretStore { get }
     /// The host's resolved theme, observable so apps recolor live on a theme change.
     var theme: HostTheme { get }
+    /// Structured logging under this app's subsystem.
     var log: PluginLogger { get }
 }
 
@@ -36,6 +41,8 @@ public protocol PluginLogger {
     func error(_ message: String)
 }
 
+/// A plain snapshot of the host's resolved theme colors, so apps render
+/// theme-correctly without importing host types.
 public struct HostThemeTokens: Equatable {
     /// Stable identity of the active theme (the host's theme id). Lets an app
     /// key its own per-theme assets without importing host theme types.
