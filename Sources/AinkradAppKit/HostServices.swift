@@ -2,7 +2,9 @@ import SwiftUI
 import Observation
 
 /// The complete set of host capabilities a loaded app may touch. Deliberately
-/// narrow: no access to the registry, other apps, or window management.
+/// narrow: no access to the registry, other apps, or window management. Apps MAY
+/// publish their own read-only context via `context`, but still cannot read the
+/// registry or other apps.
 @MainActor public protocol HostServices {
     /// Namespaced key→data storage scoped to this app.
     var documents: PluginDocumentStore { get }
@@ -12,6 +14,8 @@ import Observation
     var theme: HostTheme { get }
     /// Structured logging under this app's subsystem.
     var log: PluginLogger { get }
+    /// Lets this app publish read-only context the host's agent may consult.
+    var context: PluginContextRegistry { get }
 }
 
 /// Observable wrapper over `HostThemeTokens`. The host mutates it on a theme
