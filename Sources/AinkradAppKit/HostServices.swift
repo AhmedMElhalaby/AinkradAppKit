@@ -3,8 +3,8 @@ import Observation
 
 /// The complete set of host capabilities a loaded app may touch. Deliberately
 /// narrow: no access to the registry, other apps, or window management. Apps MAY
-/// publish their own read-only context via `context`, but still cannot read the
-/// registry or other apps.
+/// publish their own read-only context via `context` and their own gated actions
+/// via `actions`, but still cannot read the registry or other apps.
 @MainActor public protocol HostServices {
     /// Namespaced key→data storage scoped to this app.
     var documents: PluginDocumentStore { get }
@@ -16,6 +16,8 @@ import Observation
     var log: PluginLogger { get }
     /// Lets this app publish read-only context the host's agent may consult.
     var context: PluginContextRegistry { get }
+    /// Lets this app publish gated actions the host's agent may invoke.
+    var actions: AgentActionProvider { get }
 }
 
 /// Observable wrapper over `HostThemeTokens`. The host mutates it on a theme

@@ -5,7 +5,7 @@ public enum AinkradAppKit {
     /// The API generation this SDK represents. A plugin bundle records the
     /// value it was built against; the host loads it only if that value is
     /// within the host's supported range.
-    public static let apiVersion = 2
+    public static let apiVersion = 3
 
     /// A bundle built against `bundleAPIVersion` is loadable exactly when it
     /// falls within the host's inclusive supported range.
