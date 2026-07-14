@@ -32,8 +32,8 @@ struct AgentContextTests {
         #expect(reg.snapshots().isEmpty)
     }
 
-    @Test("apiVersion is 2")
+    @Test("apiVersion is 3")
     func apiVersionBumped() {
-        #expect(AinkradAppKit.apiVersion == 2)
+        #expect(AinkradAppKit.apiVersion == 3)
     }
 }
