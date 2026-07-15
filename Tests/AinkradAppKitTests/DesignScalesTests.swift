@@ -46,3 +46,15 @@ struct AinkradElevationTests {
         #expect(AinkradElevation.level1.y < AinkradElevation.level2.y)
     }
 }
+
+@Suite("AinkradMotion")
+struct AinkradMotionTests {
+    @Test("durations are ordered fast < base < slow")
+    func durations() {
+        #expect(AinkradMotion.durationFast == 0.15)
+        #expect(AinkradMotion.durationBase == 0.25)
+        #expect(AinkradMotion.durationSlow == 0.40)
+        #expect(AinkradMotion.durationFast < AinkradMotion.durationBase)
+        #expect(AinkradMotion.durationBase < AinkradMotion.durationSlow)
+    }
+}

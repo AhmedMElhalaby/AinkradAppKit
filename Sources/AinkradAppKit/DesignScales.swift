@@ -42,3 +42,15 @@ public enum AinkradElevation {
     public static let level1 = ShadowSpec(color: .black.opacity(0.22), radius: 8, x: 0, y: 2)
     public static let level2 = ShadowSpec(color: .black.opacity(0.30), radius: 20, x: 0, y: 8)
 }
+
+/// Motion durations + named animations. Use instead of literal `.animation`
+/// durations so timing is consistent across surfaces.
+public enum AinkradMotion {
+    public static let durationFast: Double = 0.15
+    public static let durationBase: Double = 0.25
+    public static let durationSlow: Double = 0.40
+
+    public static var hover: Animation { .easeInOut(duration: durationFast) }
+    public static var present: Animation { .easeOut(duration: durationBase) }
+    public static var dismiss: Animation { .easeIn(duration: durationFast) }
+}
