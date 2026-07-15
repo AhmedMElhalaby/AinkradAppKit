@@ -107,6 +107,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
 
     func present<Content: View>(
         maxHeight: CGFloat,
+        autofocusTextField: Bool = false,
         @ViewBuilder content: @escaping () -> Content,
         onDismiss: @escaping () -> Void
     ) {
@@ -164,6 +165,36 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         isDismissing = false
 
         installMonitors(panel: panel, parentWindow: window)
+
+        if autofocusTextField {
+            // `@FocusState` across a freshly-presented `.nonactivatingPanel`
+            // is unreliable the instant the panel appears — SwiftUI can lose
+            // the race to actually attach the hosted view to the (now key)
+            // window before it tries to move first responder. Falling back
+            // to AppKit directly is reliable: hop one runloop tick (so the
+            // hosted view has finished attaching), find the search field's
+            // backing `NSTextField` by walking the hosting view's subviews,
+            // and hand it first responder explicitly.
+            DispatchQueue.main.async { [weak self, weak panel] in
+                guard let panel, let self, self.panel === panel else { return }
+                if let field = Self.firstTextField(in: panel.contentView) {
+                    panel.makeFirstResponder(field)
+                }
+            }
+        }
+    }
+
+    /// Depth-first search for the first `NSTextField` in `view`'s subview
+    /// tree — used to hand first responder to a hosted SwiftUI `TextField`
+    /// (which AppKit backs with an `NSTextField`) directly, bypassing
+    /// `@FocusState`'s unreliable timing in a freshly-presented panel.
+    private static func firstTextField(in view: NSView?) -> NSView? {
+        guard let view else { return nil }
+        for sub in view.subviews {
+            if sub is NSTextField { return sub }
+            if let found = firstTextField(in: sub) { return found }
+        }
+        return nil
     }
 
     /// Removes the panel, its childWindow relationship, and all monitors/
@@ -296,6 +327,7 @@ private struct AinkradFloatingPanelAnchor: NSViewRepresentable {
 private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     var maxHeight: CGFloat
+    var autofocusTextField: Bool = false
     @ViewBuilder var panelContent: () -> PanelContent
 
     @Environment(\.ainkradTheme) private var theme
@@ -324,7 +356,7 @@ private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
         let theme = theme
         let typo = typo
         let statusColors = statusColors
-        controller.present(maxHeight: maxHeight) {
+        controller.present(maxHeight: maxHeight, autofocusTextField: autofocusTextField) {
             panelContent()
                 .environment(\.ainkradTheme, theme)
                 .environment(\.ainkradTypography, typo)
@@ -346,8 +378,9 @@ public extension View {
     func ainkradFloatingPanel<PanelContent: View>(
         isPresented: Binding<Bool>,
         maxHeight: CGFloat = 320,
+        autofocusTextField: Bool = false,
         @ViewBuilder content: @escaping () -> PanelContent
     ) -> some View {
-        modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: maxHeight, panelContent: content))
+        modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: maxHeight, autofocusTextField: autofocusTextField, panelContent: content))
     }
 }

@@ -56,6 +56,41 @@ struct AinkradMultiSelectTests {
     }
 }
 
+@Suite("Dropdown arrow-key highlight nav")
+struct MovedHighlightTests {
+    @Test("moves down within bounds")
+    func movesDown() {
+        #expect(movedHighlight(current: 0, delta: 1, count: 3) == 1)
+    }
+
+    @Test("moves up within bounds")
+    func movesUp() {
+        #expect(movedHighlight(current: 2, delta: -1, count: 3) == 1)
+    }
+
+    @Test("clamps at the top of the list")
+    func clampsAtTop() {
+        #expect(movedHighlight(current: 0, delta: -1, count: 3) == 0)
+    }
+
+    @Test("clamps at the bottom of the list")
+    func clampsAtBottom() {
+        #expect(movedHighlight(current: 2, delta: 1, count: 3) == 2)
+    }
+
+    @Test("a single large jump still clamps into range")
+    func clampsLargeJump() {
+        #expect(movedHighlight(current: 0, delta: 99, count: 5) == 4)
+        #expect(movedHighlight(current: 4, delta: -99, count: 5) == 0)
+    }
+
+    @Test("an empty (fully filtered-out) list always highlights index 0")
+    func emptyListReturnsZero() {
+        #expect(movedHighlight(current: 3, delta: 1, count: 0) == 0)
+        #expect(movedHighlight(current: 0, delta: -1, count: 0) == 0)
+    }
+}
+
 @Suite("AinkradCombobox filter")
 struct AinkradComboboxTests {
     @Test("empty query returns all items")

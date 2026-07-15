@@ -72,6 +72,18 @@ public func comboboxFilter<T>(items: [T], query: String, label: (T) -> String) -
     return items.filter { label($0).range(of: query, options: .caseInsensitive) != nil }
 }
 
+/// Moves a highlighted-row index by `delta`, clamped to `0..<count` (or `0`
+/// when `count <= 0`, i.e. an empty/filtered-to-nothing list). Pure — the
+/// arrow-key nav math shared by `AinkradSelect`/`AinkradMultiSelect`/
+/// `AinkradSearchableSelect`'s floating panels, unit-testable without
+/// SwiftUI. `count` is re-evaluated by the caller on every keystroke so this
+/// clamps correctly against a live-filtered row count, not just the static
+/// item list.
+public func movedHighlight(current: Int, delta: Int, count: Int) -> Int {
+    guard count > 0 else { return 0 }
+    return min(max(current + delta, 0), count - 1)
+}
+
 /// Fades + scales option-panel content in on appear, then holds steady — the
 /// "materialize" look shared by every picker's floating panel content, now
 /// that the panel itself lives in a separate top-level `NSPanel` (so a
@@ -110,7 +122,6 @@ public struct AinkradSelect<T: Hashable>: View {
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @State private var isOpen = false
-    @State private var hoveredItem: T?
 
     public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -119,7 +130,9 @@ public struct AinkradSelect<T: Hashable>: View {
     public var body: some View {
         trigger
             .ainkradFloatingPanel(isPresented: $isOpen) {
-                PanelMaterialize { optionsPanel }
+                PanelMaterialize {
+                    SelectPanelView(items: items, selection: $selection, label: label, onClose: close)
+                }
             }
     }
 
@@ -149,44 +162,6 @@ public struct AinkradSelect<T: Hashable>: View {
         .buttonStyle(.plain)
         .animation(AinkradMotion.hover, value: isOpen)
     }
-
-    private var optionsPanel: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(items, id: \.self) { item in optionRow(item) }
-        }
-        .padding(AinkradSpacing.xs)
-        .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
-        .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
-        .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
-        .frame(minWidth: 160)
-    }
-
-    private func optionRow(_ item: T) -> some View {
-        let isSelected = item == selection
-        let isHovered = hoveredItem == item
-        return Button {
-            selection = item
-            close()
-        } label: {
-            HStack(spacing: AinkradSpacing.xs) {
-                Image(systemName: "diamond.fill")
-                    .font(.system(size: 6))
-                    .foregroundStyle(theme.accentSecondary)
-                    .opacity(isSelected ? 1 : 0)
-                Text(label(item))
-                    .font(AinkradFontResolver.font(.body, typography: typo))
-                    .foregroundStyle(theme.foreground)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, AinkradSpacing.sm)
-            .padding(.vertical, AinkradSpacing.xs + 2)
-            .background(ChamferShape(cut: 4).fill(isHovered ? theme.accentSecondary.opacity(0.18) : .clear))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(AinkradMotion.hover, value: isHovered)
-        .onHover { hovering in hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem) }
-    }
 }
 
 /// Multi-selection variant of `AinkradSelect` — same custom anchored overlay,
@@ -201,7 +176,6 @@ public struct AinkradMultiSelect<T: Hashable>: View {
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @State private var isOpen = false
-    @State private var hoveredItem: T?
 
     public init(items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -214,7 +188,9 @@ public struct AinkradMultiSelect<T: Hashable>: View {
     public var body: some View {
         trigger
             .ainkradFloatingPanel(isPresented: $isOpen) {
-                PanelMaterialize { optionsPanel }
+                PanelMaterialize {
+                    MultiSelectPanelView(items: items, selection: $selection, label: label)
+                }
             }
     }
 
@@ -244,49 +220,6 @@ public struct AinkradMultiSelect<T: Hashable>: View {
         }
         .buttonStyle(.plain)
         .animation(AinkradMotion.hover, value: isOpen)
-    }
-
-    private var optionsPanel: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(items, id: \.self) { item in optionRow(item) }
-        }
-        .padding(AinkradSpacing.xs)
-        .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
-        .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
-        .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
-        .frame(minWidth: 160)
-    }
-
-    private func optionRow(_ item: T) -> some View {
-        let isSelected = selection.contains(item)
-        let isHovered = hoveredItem == item
-        return Button {
-            selection = toggledSelection(item, in: selection)
-        } label: {
-            HStack(spacing: AinkradSpacing.xs) {
-                ZStack {
-                    ChamferShape(cut: 2)
-                        .strokeBorder(theme.accentSecondary.opacity(0.6), lineWidth: 1)
-                        .frame(width: 12, height: 12)
-                    if isSelected {
-                        Image(systemName: "checkmark")
-                            .font(.system(size: 8, weight: .bold))
-                            .foregroundStyle(theme.accentSecondary)
-                    }
-                }
-                Text(label(item))
-                    .font(AinkradFontResolver.font(.body, typography: typo))
-                    .foregroundStyle(theme.foreground)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, AinkradSpacing.sm)
-            .padding(.vertical, AinkradSpacing.xs + 2)
-            .background(ChamferShape(cut: 4).fill(isHovered ? theme.accentSecondary.opacity(0.18) : .clear))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(AinkradMotion.hover, value: isHovered)
-        .onHover { hovering in hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem) }
     }
 }
 
@@ -400,9 +333,6 @@ public struct AinkradSearchableSelect<T: Hashable>: View {
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @State private var isOpen = false
-    @State private var query = ""
-    @State private var hoveredItem: T?
-    @FocusState private var searchFocused: Bool
 
     public init(
         items: [T],
@@ -413,17 +343,15 @@ public struct AinkradSearchableSelect<T: Hashable>: View {
         self.items = items; self._selection = selection; self.label = label; self.placeholder = placeholder
     }
 
-    private var filtered: [T] { comboboxFilter(items: items, query: query, label: label) }
-
     public var body: some View {
         trigger
-            .ainkradFloatingPanel(isPresented: $isOpen) {
-                PanelMaterialize { optionsPanel }
-            }
-            .onChange(of: isOpen) { _, newValue in
-                if newValue {
-                    query = ""
-                    searchFocused = true
+            // `autofocusTextField: true` tells the floating-panel controller
+            // to hunt down the hosted search field's backing `NSTextField`
+            // and call `makeFirstResponder` on it directly once the panel is
+            // key — see `AinkradFloatingPanelController.present`.
+            .ainkradFloatingPanel(isPresented: $isOpen, autofocusTextField: true) {
+                PanelMaterialize {
+                    SearchableSelectPanelView(items: items, selection: $selection, label: label, placeholder: placeholder, onClose: close)
                 }
             }
     }
@@ -453,71 +381,5 @@ public struct AinkradSearchableSelect<T: Hashable>: View {
         }
         .buttonStyle(.plain)
         .animation(AinkradMotion.hover, value: isOpen)
-    }
-
-    private var optionsPanel: some View {
-        VStack(alignment: .leading, spacing: AinkradSpacing.xs) {
-            searchField
-            if filtered.isEmpty {
-                Text("No matches")
-                    .font(AinkradFontResolver.font(.caption, typography: typo))
-                    .foregroundStyle(theme.foreground.opacity(0.5))
-                    .padding(.horizontal, AinkradSpacing.sm)
-                    .padding(.vertical, AinkradSpacing.xs)
-            } else {
-                ForEach(filtered, id: \.self) { item in optionRow(item) }
-            }
-        }
-        .padding(AinkradSpacing.xs)
-        .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
-        .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
-        .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
-        .frame(minWidth: 200)
-    }
-
-    private var searchField: some View {
-        TextField(placeholder, text: $query)
-            .textFieldStyle(.plain)
-            .focused($searchFocused)
-            .font(AinkradFontResolver.font(.body, typography: typo))
-            .foregroundStyle(theme.foreground)
-            .tint(theme.accentSecondary)
-            .onSubmit {
-                if let first = filtered.first {
-                    selection = first
-                    close()
-                }
-            }
-            .padding(.horizontal, AinkradSpacing.sm)
-            .padding(.vertical, AinkradSpacing.xs + 2)
-            .background(ChamferShape(cut: 4).fill(theme.surface.opacity(0.7)))
-            .overlay(ChamferShape(cut: 4).strokeBorder(theme.accentPrimary.opacity(0.3), lineWidth: 1))
-    }
-
-    private func optionRow(_ item: T) -> some View {
-        let isSelected = item == selection
-        let isHovered = hoveredItem == item
-        return Button {
-            selection = item
-            close()
-        } label: {
-            HStack(spacing: AinkradSpacing.xs) {
-                Image(systemName: "diamond.fill")
-                    .font(.system(size: 6))
-                    .foregroundStyle(theme.accentSecondary)
-                    .opacity(isSelected ? 1 : 0)
-                Text(label(item))
-                    .font(AinkradFontResolver.font(.body, typography: typo))
-                    .foregroundStyle(theme.foreground)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, AinkradSpacing.sm)
-            .padding(.vertical, AinkradSpacing.xs + 2)
-            .background(ChamferShape(cut: 4).fill(isHovered ? theme.accentSecondary.opacity(0.18) : .clear))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(AinkradMotion.hover, value: isHovered)
-        .onHover { hovering in hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem) }
     }
 }
