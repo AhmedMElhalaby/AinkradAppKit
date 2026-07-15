@@ -20,22 +20,18 @@ public struct AinkradCard<Content: View>: View {
     public var body: some View {
         content
             .padding(AinkradSpacing.md)
-            .background(RoundedRectangle(cornerRadius: AinkradRadius.md).fill(theme.surface.opacity(0.9)))
-            .overlay(RoundedRectangle(cornerRadius: AinkradRadius.md)
-                .strokeBorder(theme.foreground.opacity(borderOpacity), lineWidth: 1))
-            .overlay(selectionRing)
-            .scaleEffect(hovering && !reduceMotion ? 1.01 : 1.0)
+            .background(ChamferShape(cut: AinkradRadius.md).fill(theme.surface.opacity(0.9)))
+            .overlay(ChamferShape(cut: AinkradRadius.md)
+                .strokeBorder(borderColor.opacity(borderOpacity), lineWidth: isSelected ? 1.5 : 1))
+            .apply { hovering && !reduceMotion ? AnyView($0.cornerBrackets(length: 10, inset: -2)) : AnyView($0) }
+            .scaleEffect(hovering && !reduceMotion ? 1.015 : 1.0)
             .animation(AinkradMotion.hover, value: hovering)
             .contentShape(Rectangle())
             .onHover { hovering = $0 }
             .apply { if let onTap { $0.onTapGesture(perform: onTap) } else { $0 } }
     }
-    private var borderOpacity: Double { isSelected ? 0.0 : (hovering ? 0.22 : 0.10) }
-    @ViewBuilder private var selectionRing: some View {
-        if isSelected {
-            RoundedRectangle(cornerRadius: AinkradRadius.md).strokeBorder(theme.accentPrimary.opacity(0.8), lineWidth: 1.5)
-        }
-    }
+    private var borderColor: Color { isSelected ? theme.accentPrimary : theme.accentSecondary }
+    private var borderOpacity: Double { isSelected ? 0.85 : (hovering ? 0.6 : 0.25) }
 }
 
 // Small helper so the conditional tap gesture stays readable.
