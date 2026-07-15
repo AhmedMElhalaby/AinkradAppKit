@@ -1,18 +1,18 @@
 import SwiftUI
 
 /// Semantic status used by `AinkradBadge` (and available to any component
-/// that needs a status→color mapping). Maps onto the status colors carried by
-/// `HostThemeTokens`.
+/// that needs a status→color mapping). `.neutral` maps onto `HostThemeTokens`;
+/// the other cases map onto the ABI-safe `AinkradStatusColors` channel.
 public enum AinkradStatus: CaseIterable, Sendable {
     case neutral, success, warning, danger
 
-    /// The theme token this status maps to. Pure — unit-testable without a view.
-    public func color(in theme: HostThemeTokens) -> Color {
+    /// The color this status maps to. Pure — unit-testable without a view.
+    public func color(in theme: HostThemeTokens, statusColors: AinkradStatusColors) -> Color {
         switch self {
         case .neutral: return theme.foreground
-        case .success: return theme.success
-        case .warning: return theme.warning
-        case .danger: return theme.danger
+        case .success: return statusColors.success
+        case .warning: return statusColors.warning
+        case .danger: return statusColors.danger
         }
     }
 }
@@ -69,13 +69,14 @@ public struct AinkradBadge: View {
     private let status: AinkradStatus
 
     @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradStatusColors) private var statusColors
     @Environment(\.ainkradTypography) private var typo
 
     public init(text: String, status: AinkradStatus = .neutral) {
         self.text = text; self.status = status
     }
 
-    private var color: Color { status.color(in: theme) }
+    private var color: Color { status.color(in: theme, statusColors: statusColors) }
 
     public var body: some View {
         Text(text.uppercased())

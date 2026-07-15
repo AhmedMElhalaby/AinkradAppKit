@@ -31,7 +31,7 @@ public enum AinkradButtonStyle: CaseIterable, Sendable {
 
 /// Cardinal HUD action button — chamfered silhouette, accent glow, hover
 /// brighten, and a subtle press scale. Reads all color from
-/// `@Environment(\.ainkradTheme)`; `danger` uses `ainkradTheme.danger`.
+/// `@Environment(\.ainkradTheme)`; `danger` uses `ainkradStatusColors.danger`.
 public struct AinkradButton: View {
     private let title: String
     private let style: AinkradButtonStyle
@@ -39,6 +39,7 @@ public struct AinkradButton: View {
     private let action: () -> Void
 
     @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradStatusColors) private var statusColors
     @Environment(\.ainkradTypography) private var typo
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var hovering = false
@@ -49,7 +50,7 @@ public struct AinkradButton: View {
         self.title = title; self.style = style; self.icon = icon; self.action = action
     }
 
-    private var accentColor: Color { style.isDanger ? theme.danger : theme.accentPrimary }
+    private var accentColor: Color { style.isDanger ? statusColors.danger : theme.accentPrimary }
 
     public var body: some View {
         Button(action: action) {

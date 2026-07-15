@@ -27,17 +27,3 @@ struct HostThemeTests {
         #expect(tokens("a") == tokens("a"))
     }
 }
-
-@Suite("HostThemeTokens status colors")
-struct HostThemeStatusTests {
-    @Test("status colors default when omitted and are settable")
-    func statusColors() {
-        let d = HostThemeTokens(themeID: "t", background: .black, surface: .black, surfaceElevated: .black,
-                                accentPrimary: .black, accentSecondary: .black, accentTertiary: .black, foreground: .white)
-        #expect(d.success == .green && d.warning == .yellow && d.danger == .red)
-        let c = HostThemeTokens(themeID: "t", background: .black, surface: .black, surfaceElevated: .black,
-                                accentPrimary: .black, accentSecondary: .black, accentTertiary: .black, foreground: .white,
-                                success: .mint, warning: .orange, danger: .pink)
-        #expect(c.success == .mint && c.danger == .pink)
-    }
-}
