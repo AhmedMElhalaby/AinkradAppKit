@@ -50,14 +50,16 @@ struct FloatingPanelFrameTests {
         #expect(frame.maxY <= short.maxY + 0.0001)
     }
 
-    @Test("pins to the top edge (rather than the bottom) when content is taller than the entire visible frame")
+    @Test("pins to the visible top edge (letting content scroll past the bottom) when content is taller than the entire visible frame")
     func pinsToTopWhenContentExceedsScreen() {
         let short = CGRect(x: 0, y: 0, width: 1200, height: 100)
         let anchor = CGRect(x: 10, y: 40, width: 80, height: 20)
         let content = CGSize(width: 160, height: 300) // taller than the whole screen — can't fully fit either way
         let frame = floatingPanelFrame(anchorScreenRect: anchor, contentSize: content, screenVisibleFrame: short, gap: 4)
 
-        #expect(frame.minY == short.minY)
+        // The top edge sits exactly at the visible frame's top (never above
+        // the menu bar); the bottom overflows below the dock and scrolls.
+        #expect(frame.maxY == short.maxY)
     }
 
     @Test("left-aligns with the anchor's minX by default")
@@ -67,5 +69,29 @@ struct FloatingPanelFrameTests {
         let frame = floatingPanelFrame(anchorScreenRect: anchor, contentSize: content, screenVisibleFrame: screen, gap: 4)
 
         #expect(frame.minX == 250)
+    }
+}
+
+@Suite("isClickOutside trigger/panel hit-testing")
+struct IsClickOutsideTests {
+    let panel = CGRect(x: 100, y: 400, width: 160, height: 120)
+    let trigger = CGRect(x: 100, y: 560, width: 80, height: 24)
+
+    @Test("a click inside the panel is not outside")
+    func insidePanel() {
+        let point = CGPoint(x: 150, y: 450)
+        #expect(isClickOutside(point: point, panelFrame: panel, triggerFrame: trigger) == false)
+    }
+
+    @Test("a click on the trigger is not outside — the trigger's own toggle handles it, not the outside-click dismissal")
+    func insideTrigger() {
+        let point = CGPoint(x: 120, y: 570)
+        #expect(isClickOutside(point: point, panelFrame: panel, triggerFrame: trigger) == false)
+    }
+
+    @Test("a click outside both the panel and the trigger is outside")
+    func outsideBoth() {
+        let point = CGPoint(x: 900, y: 10)
+        #expect(isClickOutside(point: point, panelFrame: panel, triggerFrame: trigger) == true)
     }
 }

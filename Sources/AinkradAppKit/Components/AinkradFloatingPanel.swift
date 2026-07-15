@@ -5,8 +5,11 @@ import AppKit
 /// coordinates (AppKit convention: origin bottom-left, y grows upward).
 /// Prefers directly below the anchor, left-aligned; flips above the anchor
 /// if there isn't room below; then clamps into `screenVisibleFrame` on both
-/// axes so the panel is never fully off-screen. Pure — unit tested without
-/// AppKit/SwiftUI.
+/// axes so the panel never overflows above the menu bar or below the dock.
+/// If `contentSize.height` exceeds the visible frame's entire height (so no
+/// clamp can fit it), the top edge is pinned to the visible frame's top and
+/// the excess is left to scroll off the bottom (the caller wraps oversized
+/// content in a `ScrollView`). Pure — unit tested without AppKit/SwiftUI.
 public func floatingPanelFrame(
     anchorScreenRect: CGRect,
     contentSize: CGSize,
@@ -14,6 +17,7 @@ public func floatingPanelFrame(
     gap: CGFloat = 4
 ) -> CGRect {
     let belowY = anchorScreenRect.minY - gap - contentSize.height
+    let tallerThanScreen = contentSize.height > screenVisibleFrame.height
     var originY: CGFloat
     if belowY >= screenVisibleFrame.minY {
         originY = belowY
@@ -22,8 +26,13 @@ public func floatingPanelFrame(
         let aboveY = anchorScreenRect.maxY + gap
         if aboveY + contentSize.height <= screenVisibleFrame.maxY {
             originY = aboveY
+        } else if tallerThanScreen {
+            // Content can't fit within the visible frame at all: pin the top
+            // edge to the visible top and let it scroll past the bottom.
+            originY = screenVisibleFrame.maxY - contentSize.height
         } else {
-            // Neither fits fully: prefer below, then clamp.
+            // Fits within the visible height but not at either preferred
+            // position — clamp fully inside below.
             originY = belowY
         }
     }
@@ -36,14 +45,40 @@ public func floatingPanelFrame(
         originX = screenVisibleFrame.minX
     }
 
-    if originY + contentSize.height > screenVisibleFrame.maxY {
-        originY = screenVisibleFrame.maxY - contentSize.height
-    }
-    if originY < screenVisibleFrame.minY {
-        originY = screenVisibleFrame.minY
+    // Only clamp vertically when the content could actually fit inside the
+    // visible frame — otherwise clamping would undo the top-pin above.
+    if !tallerThanScreen {
+        if originY + contentSize.height > screenVisibleFrame.maxY {
+            originY = screenVisibleFrame.maxY - contentSize.height
+        }
+        if originY < screenVisibleFrame.minY {
+            originY = screenVisibleFrame.minY
+        }
     }
 
     return CGRect(x: originX, y: originY, width: contentSize.width, height: contentSize.height)
+}
+
+/// True when `point` (in SCREEN coordinates) falls outside both the panel's
+/// frame and the trigger's anchor rect. Used to distinguish a genuine
+/// outside click (which should dismiss the panel) from a click back on the
+/// trigger itself (which must be left for the trigger's own Button action to
+/// toggle — otherwise the outside-click monitor would dismiss first and the
+/// Button's action would immediately reopen it). Pure — unit tested without
+/// AppKit/SwiftUI.
+public func isClickOutside(point: CGPoint, panelFrame: CGRect, triggerFrame: CGRect) -> Bool {
+    !panelFrame.contains(point) && !triggerFrame.contains(point)
+}
+
+/// A borderless, non-activating panel that can still become key. By default
+/// `.nonactivatingPanel` windows report `canBecomeKey == false`, which means
+/// SwiftUI `@FocusState` (the search field in `AinkradSearchableSelect`) and
+/// our own Esc-key monitor never receive input. Overriding `canBecomeKey`
+/// fixes that while `.nonactivatingPanel` still does its job of not forcing
+/// the host app to activate/steal focus from other apps.
+private final class AinkradKeyablePanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
 }
 
 /// AppKit-backed presenter for a top-level, custom-drawn floating panel: a
@@ -66,6 +101,9 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
     private var parentWindowObservers: [NSObjectProtocol] = []
     private weak var parentWindow: NSWindow?
     private var onDismiss: (() -> Void)?
+    /// Guards against a fade-out's completion handler running twice, and
+    /// against re-entering the teardown while a fade is already in flight.
+    private var isDismissing = false
 
     func present<Content: View>(
         maxHeight: CGFloat,
@@ -94,18 +132,16 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         hosting.wantsLayer = true
         hosting.layer?.backgroundColor = .clear
 
-        let anchorRectInWindow = anchorView.convert(anchorView.bounds, to: nil)
-        let anchorScreenRect = window.convertToScreen(anchorRectInWindow)
         let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
             ?? CGRect(x: 0, y: 0, width: width, height: height)
         let frame = floatingPanelFrame(
-            anchorScreenRect: anchorScreenRect,
+            anchorScreenRect: anchorScreenRect() ?? .zero,
             contentSize: CGSize(width: width, height: height),
             screenVisibleFrame: visibleFrame
         )
 
-        let panel = NSPanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel],
-                             backing: .buffered, defer: false)
+        let panel = AinkradKeyablePanel(contentRect: frame, styleMask: [.borderless, .nonactivatingPanel],
+                                         backing: .buffered, defer: false)
         panel.isFloatingPanel = true
         panel.level = .popUpMenu
         panel.backgroundColor = .clear
@@ -116,27 +152,46 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         panel.delegate = self
         panel.contentView = hosting
         panel.setFrame(frame, display: true)
+        panel.alphaValue = 1
 
         window.addChildWindow(panel, ordered: .above)
-        panel.orderFront(nil)
+        // `.nonactivatingPanel` keeps the app from being force-activated, but
+        // the panel must still become key so `@FocusState` (the search field
+        // in `AinkradSearchableSelect`) and our Esc key monitor work the
+        // instant the panel appears.
+        panel.makeKeyAndOrderFront(nil)
         self.panel = panel
+        isDismissing = false
 
         installMonitors(panel: panel, parentWindow: window)
     }
 
     /// Removes the panel, its childWindow relationship, and all monitors/
-    /// observers. Safe to call multiple times.
+    /// observers, then fades the panel out before ordering it away. Safe to
+    /// call multiple times (including re-entrantly from a notification fired
+    /// while a fade is already in flight) — every path after the first is a
+    /// no-op.
     func dismiss() {
+        guard let panel, !isDismissing else { return }
+        isDismissing = true
         removeMonitors()
-        if let panel {
-            panel.parent?.removeChildWindow(panel)
-            panel.orderOut(nil)
-            panel.contentView = nil
-            panel.delegate = nil
-        }
-        panel = nil
+        panel.parent?.removeChildWindow(panel)
+        parentWindow?.makeKey()
+        self.panel = nil
         parentWindow = nil
         onDismiss = nil
+
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = AinkradMotion.durationFast
+            panel.animator().alphaValue = 0
+        } completionHandler: { [weak self] in
+            Task { @MainActor in
+                panel.orderOut(nil)
+                panel.contentView = nil
+                panel.delegate = nil
+                self?.isDismissing = false
+            }
+        }
     }
 
     private func installMonitors(panel: NSPanel, parentWindow: NSWindow) {
@@ -147,11 +202,13 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         }
         localMouseMonitor = NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
             guard let self, self.panel === panel else { return event }
-            if event.window !== panel { self.requestDismiss() }
+            if event.window === panel { return event }
+            if self.isOutsideTriggerAndPanel(NSEvent.mouseLocation) { self.requestDismiss() }
             return event
         }
         globalMouseMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.requestDismiss()
+            guard let self else { return }
+            if self.isOutsideTriggerAndPanel(NSEvent.mouseLocation) { self.requestDismiss() }
         }
 
         let center = NotificationCenter.default
@@ -165,7 +222,33 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
             center.addObserver(forName: NSWindow.didMoveNotification, object: parentWindow, queue: .main) { [weak self] _ in
                 self?.requestDismiss()
             },
+            // The parent window can close (e.g. its owning surface/plugin
+            // window is torn down) without ever resigning key first — clean
+            // up the panel in that case too.
+            center.addObserver(forName: NSWindow.willCloseNotification, object: parentWindow, queue: .main) { [weak self] _ in
+                self?.requestDismiss()
+            },
         ]
+    }
+
+    /// Whether a click at `screenPoint` is outside both the panel and the
+    /// trigger's current anchor rect. The trigger's rect is recomputed live
+    /// (rather than cached from `present()`) so a trigger that moves while
+    /// the panel is open is still honored. When the trigger itself is
+    /// clicked, this returns `false` so the outside-click monitor leaves the
+    /// dismissal to the trigger Button's own toggle — otherwise the monitor
+    /// would dismiss first and the Button's action would immediately reopen
+    /// the panel.
+    private func isOutsideTriggerAndPanel(_ screenPoint: CGPoint) -> Bool {
+        guard let panel else { return true }
+        let triggerRect = anchorScreenRect() ?? .zero
+        return isClickOutside(point: screenPoint, panelFrame: panel.frame, triggerFrame: triggerRect)
+    }
+
+    private func anchorScreenRect() -> CGRect? {
+        guard let anchorView, let window = anchorView.window else { return nil }
+        let rectInWindow = anchorView.convert(anchorView.bounds, to: nil)
+        return window.convertToScreen(rectInWindow)
     }
 
     private func removeMonitors() {
