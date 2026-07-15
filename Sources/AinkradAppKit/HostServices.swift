@@ -18,6 +18,9 @@ import Observation
     var context: PluginContextRegistry { get }
     /// Lets this app publish gated actions the host's agent may invoke.
     var actions: AgentActionProvider { get }
+    /// Lets this app open another app with an opaque payload, and retrieve a
+    /// payload aimed at it. Added v4.
+    var apps: PluginAppLauncher { get }
 }
 
 /// Observable wrapper over `HostThemeTokens`. The host mutates it on a theme
