@@ -20,9 +20,6 @@ public extension EnvironmentValues {
     @Entry var ainkradTypography: AinkradTypography = .default
 }
 
-// `HostThemeTokens` holds only `String`/`Color`, both `Sendable`; the base
-// declaration in HostServices.swift predates Slice 1b and doesn't opt in.
-extension HostThemeTokens: @unchecked Sendable {}
 
 public extension HostThemeTokens {
     /// Neutral dark fallback for previews / when no host injects a theme.
