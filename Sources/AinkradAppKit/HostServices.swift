@@ -1,6 +1,19 @@
 import SwiftUI
 import Observation
 
+/// Lets an app read and override how the host presents it — tiled `.pane` or
+/// floating `.overlay`. An override takes effect the next time the app is
+/// opened; it never morphs an already-open window. Added v5.
+@MainActor public protocol PluginPresentationControl {
+    /// The effective presentation: the user override if one is set, otherwise
+    /// the bundle's `AinkradPresentation` default.
+    var current: PluginPresentation { get }
+    /// Persist a user override. Takes effect on the app's next open.
+    func set(_ presentation: PluginPresentation)
+    /// Clear the override, reverting to the bundle's declared default.
+    func reset()
+}
+
 /// The complete set of host capabilities a loaded app may touch. Deliberately
 /// narrow: no access to the registry, other apps, or window management. Apps MAY
 /// publish their own read-only context via `context` and their own gated actions
@@ -21,6 +34,9 @@ import Observation
     /// Lets this app open another app with an opaque payload, and retrieve a
     /// payload aimed at it. Added v4.
     var apps: PluginAppLauncher { get }
+    /// Lets this app read/override its own presentation (pane vs overlay).
+    /// The change applies on next open. Added v5.
+    var presentation: PluginPresentationControl { get }
 }
 
 /// Observable wrapper over `HostThemeTokens`. The host mutates it on a theme
