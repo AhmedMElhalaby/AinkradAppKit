@@ -62,7 +62,7 @@ public struct AinkradLoadingState: View {
 
     public var body: some View {
         VStack(spacing: AinkradSpacing.sm) {
-            ProgressView().controlSize(.regular).tint(theme.accentSecondary)
+            AinkradSpinner(size: 28)
             if let label {
                 Text(label)
                     .font(AinkradFontResolver.font(.caption, typography: typo))
