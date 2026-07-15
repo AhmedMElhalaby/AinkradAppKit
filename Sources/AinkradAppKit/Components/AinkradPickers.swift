@@ -92,6 +92,7 @@ public struct AinkradSelect<T: Hashable>: View {
     @State private var isOpen = false
     @State private var hoveredItem: T?
     @State private var triggerHeight: CGFloat = 0
+    @FocusState private var overlayFocused: Bool
 
     public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -127,14 +128,23 @@ public struct AinkradSelect<T: Hashable>: View {
                                 insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)),
                                 removal: .opacity
                             ))
+                            // Mouse-opened panels never receive keyboard focus
+                            // on their own, so `.onKeyPress` below would never
+                            // fire. Claim focus explicitly whenever the panel
+                            // materializes so Esc reliably dismisses it.
+                            .focusable()
+                            .focused($overlayFocused)
+                            .onKeyPress(.escape) {
+                                guard isOpen else { return .ignored }
+                                close()
+                                return .handled
+                            }
                     }
                     .zIndex(1)
                 }
             }
-            .onKeyPress(.escape) {
-                guard isOpen else { return .ignored }
-                close()
-                return .handled
+            .onChange(of: isOpen) { _, newValue in
+                if newValue { overlayFocused = true }
             }
     }
 
@@ -143,6 +153,7 @@ public struct AinkradSelect<T: Hashable>: View {
     }
     private func close() {
         withAnimation(reduceMotion ? nil : AinkradMotion.dismiss) { isOpen = false }
+        overlayFocused = false
     }
 
     private var trigger: some View {
@@ -223,6 +234,7 @@ public struct AinkradMultiSelect<T: Hashable>: View {
     @State private var isOpen = false
     @State private var hoveredItem: T?
     @State private var triggerHeight: CGFloat = 0
+    @FocusState private var overlayFocused: Bool
 
     public init(items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -256,14 +268,23 @@ public struct AinkradMultiSelect<T: Hashable>: View {
                                 insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)),
                                 removal: .opacity
                             ))
+                            // Mouse-opened panels never receive keyboard focus
+                            // on their own, so `.onKeyPress` below would never
+                            // fire. Claim focus explicitly whenever the panel
+                            // materializes so Esc reliably dismisses it.
+                            .focusable()
+                            .focused($overlayFocused)
+                            .onKeyPress(.escape) {
+                                guard isOpen else { return .ignored }
+                                close()
+                                return .handled
+                            }
                     }
                     .zIndex(1)
                 }
             }
-            .onKeyPress(.escape) {
-                guard isOpen else { return .ignored }
-                close()
-                return .handled
+            .onChange(of: isOpen) { _, newValue in
+                if newValue { overlayFocused = true }
             }
     }
 
@@ -272,6 +293,7 @@ public struct AinkradMultiSelect<T: Hashable>: View {
     }
     private func close() {
         withAnimation(reduceMotion ? nil : AinkradMotion.dismiss) { isOpen = false }
+        overlayFocused = false
     }
 
     private var trigger: some View {
