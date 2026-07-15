@@ -8,6 +8,14 @@ public enum PluginInfoKey {
     public static let iconSymbol = "AinkradIconSymbol"
     public static let apiVersion = "AinkradAPIVersion"
     public static let principalClass = "NSPrincipalClass"
+    public static let presentation = "AinkradPresentation"
+}
+
+/// How a plugin's window should be presented by the host. Defaults to `.pane`
+/// when the bundle omits `AinkradPresentation` or declares an unrecognized value.
+public enum PluginPresentation: String, Sendable {
+    case pane
+    case overlay
 }
 
 public struct PluginBundleMetadata: Equatable {
@@ -16,14 +24,17 @@ public struct PluginBundleMetadata: Equatable {
     public let iconSymbol: String
     public let apiVersion: Int
     public let principalClassName: String
+    public let presentation: PluginPresentation
 
     public init(appID: String, displayName: String, iconSymbol: String,
-                apiVersion: Int, principalClassName: String) {
+                apiVersion: Int, principalClassName: String,
+                presentation: PluginPresentation = .pane) {
         self.appID = appID
         self.displayName = displayName
         self.iconSymbol = iconSymbol
         self.apiVersion = apiVersion
         self.principalClassName = principalClassName
+        self.presentation = presentation
     }
 }
 
@@ -41,8 +52,10 @@ public extension PluginBundleMetadata {
         guard let icon = string(PluginInfoKey.iconSymbol) else { return .failure(.missingKey(PluginInfoKey.iconSymbol)) }
         guard let principal = string(PluginInfoKey.principalClass) else { return .failure(.missingKey(PluginInfoKey.principalClass)) }
         guard let api = dict[PluginInfoKey.apiVersion] as? Int else { return .failure(.invalidAPIVersion) }
+        let presentation = PluginPresentation(rawValue: (dict[PluginInfoKey.presentation] as? String) ?? "") ?? .pane
         return .success(PluginBundleMetadata(appID: appID, displayName: displayName,
                                              iconSymbol: icon, apiVersion: api,
-                                             principalClassName: principal))
+                                             principalClassName: principal,
+                                             presentation: presentation))
     }
 }

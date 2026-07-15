@@ -34,3 +34,35 @@ struct PluginBundleMetadataTests {
         #expect(PluginBundleMetadata.parse(infoDictionary: dict) == .failure(.invalidAPIVersion))
     }
 }
+
+@Suite("PluginBundleMetadata.presentation")
+struct PresentationMetadataTests {
+    private func base(_ extra: [String: Any] = [:]) -> [String: Any] {
+        var d: [String: Any] = [
+            PluginInfoKey.appID: "x",
+            PluginInfoKey.displayName: "X",
+            PluginInfoKey.iconSymbol: "star",
+            PluginInfoKey.apiVersion: 4,
+            PluginInfoKey.principalClass: "P",
+        ]
+        extra.forEach { d[$0] = $1 }
+        return d
+    }
+
+    @Test("reads AinkradPresentation: overlay")
+    func overlay() throws {
+        let m = try PluginBundleMetadata.parse(infoDictionary: base([PluginInfoKey.presentation: "overlay"])).get()
+        #expect(m.presentation == .overlay)
+    }
+
+    @Test("defaults to .pane when the key is absent")
+    func defaultsToPaneWhenAbsent() throws {
+        #expect(try PluginBundleMetadata.parse(infoDictionary: base()).get().presentation == .pane)
+    }
+
+    @Test("falls back to .pane for an unrecognized value")
+    func unrecognizedFallsBackToPane() throws {
+        let m = try PluginBundleMetadata.parse(infoDictionary: base([PluginInfoKey.presentation: "junk"])).get()
+        #expect(m.presentation == .pane)
+    }
+}
