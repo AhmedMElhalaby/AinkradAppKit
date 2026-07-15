@@ -34,3 +34,45 @@ struct AinkradSelectRowsTests {
         #expect(rows.allSatisfy { !$0.isSelected })
     }
 }
+
+@Suite("AinkradMultiSelect toggle")
+struct AinkradMultiSelectTests {
+    @Test("toggling an absent item adds it")
+    func adds() {
+        let result = toggledSelection("b", in: ["a"])
+        #expect(result == ["a", "b"])
+    }
+
+    @Test("toggling a present item removes it")
+    func removes() {
+        let result = toggledSelection("a", in: ["a", "b"])
+        #expect(result == ["b"])
+    }
+
+    @Test("toggling into an empty set")
+    func togglesIntoEmpty() {
+        let result = toggledSelection("a", in: [])
+        #expect(result == ["a"])
+    }
+}
+
+@Suite("AinkradCombobox filter")
+struct AinkradComboboxTests {
+    @Test("empty query returns all items")
+    func emptyQueryReturnsAll() {
+        let result = comboboxFilter(items: ["Alpha", "Beta"], query: "", label: { $0 })
+        #expect(result == ["Alpha", "Beta"])
+    }
+
+    @Test("query matches case-insensitively via label, substring anywhere")
+    func matchesCaseInsensitiveSubstring() {
+        let result = comboboxFilter(items: ["Alpha", "Beta", "Gamma"], query: "ph", label: { $0 })
+        #expect(result == ["Alpha"])
+    }
+
+    @Test("no matches returns empty")
+    func noMatches() {
+        let result = comboboxFilter(items: ["Alpha", "Beta"], query: "zzz", label: { $0 })
+        #expect(result.isEmpty)
+    }
+}
