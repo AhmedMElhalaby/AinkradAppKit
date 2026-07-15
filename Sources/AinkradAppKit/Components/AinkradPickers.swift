@@ -72,15 +72,36 @@ public func comboboxFilter<T>(items: [T], query: String, label: (T) -> String) -
     return items.filter { label($0).range(of: query, options: .caseInsensitive) != nil }
 }
 
-/// Custom Cardinal HUD dropdown — chamfer trigger field + an anchored,
-/// custom-drawn option panel (never a native `Menu`/`Picker`/`.popover`).
-/// Dismisses on selection, outside tap, or Esc. `isOpen` materializes the
-/// panel in via `AinkradMotion`.
-///
-/// v1 anchoring caveat: the panel is a same-tree `.overlay`, so it can be
-/// clipped by an ancestor that clips its bounds (e.g. `.clipShape` on a
-/// parent card). Fine for the Gallery's flat layout; a window-level
-/// presentation would be needed for tightly-clipped containers.
+/// Fades + scales option-panel content in on appear, then holds steady — the
+/// "materialize" look shared by every picker's floating panel content, now
+/// that the panel itself lives in a separate top-level `NSPanel` (so a
+/// SwiftUI `.transition` on the same view tree no longer applies). Skips the
+/// animation entirely under Reduce Motion.
+private struct PanelMaterialize<Content: View>: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
+    private let content: Content
+    init(@ViewBuilder content: () -> Content) { self.content = content() }
+    var body: some View {
+        content
+            .opacity(appeared ? 1 : 0)
+            .scaleEffect(appeared ? 1 : 0.96, anchor: .top)
+            .onAppear {
+                if reduceMotion {
+                    appeared = true
+                } else {
+                    withAnimation(AinkradMotion.materialize) { appeared = true }
+                }
+            }
+    }
+}
+
+/// Custom Cardinal HUD dropdown — chamfer trigger field + a custom-drawn
+/// option panel presented in a top-level `AinkradFloatingPanel` (never a
+/// native `Menu`/`Picker`/`.popover`), so it floats above ALL app content and
+/// is never clipped by an ancestor's bounds. Dismisses on selection, outside
+/// click, Esc, or the host window losing key/moving — all handled by the
+/// floating panel itself.
 public struct AinkradSelect<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T
@@ -88,11 +109,8 @@ public struct AinkradSelect<T: Hashable>: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isOpen = false
     @State private var hoveredItem: T?
-    @State private var triggerHeight: CGFloat = 0
-    @FocusState private var overlayFocused: Bool
 
     public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -100,61 +118,13 @@ public struct AinkradSelect<T: Hashable>: View {
 
     public var body: some View {
         trigger
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .onAppear { triggerHeight = proxy.size.height }
-                        .onChange(of: proxy.size.height) { _, newValue in triggerHeight = newValue }
-                }
-            )
-            .overlay(alignment: .topLeading) {
-                if isOpen {
-                    ZStack(alignment: .topLeading) {
-                        // Oversized, near-invisible tap catcher so an outside
-                        // tap dismisses the panel. Sits in the overlay layer,
-                        // so it doesn't affect this view's reported size.
-                        // Starts below the trigger (not covering it), so a
-                        // click on the trigger itself still reaches the
-                        // trigger's own Button rather than closing-then-reopening.
-                        Color.black.opacity(0.0001)
-                            .frame(width: 4000, height: 4000)
-                            .offset(x: -2000, y: triggerHeight)
-                            .contentShape(Rectangle())
-                            .onTapGesture { close() }
-
-                        optionsPanel
-                            .offset(y: triggerHeight + AinkradSpacing.xs)
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)),
-                                removal: .opacity
-                            ))
-                            // Mouse-opened panels never receive keyboard focus
-                            // on their own, so `.onKeyPress` below would never
-                            // fire. Claim focus explicitly whenever the panel
-                            // materializes so Esc reliably dismisses it.
-                            .focusable()
-                            .focused($overlayFocused)
-                            .onKeyPress(.escape) {
-                                guard isOpen else { return .ignored }
-                                close()
-                                return .handled
-                            }
-                    }
-                    .zIndex(1)
-                }
-            }
-            .onChange(of: isOpen) { _, newValue in
-                if newValue { overlayFocused = true }
+            .ainkradFloatingPanel(isPresented: $isOpen) {
+                PanelMaterialize { optionsPanel }
             }
     }
 
-    private func open() {
-        withAnimation(reduceMotion ? nil : AinkradMotion.materialize) { isOpen = true }
-    }
-    private func close() {
-        withAnimation(reduceMotion ? nil : AinkradMotion.dismiss) { isOpen = false }
-        overlayFocused = false
-    }
+    private func open() { isOpen = true }
+    private func close() { isOpen = false }
 
     private var trigger: some View {
         Button {
@@ -230,11 +200,8 @@ public struct AinkradMultiSelect<T: Hashable>: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var isOpen = false
     @State private var hoveredItem: T?
-    @State private var triggerHeight: CGFloat = 0
-    @FocusState private var overlayFocused: Bool
 
     public init(items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -246,55 +213,13 @@ public struct AinkradMultiSelect<T: Hashable>: View {
 
     public var body: some View {
         trigger
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .onAppear { triggerHeight = proxy.size.height }
-                        .onChange(of: proxy.size.height) { _, newValue in triggerHeight = newValue }
-                }
-            )
-            .overlay(alignment: .topLeading) {
-                if isOpen {
-                    ZStack(alignment: .topLeading) {
-                        Color.black.opacity(0.0001)
-                            .frame(width: 4000, height: 4000)
-                            .offset(x: -2000, y: triggerHeight)
-                            .contentShape(Rectangle())
-                            .onTapGesture { close() }
-
-                        optionsPanel
-                            .offset(y: triggerHeight + AinkradSpacing.xs)
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)),
-                                removal: .opacity
-                            ))
-                            // Mouse-opened panels never receive keyboard focus
-                            // on their own, so `.onKeyPress` below would never
-                            // fire. Claim focus explicitly whenever the panel
-                            // materializes so Esc reliably dismisses it.
-                            .focusable()
-                            .focused($overlayFocused)
-                            .onKeyPress(.escape) {
-                                guard isOpen else { return .ignored }
-                                close()
-                                return .handled
-                            }
-                    }
-                    .zIndex(1)
-                }
-            }
-            .onChange(of: isOpen) { _, newValue in
-                if newValue { overlayFocused = true }
+            .ainkradFloatingPanel(isPresented: $isOpen) {
+                PanelMaterialize { optionsPanel }
             }
     }
 
-    private func open() {
-        withAnimation(reduceMotion ? nil : AinkradMotion.materialize) { isOpen = true }
-    }
-    private func close() {
-        withAnimation(reduceMotion ? nil : AinkradMotion.dismiss) { isOpen = false }
-        overlayFocused = false
-    }
+    private func open() { isOpen = true }
+    private func close() { isOpen = false }
 
     private var trigger: some View {
         Button {
@@ -366,9 +291,11 @@ public struct AinkradMultiSelect<T: Hashable>: View {
 }
 
 /// Text-entry + filtered custom option list. Typing filters `items` (via
-/// `comboboxFilter`); picking a row sets both `selection` and `text`.
-/// Freeform typing without a pick leaves `selection` nil. Custom overlay
-/// only — no native menu/popover/list chrome.
+/// `comboboxFilter`); picking a row sets both `selection` and `text`. The
+/// option list is presented in a top-level `AinkradFloatingPanel`, so it's
+/// never clipped and floats above all app content. Freeform typing without a
+/// pick leaves `selection` nil. Custom panel only — no native
+/// menu/popover/list chrome.
 public struct AinkradCombobox<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T?
@@ -377,10 +304,8 @@ public struct AinkradCombobox<T: Hashable>: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @FocusState private var isFocused: Bool
     @State private var hoveredItem: T?
-    @State private var fieldHeight: CGFloat = 0
 
     public init(items: [T], selection: Binding<T?>, text: Binding<String>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self._text = text; self.label = label
@@ -389,40 +314,22 @@ public struct AinkradCombobox<T: Hashable>: View {
     private var filtered: [T] { comboboxFilter(items: items, query: text, label: label) }
     private var isOpen: Bool { isFocused && !filtered.isEmpty }
 
+    /// Bridges the panel's `isPresented` binding to `isFocused`: the panel
+    /// reads whether it should be open (focused with matches) and, on its own
+    /// dismissal (Esc / outside click / window losing key), writes `false`
+    /// back by clearing focus.
+    private var panelBinding: Binding<Bool> {
+        Binding(
+            get: { isOpen },
+            set: { newValue in if !newValue { isFocused = false } }
+        )
+    }
+
     public var body: some View {
         field
-            .background(
-                GeometryReader { proxy in
-                    Color.clear
-                        .onAppear { fieldHeight = proxy.size.height }
-                        .onChange(of: proxy.size.height) { _, newValue in fieldHeight = newValue }
-                }
-            )
-            .overlay(alignment: .topLeading) {
-                if isOpen {
-                    ZStack(alignment: .topLeading) {
-                        Color.black.opacity(0.0001)
-                            .frame(width: 4000, height: 4000)
-                            .offset(x: -2000, y: fieldHeight)
-                            .contentShape(Rectangle())
-                            .onTapGesture { isFocused = false }
-
-                        optionsPanel
-                            .offset(y: fieldHeight + AinkradSpacing.xs)
-                            .transition(.asymmetric(
-                                insertion: .opacity.combined(with: .scale(scale: 0.96, anchor: .top)),
-                                removal: .opacity
-                            ))
-                    }
-                    .zIndex(1)
-                }
+            .ainkradFloatingPanel(isPresented: panelBinding) {
+                PanelMaterialize { optionsPanel }
             }
-            .onKeyPress(.escape) {
-                guard isFocused else { return .ignored }
-                isFocused = false
-                return .handled
-            }
-            .animation(reduceMotion ? nil : AinkradMotion.materialize, value: isOpen)
     }
 
     private var field: some View {
@@ -457,6 +364,142 @@ public struct AinkradCombobox<T: Hashable>: View {
             selection = item
             text = label(item)
             isFocused = false
+        } label: {
+            HStack(spacing: AinkradSpacing.xs) {
+                Image(systemName: "diamond.fill")
+                    .font(.system(size: 6))
+                    .foregroundStyle(theme.accentSecondary)
+                    .opacity(isSelected ? 1 : 0)
+                Text(label(item))
+                    .font(AinkradFontResolver.font(.body, typography: typo))
+                    .foregroundStyle(theme.foreground)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, AinkradSpacing.sm)
+            .padding(.vertical, AinkradSpacing.xs + 2)
+            .background(ChamferShape(cut: 4).fill(isHovered ? theme.accentSecondary.opacity(0.18) : .clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .animation(AinkradMotion.hover, value: isHovered)
+        .onHover { hovering in hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem) }
+    }
+}
+
+/// `AinkradSelect` with a live-filter search field pinned to the top of its
+/// floating panel — reuses `comboboxFilter` so typing narrows the option
+/// rows below it. Click to choose (or Enter to pick the top match); Esc and
+/// outside-click dismissal are handled by the shared floating panel. Same
+/// NO-native-menu contract as the rest of the pickers.
+public struct AinkradSearchableSelect<T: Hashable>: View {
+    private let items: [T]
+    @Binding private var selection: T
+    private let label: (T) -> String
+    private let placeholder: String
+
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradTypography) private var typo
+    @State private var isOpen = false
+    @State private var query = ""
+    @State private var hoveredItem: T?
+    @FocusState private var searchFocused: Bool
+
+    public init(
+        items: [T],
+        selection: Binding<T>,
+        label: @escaping (T) -> String,
+        placeholder: String = "Search…"
+    ) {
+        self.items = items; self._selection = selection; self.label = label; self.placeholder = placeholder
+    }
+
+    private var filtered: [T] { comboboxFilter(items: items, query: query, label: label) }
+
+    public var body: some View {
+        trigger
+            .ainkradFloatingPanel(isPresented: $isOpen) {
+                PanelMaterialize { optionsPanel }
+            }
+            .onChange(of: isOpen) { _, newValue in
+                if newValue {
+                    query = ""
+                    searchFocused = true
+                }
+            }
+    }
+
+    private func open() { isOpen = true }
+    private func close() { isOpen = false }
+
+    private var trigger: some View {
+        Button {
+            isOpen ? close() : open()
+        } label: {
+            HStack(spacing: AinkradSpacing.xs) {
+                Text(label(selection))
+                    .font(AinkradFontResolver.font(.body, typography: typo))
+                    .foregroundStyle(theme.foreground)
+                Spacer(minLength: AinkradSpacing.sm)
+                Image(systemName: isOpen ? "chevron.up" : "chevron.down")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(theme.accentSecondary.opacity(0.85))
+            }
+            .padding(.horizontal, AinkradSpacing.md)
+            .padding(.vertical, AinkradSpacing.sm)
+            .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.5)))
+            .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentPrimary.opacity(isOpen ? 0.75 : 0.3), lineWidth: 1.25))
+            .shadow(color: theme.accentPrimary.opacity(isOpen ? 0.4 : 0), radius: isOpen ? 5 : 0)
+            .contentShape(ChamferShape(cut: 8))
+        }
+        .buttonStyle(.plain)
+        .animation(AinkradMotion.hover, value: isOpen)
+    }
+
+    private var optionsPanel: some View {
+        VStack(alignment: .leading, spacing: AinkradSpacing.xs) {
+            searchField
+            if filtered.isEmpty {
+                Text("No matches")
+                    .font(AinkradFontResolver.font(.caption, typography: typo))
+                    .foregroundStyle(theme.foreground.opacity(0.5))
+                    .padding(.horizontal, AinkradSpacing.sm)
+                    .padding(.vertical, AinkradSpacing.xs)
+            } else {
+                ForEach(filtered, id: \.self) { item in optionRow(item) }
+            }
+        }
+        .padding(AinkradSpacing.xs)
+        .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
+        .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
+        .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
+        .frame(minWidth: 200)
+    }
+
+    private var searchField: some View {
+        TextField(placeholder, text: $query)
+            .textFieldStyle(.plain)
+            .focused($searchFocused)
+            .font(AinkradFontResolver.font(.body, typography: typo))
+            .foregroundStyle(theme.foreground)
+            .tint(theme.accentSecondary)
+            .onSubmit {
+                if let first = filtered.first {
+                    selection = first
+                    close()
+                }
+            }
+            .padding(.horizontal, AinkradSpacing.sm)
+            .padding(.vertical, AinkradSpacing.xs + 2)
+            .background(ChamferShape(cut: 4).fill(theme.surface.opacity(0.7)))
+            .overlay(ChamferShape(cut: 4).strokeBorder(theme.accentPrimary.opacity(0.3), lineWidth: 1))
+    }
+
+    private func optionRow(_ item: T) -> some View {
+        let isSelected = item == selection
+        let isHovered = hoveredItem == item
+        return Button {
+            selection = item
+            close()
         } label: {
             HStack(spacing: AinkradSpacing.xs) {
                 Image(systemName: "diamond.fill")
