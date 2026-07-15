@@ -34,16 +34,8 @@ public struct AinkradEmptyState: View {
                     .multilineTextAlignment(.center)
             }
             if hasAction, let actionTitle, let action {
-                Button(action: action) {
-                    Text(actionTitle)
-                        .font(AinkradFontResolver.font(.body, weight: .medium, typography: typo))
-                        .foregroundStyle(theme.accentPrimary.contrastingText)
-                        .padding(.horizontal, AinkradSpacing.lg)
-                        .padding(.vertical, AinkradSpacing.sm)
-                        .background(RoundedRectangle(cornerRadius: AinkradRadius.sm).fill(theme.accentPrimary.opacity(0.9)))
-                }
-                .buttonStyle(.plain)
-                .padding(.top, AinkradSpacing.xs)
+                AinkradButton(title: actionTitle, style: .primary, action: action)
+                    .padding(.top, AinkradSpacing.xs)
             }
         }
         .padding(AinkradSpacing.xl)
@@ -81,6 +73,7 @@ public struct AinkradErrorState: View {
     private let retry: (() -> Void)?
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
+    @Environment(\.ainkradStatusColors) private var statusColors
 
     public init(message: String, retryTitle: String? = nil, retry: (() -> Void)? = nil) {
         self.message = message; self.retryTitle = retryTitle; self.retry = retry
@@ -92,22 +85,16 @@ public struct AinkradErrorState: View {
         VStack(spacing: AinkradSpacing.md) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: AinkradTypeRole.title.size))
-                .foregroundStyle(theme.accentTertiary.opacity(0.8))
+                .foregroundStyle(statusColors.danger)
+                .padding(AinkradSpacing.md)
+                .background(ChamferShape(cut: 8).fill(statusColors.danger.opacity(0.12)))
+                .overlay(ChamferShape(cut: 8).strokeBorder(statusColors.danger.opacity(0.45), lineWidth: 1.25))
             Text(message)
                 .font(AinkradFontResolver.font(.body, typography: typo))
                 .foregroundStyle(theme.foreground.opacity(0.75))
                 .multilineTextAlignment(.center)
             if hasRetry, let retryTitle, let retry {
-                Button(action: retry) {
-                    Text(retryTitle)
-                        .font(AinkradFontResolver.font(.body, weight: .medium, typography: typo))
-                        .foregroundStyle(theme.accentPrimary)
-                        .padding(.horizontal, AinkradSpacing.lg)
-                        .padding(.vertical, AinkradSpacing.sm)
-                        .background(RoundedRectangle(cornerRadius: AinkradRadius.sm).fill(theme.surfaceElevated.opacity(0.6)))
-                        .overlay(RoundedRectangle(cornerRadius: AinkradRadius.sm).strokeBorder(theme.accentPrimary.opacity(0.3), lineWidth: 1))
-                }
-                .buttonStyle(.plain)
+                AinkradButton(title: retryTitle, style: .secondary, icon: "arrow.clockwise", action: retry)
             }
         }
         .padding(AinkradSpacing.xl)
