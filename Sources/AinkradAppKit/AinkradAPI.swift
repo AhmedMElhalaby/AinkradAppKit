@@ -1,7 +1,7 @@
 import Foundation
 
 /// The public entry namespace for the Ainkrad Built-in App SDK.
-public enum AinkradAPI {
+public enum AinkradAppKit {
     /// The API generation this SDK represents. A plugin bundle records the
     /// value it was built against; the host loads it only if that value is
     /// within the host's supported range.
@@ -13,6 +13,3 @@ public enum AinkradAPI {
         bundleAPIVersion >= minSupported && bundleAPIVersion <= current
     }
 }
-
-// Legacy alias for compatibility.
-public typealias AinkradAppKit = AinkradAPI
