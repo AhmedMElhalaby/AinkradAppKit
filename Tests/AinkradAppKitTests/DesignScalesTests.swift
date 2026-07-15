@@ -20,3 +20,14 @@ struct AinkradSpacingTests {
         #expect(zip(steps, steps.dropFirst()).allSatisfy { $0 < $1 })
     }
 }
+
+@Suite("AinkradRadius")
+struct AinkradRadiusTests {
+    @Test("radius steps; panel stays 14 to preserve current chrome")
+    func steps() {
+        #expect(AinkradRadius.sm == 8)
+        #expect(AinkradRadius.md == 12)
+        #expect(AinkradRadius.lg == 14)
+        #expect(AinkradRadius.panel == 14)
+    }
+}

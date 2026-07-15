@@ -14,3 +14,11 @@ public enum AinkradSpacing {
     public static let xl: CGFloat = 24
     public static let xxl: CGFloat = 32
 }
+
+/// Corner-radius steps. `panel` is the standard overlay/HUD radius.
+public enum AinkradRadius {
+    public static let sm: CGFloat = 8
+    public static let md: CGFloat = 12
+    public static let lg: CGFloat = 14
+    public static let panel: CGFloat = 14
+}
