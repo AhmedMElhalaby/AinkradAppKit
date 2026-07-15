@@ -5,12 +5,16 @@ public func pickerSelectionIndex<T: Hashable>(items: [T], selection: T) -> Int? 
     items.firstIndex(of: selection)
 }
 
+/// Custom segmented control — chamfer segments with a luminous accent fill
+/// on the selected item and a hover glow on the rest (never a native
+/// `Picker`).
 public struct AinkradSegmentedPicker<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T
     private let label: (T) -> String
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
+    @State private var hoveredItem: T?
 
     public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
@@ -26,17 +30,22 @@ public struct AinkradSegmentedPicker<T: Hashable>: View {
     }
     @ViewBuilder private func segment(_ item: T) -> some View {
         let selected = item == selection
+        let hovered = hoveredItem == item
         Button { selection = item } label: {
             Text(label(item))
                 .font(AinkradFontResolver.font(.caption, weight: selected ? .medium : .regular, typography: typo))
                 .foregroundStyle(selected ? theme.accentPrimary.contrastingText : theme.foreground.opacity(0.75))
                 .padding(.horizontal, AinkradSpacing.md).padding(.vertical, AinkradSpacing.xs + 2)
-                .background(RoundedRectangle(cornerRadius: AinkradRadius.sm)
-                    .fill(selected ? theme.accentPrimary.opacity(0.9) : theme.surfaceElevated.opacity(0.5)))
-                .overlay(RoundedRectangle(cornerRadius: AinkradRadius.sm)
-                    .strokeBorder(theme.accentPrimary.opacity(selected ? 0 : 0.15), lineWidth: 1))
-                .contentShape(Rectangle())
-        }.buttonStyle(.plain)
+                .background(ChamferShape(cut: 5)
+                    .fill(selected ? theme.accentPrimary.opacity(0.9) : theme.surfaceElevated.opacity(hovered ? 0.65 : 0.5)))
+                .overlay(ChamferShape(cut: 5)
+                    .strokeBorder(theme.accentPrimary.opacity(selected ? 0 : (hovered ? 0.5 : 0.15)), lineWidth: 1))
+                .shadow(color: theme.accentPrimary.opacity(selected ? 0.4 : 0), radius: selected ? 5 : 0)
+                .contentShape(ChamferShape(cut: 5))
+        }
+        .buttonStyle(.plain)
+        .animation(AinkradMotion.hover, value: hovered)
+        .onHover { hovering in hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem) }
     }
 }
 
