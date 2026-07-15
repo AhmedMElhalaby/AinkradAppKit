@@ -79,10 +79,14 @@ public struct HostThemeTokens: Equatable, Sendable {
     public let accentSecondary: Color
     public let accentTertiary: Color
     public let foreground: Color
+    public let success: Color
+    public let warning: Color
+    public let danger: Color
 
     public init(themeID: String, background: Color, surface: Color, surfaceElevated: Color,
                 accentPrimary: Color, accentSecondary: Color, accentTertiary: Color,
-                foreground: Color) {
+                foreground: Color,
+                success: Color = .green, warning: Color = .yellow, danger: Color = .red) {
         self.themeID = themeID
         self.background = background
         self.surface = surface
@@ -91,5 +95,8 @@ public struct HostThemeTokens: Equatable, Sendable {
         self.accentSecondary = accentSecondary
         self.accentTertiary = accentTertiary
         self.foreground = foreground
+        self.success = success
+        self.warning = warning
+        self.danger = danger
     }
 }
