@@ -40,3 +40,22 @@ struct ToastQueueTests {
         #expect(toastQueueExpiring([], now: Date()).isEmpty)
     }
 }
+
+@Suite("Toast center dismiss")
+struct ToastCenterDismissTests {
+    @Test("dismissing one toast removes only that toast, leaving the other")
+    @MainActor
+    func dismissRemovesOnlyTargetedToast() {
+        let center = AinkradToastCenter()
+        center.show("first", duration: 60)
+        center.show("second", duration: 60)
+
+        #expect(center.items.count == 2)
+        let firstID = center.items[0].id
+
+        center.dismiss(firstID)
+
+        #expect(center.items.count == 1)
+        #expect(center.items.first?.message == "second")
+    }
+}

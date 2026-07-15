@@ -53,7 +53,7 @@ public final class AinkradToastCenter {
 
     /// Removes a toast immediately (e.g. a manual dismiss tap).
     public func dismiss(_ id: AinkradToastItem.ID) {
-        items = toastQueueExpiring(items.filter { $0.id != id }, now: .distantFuture)
+        items = items.filter { $0.id != id }
     }
 }
 
