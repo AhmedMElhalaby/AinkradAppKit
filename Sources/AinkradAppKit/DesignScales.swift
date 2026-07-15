@@ -54,3 +54,20 @@ public enum AinkradMotion {
     public static var present: Animation { .easeOut(duration: durationBase) }
     public static var dismiss: Animation { .easeIn(duration: durationFast) }
 }
+
+/// Named typography roles with base point sizes. The host's `AinkradFont`
+/// applies the user's font scale/family on top of these.
+public enum AinkradTypeRole: CaseIterable {
+    case display, title, headline, body, caption, mono
+
+    public var size: CGFloat {
+        switch self {
+        case .display:  return 28
+        case .title:    return 20
+        case .headline: return 16
+        case .body:     return 14
+        case .caption:  return 11
+        case .mono:     return 13
+        }
+    }
+}

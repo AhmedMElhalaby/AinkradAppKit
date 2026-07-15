@@ -58,3 +58,22 @@ struct AinkradMotionTests {
         #expect(AinkradMotion.durationBase < AinkradMotion.durationSlow)
     }
 }
+
+@Suite("AinkradTypeRole")
+struct AinkradTypeRoleTests {
+    @Test("role base sizes match the documented ramp")
+    func sizes() {
+        #expect(AinkradTypeRole.display.size == 28)
+        #expect(AinkradTypeRole.title.size == 20)
+        #expect(AinkradTypeRole.headline.size == 16)
+        #expect(AinkradTypeRole.body.size == 14)
+        #expect(AinkradTypeRole.caption.size == 11)
+        #expect(AinkradTypeRole.mono.size == 13)
+    }
+
+    @Test("display is the largest role")
+    func displayLargest() {
+        let maxSize = AinkradTypeRole.allCases.map(\.size).max()
+        #expect(maxSize == AinkradTypeRole.display.size)
+    }
+}
