@@ -1,5 +1,6 @@
 import Testing
 import CoreGraphics
+import SwiftUI
 @testable import AinkradAppKit
 
 @Suite("AinkradSpacing")
@@ -29,5 +30,19 @@ struct AinkradRadiusTests {
         #expect(AinkradRadius.md == 12)
         #expect(AinkradRadius.lg == 14)
         #expect(AinkradRadius.panel == 14)
+    }
+}
+
+@Suite("AinkradElevation")
+struct AinkradElevationTests {
+    @Test("level0 is a no-op shadow")
+    func flat() {
+        #expect(AinkradElevation.level0 == ShadowSpec(color: .clear, radius: 0, x: 0, y: 0))
+    }
+
+    @Test("elevation deepens with level")
+    func deepens() {
+        #expect(AinkradElevation.level1.radius < AinkradElevation.level2.radius)
+        #expect(AinkradElevation.level1.y < AinkradElevation.level2.y)
     }
 }
