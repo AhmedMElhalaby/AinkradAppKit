@@ -77,3 +77,18 @@ struct AinkradTypeRoleTests {
         #expect(maxSize == AinkradTypeRole.display.size)
     }
 }
+
+@Suite("AinkradAPI v6")
+struct AinkradAPIVersionTests {
+    @Test("scales shipped in the v6 API")
+    func versionIsSix() {
+        #expect(AinkradAPI.apiVersion == 6)
+    }
+
+    @Test("v4 plugins remain loadable under a v6 host (additive bump)")
+    func v4StillCompatible() {
+        #expect(AinkradAPI.isCompatible(bundleAPIVersion: 4, minSupported: 4, current: 6))
+        #expect(AinkradAPI.isCompatible(bundleAPIVersion: 6, minSupported: 4, current: 6))
+        #expect(!AinkradAPI.isCompatible(bundleAPIVersion: 7, minSupported: 4, current: 6))
+    }
+}

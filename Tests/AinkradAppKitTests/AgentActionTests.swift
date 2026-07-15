@@ -44,8 +44,8 @@ struct AgentActionTests {
         #expect(result == nil)
     }
 
-    @Test("apiVersion is 5")
+    @Test("apiVersion is 6")
     func apiVersionBumped() {
-        #expect(AinkradAppKit.apiVersion == 5)
+        #expect(AinkradAppKit.apiVersion == 6)
     }
 }
