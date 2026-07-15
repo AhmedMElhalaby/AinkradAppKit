@@ -128,14 +128,21 @@ public struct AinkradSectionHeader: View {
     }
     public var body: some View {
         VStack(alignment: .leading, spacing: AinkradSpacing.xs / 2) {
-            Text(title.uppercased())
-                .font(AinkradFontResolver.font(.caption, weight: .semibold, typography: typo))
-                .foregroundStyle(theme.foreground.opacity(0.55))
-                .tracking(0.6)
+            HStack(spacing: AinkradSpacing.xs) {
+                Rectangle()
+                    .fill(theme.accentSecondary)
+                    .frame(width: 12, height: 2)
+                    .shadow(color: theme.accentSecondary.opacity(0.6), radius: 2)
+                Text(title.uppercased())
+                    .font(AinkradFontResolver.font(.caption, weight: .semibold, typography: typo))
+                    .foregroundStyle(theme.foreground.opacity(0.65))
+                    .tracking(1.2)
+            }
             if let subtitle {
                 Text(subtitle)
                     .font(AinkradFontResolver.font(.caption, typography: typo))
                     .foregroundStyle(theme.foreground.opacity(0.4))
+                    .padding(.leading, 12 + AinkradSpacing.xs)
             }
         }
         .padding(.horizontal, AinkradSpacing.sm)
