@@ -74,32 +74,63 @@ public struct AinkradStatusBar: View {
 /// static at `0`; otherwise the toggle drives the looping `.animation(...)`
 /// between `0` and a full turn. Pure — unit-testable without SwiftUI's
 /// animation runtime.
+///
+/// Retained for the `isSpinning` toggle semantics it documents; `AinkradSpinner`
+/// itself no longer drives rotation this way (see its doc comment) since a
+/// `repeatForever` `.animation` tied to an `onAppear`-toggled `@State` proved
+/// unreliable on this toolchain — it drives rotation from `TimelineView`'s
+/// frame clock instead, which needs no toggle/animation trigger at all.
 public func spinnerRotationAngle(reduceMotion: Bool, isSpinning: Bool) -> Double {
     guard !reduceMotion else { return 0 }
     return isSpinning ? 360 : 0
+}
+
+/// The rotation angle (degrees) for `AinkradSpinner`'s frame-driven spin at a
+/// given wall-clock `date`, completing one full turn every `period` seconds.
+/// Pure — unit-testable without SwiftUI's animation runtime. A non-positive
+/// `period` yields `0` rather than dividing by zero.
+public func spinnerTimelineAngle(date: Date, period: TimeInterval = 1) -> Double {
+    guard period > 0 else { return 0 }
+    let elapsed = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: period)
+    return (elapsed / period) * 360
 }
 
 /// Custom rotating arc "reactor ring" — the Cardinal HUD stand-in for
 /// `ProgressView`'s spinner. Freezes as a static ring under Reduce Motion
 /// instead of animating.
 ///
-/// Drives the spin via a `Bool` toggled once in `.onAppear`, matched with an
-/// `.animation(_:value:)` on the container (rather than wrapping the state
-/// change itself in `withAnimation`) — the more robust pattern for a
-/// `repeatForever` loop that needs to keep running for the view's entire
-/// lifetime, not just the instant it appears.
+/// Drives the rotation from `TimelineView(.animation)`'s per-frame `context.date`
+/// via `spinnerTimelineAngle(date:period:)` rather than a `@State` toggle
+/// matched with `.animation(_:value:).repeatForever(...)` — that pattern did
+/// not reliably start spinning on this toolchain (SwiftUI sometimes never
+/// picks up the `onAppear`-driven state change). Reading the frame clock
+/// directly sidesteps that: there is no toggle to miss, so the ring always
+/// animates once mounted. Reduce Motion renders a fully static ring instead
+/// of subscribing to the timeline at all.
 public struct AinkradSpinner: View {
     private let size: CGFloat
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var isSpinning = false
 
     public init(size: CGFloat = 20) {
         self.size = size
     }
 
     public var body: some View {
+        Group {
+            if reduceMotion {
+                ring(angle: .zero)
+            } else {
+                TimelineView(.animation) { context in
+                    ring(angle: .degrees(spinnerTimelineAngle(date: context.date)))
+                }
+            }
+        }
+        .frame(width: size, height: size)
+    }
+
+    private func ring(angle: Angle) -> some View {
         ZStack {
             Circle()
                 .stroke(theme.foreground.opacity(0.12), lineWidth: max(1.5, size * 0.08))
@@ -107,13 +138,7 @@ public struct AinkradSpinner: View {
                 .trim(from: 0, to: 0.28)
                 .stroke(theme.accentSecondary, style: StrokeStyle(lineWidth: max(1.5, size * 0.08), lineCap: .round))
                 .shadow(color: theme.accentSecondary.opacity(0.6), radius: 3)
-                .rotationEffect(.degrees(spinnerRotationAngle(reduceMotion: reduceMotion, isSpinning: isSpinning)))
-        }
-        .frame(width: size, height: size)
-        .animation(reduceMotion ? nil : .linear(duration: 0.9).repeatForever(autoreverses: false), value: isSpinning)
-        .onAppear {
-            guard !reduceMotion else { return }
-            isSpinning = true
+                .rotationEffect(angle)
         }
     }
 }

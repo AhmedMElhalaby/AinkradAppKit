@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import AinkradAppKit
 
@@ -57,5 +58,33 @@ struct SpinnerRotationAngleTests {
     @Test("spinning targets a full turn, which the looping .animation(...) drives continuously")
     func spinningTargetsFullTurn() {
         #expect(spinnerRotationAngle(reduceMotion: false, isSpinning: true) == 360)
+    }
+}
+
+@Suite("spinnerTimelineAngle")
+struct SpinnerTimelineAngleTests {
+    @Test("start of a period is angle 0")
+    func start() {
+        let date = Date(timeIntervalSinceReferenceDate: 10)
+        #expect(spinnerTimelineAngle(date: date, period: 1) == 0)
+    }
+
+    @Test("halfway through the period is 180 degrees")
+    func halfway() {
+        let date = Date(timeIntervalSinceReferenceDate: 10.5)
+        #expect(spinnerTimelineAngle(date: date, period: 1) == 180)
+    }
+
+    @Test("wraps around at the period boundary")
+    func wraps() {
+        let date = Date(timeIntervalSinceReferenceDate: 2.75)
+        #expect(spinnerTimelineAngle(date: date, period: 1) == 270)
+    }
+
+    @Test("a non-positive period yields 0 rather than dividing by zero")
+    func nonPositivePeriod() {
+        let date = Date(timeIntervalSinceReferenceDate: 5)
+        #expect(spinnerTimelineAngle(date: date, period: 0) == 0)
+        #expect(spinnerTimelineAngle(date: date, period: -1) == 0)
     }
 }
