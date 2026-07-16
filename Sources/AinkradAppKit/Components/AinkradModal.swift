@@ -28,8 +28,6 @@ private struct AinkradModalModifier<ModalContent: View>: ViewModifier {
                         .padding(AinkradSpacing.lg)
                         .frame(maxWidth: 480)
                         .ainkradPanel(showsBrackets: true)
-                        .ainkradEdgeRing()
-                        .ainkradPanelGlow()
                         .transition(
                             reduceMotion
                                 ? .opacity
@@ -79,8 +77,6 @@ private struct AinkradSheetModifier<SheetContent: View>: ViewModifier {
                         .padding(AinkradSpacing.lg)
                         .frame(maxWidth: isHorizontalEdge ? .infinity : 360)
                         .ainkradPanel(showsBrackets: true)
-                        .ainkradEdgeRing()
-                        .ainkradPanelGlow()
                         .transition(
                             reduceMotion
                                 ? .opacity

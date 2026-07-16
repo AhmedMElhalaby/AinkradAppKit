@@ -71,8 +71,6 @@ private struct AinkradContextMenuList: View {
         }
         .padding(AinkradSpacing.xs)
         .ainkradPanel()
-        .ainkradEdgeRing()
-        .ainkradPanelGlow()
     }
 }
 

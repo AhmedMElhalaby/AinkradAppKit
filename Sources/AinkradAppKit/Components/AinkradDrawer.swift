@@ -26,8 +26,6 @@ private struct AinkradDrawerModifier<DrawerContent: View>: ViewModifier {
                         .frame(width: width)
                         .frame(maxHeight: .infinity, alignment: .top)
                         .ainkradPanel(showsBrackets: true)
-                        .ainkradEdgeRing()
-                        .ainkradPanelGlow()
                         .transition(
                             reduceMotion
                                 ? .opacity

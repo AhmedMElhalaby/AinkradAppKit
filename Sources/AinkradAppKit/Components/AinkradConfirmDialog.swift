@@ -37,8 +37,6 @@ struct AinkradConfirmDialogCard: View {
         .padding(AinkradSpacing.lg)
         .frame(maxWidth: 360)
         .ainkradPanel(showsBrackets: true)
-        .ainkradEdgeRing()
-        .ainkradPanelGlow()
     }
 }
 
