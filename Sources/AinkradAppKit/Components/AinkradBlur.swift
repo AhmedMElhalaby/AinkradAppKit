@@ -45,7 +45,7 @@ private struct EdgeRing: ViewModifier {
     @Environment(\.ainkradTheme) private var theme
     func body(content: Content) -> some View {
         content.overlay(
-            RoundedRectangle(cornerRadius: radius)
+            ChamferShape(cut: radius)
                 .strokeBorder(
                     LinearGradient(colors: [theme.accentSecondary.opacity(0.45),
                                             theme.accentPrimary.opacity(0.18)],
