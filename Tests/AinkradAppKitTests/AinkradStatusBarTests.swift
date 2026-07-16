@@ -40,3 +40,22 @@ struct FilledSegmentsTests {
         #expect(filledSegments(value: 2, total: 3, segments: 12) == 8)
     }
 }
+
+@Suite("spinnerRotationAngle")
+struct SpinnerRotationAngleTests {
+    @Test("reduce motion pins the ring static at 0, even mid-spin")
+    func reduceMotionIsStatic() {
+        #expect(spinnerRotationAngle(reduceMotion: true, isSpinning: false) == 0)
+        #expect(spinnerRotationAngle(reduceMotion: true, isSpinning: true) == 0)
+    }
+
+    @Test("not spinning yet targets 0")
+    func notYetSpinning() {
+        #expect(spinnerRotationAngle(reduceMotion: false, isSpinning: false) == 0)
+    }
+
+    @Test("spinning targets a full turn, which the looping .animation(...) drives continuously")
+    func spinningTargetsFullTurn() {
+        #expect(spinnerRotationAngle(reduceMotion: false, isSpinning: true) == 360)
+    }
+}

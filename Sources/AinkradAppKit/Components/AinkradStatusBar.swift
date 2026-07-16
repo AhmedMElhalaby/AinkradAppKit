@@ -68,15 +68,32 @@ public struct AinkradStatusBar: View {
     }
 }
 
+/// The rotation angle (degrees) `AinkradSpinner`'s animated arc should target
+/// for its `.rotationEffect`, given whether Reduce Motion is active and
+/// whether the spin has been toggled on. Reduce Motion always pins the ring
+/// static at `0`; otherwise the toggle drives the looping `.animation(...)`
+/// between `0` and a full turn. Pure — unit-testable without SwiftUI's
+/// animation runtime.
+public func spinnerRotationAngle(reduceMotion: Bool, isSpinning: Bool) -> Double {
+    guard !reduceMotion else { return 0 }
+    return isSpinning ? 360 : 0
+}
+
 /// Custom rotating arc "reactor ring" — the Cardinal HUD stand-in for
 /// `ProgressView`'s spinner. Freezes as a static ring under Reduce Motion
 /// instead of animating.
+///
+/// Drives the spin via a `Bool` toggled once in `.onAppear`, matched with an
+/// `.animation(_:value:)` on the container (rather than wrapping the state
+/// change itself in `withAnimation`) — the more robust pattern for a
+/// `repeatForever` loop that needs to keep running for the view's entire
+/// lifetime, not just the instant it appears.
 public struct AinkradSpinner: View {
     private let size: CGFloat
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var rotation: Double = 0
+    @State private var isSpinning = false
 
     public init(size: CGFloat = 20) {
         self.size = size
@@ -90,14 +107,13 @@ public struct AinkradSpinner: View {
                 .trim(from: 0, to: 0.28)
                 .stroke(theme.accentSecondary, style: StrokeStyle(lineWidth: max(1.5, size * 0.08), lineCap: .round))
                 .shadow(color: theme.accentSecondary.opacity(0.6), radius: 3)
-                .rotationEffect(.degrees(reduceMotion ? 0 : rotation))
+                .rotationEffect(.degrees(spinnerRotationAngle(reduceMotion: reduceMotion, isSpinning: isSpinning)))
         }
         .frame(width: size, height: size)
+        .animation(reduceMotion ? nil : .linear(duration: 0.9).repeatForever(autoreverses: false), value: isSpinning)
         .onAppear {
             guard !reduceMotion else { return }
-            withAnimation(.linear(duration: 0.9).repeatForever(autoreverses: false)) {
-                rotation = 360
-            }
+            isSpinning = true
         }
     }
 }
