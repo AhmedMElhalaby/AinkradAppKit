@@ -26,7 +26,10 @@ public struct AinkradPanel<Content: View>: View {
                     .strokeBorder(theme.accentSecondary.opacity(0.4), lineWidth: 1)
             )
             .apply { showsBrackets ? AnyView($0.cornerBrackets()) : AnyView($0) }
-            .glowBloom()
+            // Outer accent halo + contact shadow so every panel reads as
+            // glowing (the radial `.glowBloom()` sat behind the opaque
+            // background and was invisible). Matches the previous overlay bloom.
+            .ainkradPanelGlow()
     }
 }
 
