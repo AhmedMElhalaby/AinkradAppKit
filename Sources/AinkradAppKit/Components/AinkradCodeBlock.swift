@@ -1,0 +1,54 @@
+import SwiftUI
+import AppKit
+
+/// Mono chamfer panel for a block of code — optional language caption,
+/// horizontal scroll for long lines, and a copy-to-pasteboard button
+/// (`AinkradIconButton`, never a native control).
+public struct AinkradCodeBlock: View {
+    private let code: String
+    private let language: String?
+
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradTypography) private var typo
+    @State private var copied = false
+
+    public init(_ code: String, language: String? = nil) {
+        self.code = code
+        self.language = language
+    }
+
+    /// Mirrors the transient "just copied" indicator state — exposed for testing.
+    public var didJustCopy: Bool { copied }
+
+    public var body: some View {
+        VStack(alignment: .leading, spacing: AinkradSpacing.sm) {
+            HStack {
+                if let language {
+                    Text(language.uppercased())
+                        .font(AinkradFontResolver.font(.caption, weight: .semibold, typography: typo))
+                        .tracking(0.8)
+                        .foregroundStyle(theme.foreground.opacity(0.55))
+                }
+                Spacer(minLength: AinkradSpacing.sm)
+                AinkradIconButton(systemName: copied ? "checkmark" : "doc.on.doc", action: copyToPasteboard)
+            }
+            ScrollView(.horizontal, showsIndicators: false) {
+                Text(code)
+                    .font(AinkradFontResolver.font(.mono, typography: typo))
+                    .foregroundStyle(theme.foreground.opacity(0.92))
+                    .textSelection(.enabled)
+            }
+        }
+        .padding(AinkradSpacing.md)
+        .background(ChamferShape(cut: AinkradRadius.sm).fill(theme.surface.opacity(0.9)))
+        .overlay(ChamferShape(cut: AinkradRadius.sm).strokeBorder(theme.accentSecondary.opacity(0.3), lineWidth: 1))
+    }
+
+    private func copyToPasteboard() {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(code, forType: .string)
+        copied = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { copied = false }
+    }
+}

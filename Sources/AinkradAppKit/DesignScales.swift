@@ -49,10 +49,14 @@ public enum AinkradMotion {
     public static let durationFast: Double = 0.15
     public static let durationBase: Double = 0.25
     public static let durationSlow: Double = 0.40
+    /// Duration of the SAO-style materialize/dematerialize (scan-in) transition.
+    public static let durationMaterialize: Double = 0.55
 
     public static var hover: Animation { .easeInOut(duration: durationFast) }
     public static var present: Animation { .easeOut(duration: durationBase) }
     public static var dismiss: Animation { .easeIn(duration: durationFast) }
+    /// The materialize transition animation (scan-in on appear).
+    public static var materialize: Animation { .easeOut(duration: durationMaterialize) }
 }
 
 /// Named typography roles with base point sizes. The host's `AinkradFont`

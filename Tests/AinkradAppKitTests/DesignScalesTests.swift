@@ -78,6 +78,15 @@ struct AinkradTypeRoleTests {
     }
 }
 
+@Suite("AinkradMotion materialize")
+struct AinkradMotionMaterializeTests {
+    @Test("materialize duration sits above the base transition")
+    func materializeDuration() {
+        #expect(AinkradMotion.durationMaterialize == 0.55)
+        #expect(AinkradMotion.durationMaterialize > AinkradMotion.durationSlow)
+    }
+}
+
 @Suite("AinkradAppKit v6")
 struct AinkradAppKitVersionTests {
     @Test("scales shipped in the v6 API")

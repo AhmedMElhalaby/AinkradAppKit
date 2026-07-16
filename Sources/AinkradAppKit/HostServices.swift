@@ -68,7 +68,7 @@ public protocol PluginLogger {
 
 /// A plain snapshot of the host's resolved theme colors, so apps render
 /// theme-correctly without importing host types.
-public struct HostThemeTokens: Equatable {
+public struct HostThemeTokens: Equatable, Sendable {
     /// Stable identity of the active theme (the host's theme id). Lets an app
     /// key its own per-theme assets without importing host theme types.
     public let themeID: String
