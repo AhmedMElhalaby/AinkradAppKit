@@ -13,17 +13,30 @@ public enum AinkradBlurLevel: Equatable, Sendable {
 
 /// Blurs the app content behind the view. Ported from the host so plugins get
 /// the identical panel backing.
+///
+/// `blendingMode` defaults to `.withinWindow` (blur other layers within this
+/// same window — the usual in-app panel look) but a modal presented in its
+/// own top-level window (e.g. `AinkradConfirmDialog`'s full-window cover
+/// panel) needs `.behindWindow` instead, so it samples the parent window's
+/// content sitting behind it rather than its own near-empty panel window.
 public struct VisualEffectBlur: NSViewRepresentable {
     public var level: AinkradBlurLevel = .panel
-    public init(level: AinkradBlurLevel = .panel) { self.level = level }
+    public var blendingMode: NSVisualEffectView.BlendingMode = .withinWindow
+    public init(level: AinkradBlurLevel = .panel, blendingMode: NSVisualEffectView.BlendingMode = .withinWindow) {
+        self.level = level
+        self.blendingMode = blendingMode
+    }
     public func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView()
         v.material = level.material
-        v.blendingMode = .withinWindow
+        v.blendingMode = blendingMode
         v.state = .active
         return v
     }
-    public func updateNSView(_ v: NSVisualEffectView, context: Context) { v.material = level.material }
+    public func updateNSView(_ v: NSVisualEffectView, context: Context) {
+        v.material = level.material
+        v.blendingMode = blendingMode
+    }
 }
 
 private struct EdgeRing: ViewModifier {

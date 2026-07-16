@@ -1,10 +1,17 @@
 import SwiftUI
 
-/// Centered modal confirm dialog — a scrim behind a chamfer panel with a
-/// title, message, and Cancel/confirm `AinkradButton` actions (destructive
-/// requests render the confirm action in `.danger`). Place it as an overlay
-/// near the root of the surface it should block; it renders nothing while
-/// `isPresented` is false, and tapping the scrim cancels.
+/// Centered modal confirm dialog — a full-PARENT-WINDOW dim + blur backdrop
+/// behind a centered chamfer panel with a title, message, and Cancel/confirm
+/// `AinkradButton` actions (destructive requests render the confirm action
+/// in `.danger`). Presented via `AinkradFloatingPanel`'s modal (cover) mode:
+/// the backdrop and centering need a top-level, window-sized panel — an
+/// in-view `.overlay` only covers whatever ancestor view happens to host it,
+/// which reads as a small chamfer panel anchored near the trigger rather
+/// than a true modal. Place it anywhere (it has zero footprint while
+/// `isPresented` is false) — it works from any surface without the host
+/// needing to install anything, the same way `AinkradSelect`'s dropdown
+/// does. Tapping the scrim or Cancel dismisses; Confirm runs the action then
+/// dismisses.
 public struct AinkradConfirmDialog: View {
     @Binding private var isPresented: Bool
     private let title: String
@@ -34,21 +41,35 @@ public struct AinkradConfirmDialog: View {
     }
 
     public var body: some View {
-        if isPresented {
-            ZStack {
-                Color.black.opacity(0.45)
-                    .ignoresSafeArea()
-                    .contentShape(Rectangle())
-                    .onTapGesture { isPresented = false }
-                dialogCard
-                    .transition(
-                        reduceMotion
-                            ? .opacity
-                            : .scale(scale: 0.94, anchor: .center).combined(with: .opacity)
-                    )
+        // `ainkradModalPanel` re-injects this view's `\.ainkradTheme` /
+        // `\.ainkradTypography` / `\.ainkradStatusColors` onto the hosted
+        // content automatically (an `NSHostingView` doesn't otherwise
+        // inherit the SwiftUI environment from the call site), so
+        // `modalContent` sees the same environment it would if it were
+        // rendered in-place.
+        Color.clear
+            .frame(width: 0, height: 0)
+            .ainkradModalPanel(isPresented: $isPresented) {
+                modalContent
             }
-            .animation(reduceMotion ? nil : AinkradMotion.materialize, value: isPresented)
+    }
+
+    private var modalContent: some View {
+        ZStack {
+            VisualEffectBlur(level: .hud, blendingMode: .behindWindow)
+                .ignoresSafeArea()
+            Color.black.opacity(0.4)
+                .ignoresSafeArea()
+                .contentShape(Rectangle())
+                .onTapGesture { isPresented = false }
+            dialogCard
+                .transition(
+                    reduceMotion
+                        ? .opacity
+                        : .scale(scale: 0.94, anchor: .center).combined(with: .opacity)
+                )
         }
+        .animation(reduceMotion ? nil : AinkradMotion.materialize, value: isPresented)
     }
 
     private var dialogCard: some View {
