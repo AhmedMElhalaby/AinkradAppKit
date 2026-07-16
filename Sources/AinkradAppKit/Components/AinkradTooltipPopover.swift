@@ -6,7 +6,7 @@ import SwiftUI
 /// `NSPanel`, so this drives the same look via plain `@State` + `onAppear`).
 /// Skips the animation under Reduce Motion.
 private struct AinkradFloatingMaterialize<Content: View>: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var appeared = false
     private let content: Content
 
@@ -53,7 +53,7 @@ private struct AinkradTooltipModifier: ViewModifier {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
     @State private var visible = false
 

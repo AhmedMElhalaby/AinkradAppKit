@@ -38,7 +38,7 @@ public struct AinkradStatusBar: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradStatusColors) private var statusColors
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(value: Double, total: Double = 1, kind: AinkradStatusBarKind = .accent, segments: Int = 12) {
         self.value = value
@@ -131,7 +131,7 @@ public struct AinkradSpinner: View {
     private let size: CGFloat
 
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(size: CGFloat = 20) {
         self.size = size

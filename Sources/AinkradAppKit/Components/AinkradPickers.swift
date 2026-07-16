@@ -90,7 +90,7 @@ public func movedHighlight(current: Int, delta: Int, count: Int) -> Int {
 /// SwiftUI `.transition` on the same view tree no longer applies). Skips the
 /// animation entirely under Reduce Motion.
 private struct PanelMaterialize<Content: View>: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var appeared = false
     private let content: Content
     init(@ViewBuilder content: () -> Content) { self.content = content() }

@@ -6,7 +6,7 @@ import SwiftUI
 /// competes with content.
 private struct ScanlineOverlayModifier: ViewModifier {
     var active: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content.overlay(scanlines.allowsHitTesting(false))
@@ -56,7 +56,7 @@ private struct ScanlineOverlayModifier: ViewModifier {
 /// Motion. Omitted entirely when `active` is false.
 private struct HexGridBackgroundModifier: ViewModifier {
     var active: Bool
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content.background(hexGrid.allowsHitTesting(false))
@@ -107,7 +107,7 @@ private struct HexGridBackgroundModifier: ViewModifier {
 private struct GlowBloomModifier: ViewModifier {
     var active: Bool
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content.background(glow.allowsHitTesting(false))

@@ -16,7 +16,7 @@ public struct AinkradTabs<T: Hashable>: View {
     @Binding private var selection: T
     private let label: (T) -> String
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(tabs: [T], selection: Binding<T>, label: @escaping (T) -> String) {
         self.tabs = tabs
@@ -49,7 +49,7 @@ private struct AinkradTabButton: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     var body: some View {
@@ -133,7 +133,7 @@ public struct AinkradPagination: View {
     private let pageCount: Int
 
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(page: Binding<Int>, pageCount: Int) {
         self._page = page

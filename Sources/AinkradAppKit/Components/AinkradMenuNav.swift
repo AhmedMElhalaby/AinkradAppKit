@@ -22,7 +22,7 @@ public struct AinkradCommandMenu<T: Hashable>: View {
     private let icon: (T) -> String
     private let label: (T) -> String
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(items: [T], selection: Binding<T?>, icon: @escaping (T) -> String, label: @escaping (T) -> String) {
         self.items = items
@@ -55,7 +55,7 @@ private struct AinkradCommandMenuRow: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     var body: some View {
@@ -99,7 +99,7 @@ public struct AinkradNavList<T: Hashable>: View {
     private let icon: (T) -> String?
     private let label: (T) -> String
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     public init(items: [T], selection: Binding<T>, icon: @escaping (T) -> String?, label: @escaping (T) -> String) {
         self.items = items
@@ -131,7 +131,7 @@ private struct AinkradNavListRow: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     var body: some View {

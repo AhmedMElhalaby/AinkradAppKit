@@ -108,7 +108,7 @@ private struct AinkradToastHostModifier: ViewModifier {
     /// instance each time, since nothing above ever set a concrete one) and
     /// mutate a center this modifier never renders.
     @State private var center = AinkradToastCenter()
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content

@@ -18,6 +18,11 @@ public extension EnvironmentValues {
     /// and un-hosted use still render.
     @Entry var ainkradTheme: HostThemeTokens = .fallbackDark
     @Entry var ainkradTypography: AinkradTypography = .default
+    /// AINKRAD-controlled motion preference, independent of the macOS
+    /// system-level "Reduce Motion" toggle. Default false = full motion.
+    /// Host/plugins set this at their root; SDK components read this
+    /// instead of the platform accessibility environment value.
+    @Entry var ainkradReduceMotion: Bool = false
 }
 
 

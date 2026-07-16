@@ -26,7 +26,7 @@ public struct AinkradChip: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(label: String, systemName: String? = nil, onRemove: (() -> Void)? = nil) {

@@ -7,7 +7,7 @@ public struct AinkradCard<Content: View>: View {
     private let onTap: (() -> Void)?
     private let content: Content
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(isSelected: Bool = false, onTap: (() -> Void)? = nil,

@@ -5,7 +5,7 @@ import SwiftUI
 public struct AinkradToggle: View {
     @Binding private var isOn: Bool
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(isOn: Binding<Bool>) { self._isOn = isOn }
@@ -199,7 +199,7 @@ public struct AinkradSlider: View {
     @Binding private var value: Double
     private let bounds: ClosedRange<Double>
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var dragging = false
 
     public init(value: Binding<Double>, in bounds: ClosedRange<Double>) {

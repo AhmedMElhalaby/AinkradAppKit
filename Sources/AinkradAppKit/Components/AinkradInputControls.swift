@@ -79,7 +79,7 @@ public struct AinkradRangeSlider: View {
     private let bounds: ClosedRange<Double>
 
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var draggingLower = false
     @State private var draggingUpper = false
 

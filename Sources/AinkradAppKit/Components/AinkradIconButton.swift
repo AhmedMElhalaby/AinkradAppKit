@@ -7,7 +7,7 @@ public struct AinkradIconButton: View {
     private let action: () -> Void
 
     @Environment(\.ainkradTheme) private var theme
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(systemName: String, action: @escaping () -> Void) {
@@ -42,7 +42,7 @@ public struct AinkradToggleButton: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(isOn: Binding<Bool>, systemName: String? = nil, title: String? = nil) {

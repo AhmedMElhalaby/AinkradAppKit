@@ -48,7 +48,7 @@ private struct AinkradConfirmDialogModifier: ViewModifier {
     let isDestructive: Bool
     let onConfirm: () -> Void
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
         content

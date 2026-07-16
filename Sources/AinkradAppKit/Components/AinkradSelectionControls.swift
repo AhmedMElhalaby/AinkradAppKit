@@ -19,7 +19,7 @@ public struct AinkradCheckbox: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hovering = false
 
     public init(isOn: Binding<Bool>, label: String? = nil) {
@@ -71,7 +71,7 @@ public struct AinkradRadioGroup<T: Hashable>: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
     @State private var hoveredOption: T?
 
     public init(options: [T], selection: Binding<T>, label: @escaping (T) -> String) {
