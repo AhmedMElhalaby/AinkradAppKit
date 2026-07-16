@@ -55,11 +55,16 @@ private struct AinkradConfirmDialogModifier: ViewModifier {
             .overlay {
                 if isPresented {
                     ZStack {
-                        // Light dim filling THIS container's own full bounds —
-                        // no full-window cover, no heavy blur. The explicit
-                        // frame ensures the scrim fills+centers within the
-                        // host view even when that host is small/compact.
-                        Color.black.opacity(0.3)
+                        // Dim + subtle blur filling THIS container's own full
+                        // bounds — no full-window cover. The explicit frame
+                        // ensures the scrim fills+centers within the host
+                        // view even when that host is small/compact. The
+                        // blur is intentionally light (panel-level material)
+                        // so it reads as depth, not a heavy frosted cover.
+                        VisualEffectBlur(level: .panel, blendingMode: .withinWindow)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .opacity(0.6)
+                        Color.black.opacity(0.45)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
                             .onTapGesture { isPresented = false }
@@ -87,10 +92,10 @@ private struct AinkradConfirmDialogModifier: ViewModifier {
 
 public extension View {
     /// Presents a confirm/cancel dialog scoped to THIS view's own bounds — a
-    /// light dim scrim (`Color.black.opacity(0.3)`, no heavy blur) filling
-    /// the modified view's container, with the chamfer dialog card centered
-    /// within it. Unlike a window-level modal, this never covers content
-    /// outside the component/container it's attached to.
+    /// dim scrim (`Color.black.opacity(0.45)`) plus a subtle panel-level
+    /// blur filling the modified view's container, with the chamfer dialog
+    /// card centered within it. Unlike a window-level modal, this never
+    /// covers content outside the component/container it's attached to.
     ///
     /// Attach at your app/surface root — the dialog centers within, and
     /// dims, the view it modifies. Attaching it to a small inner container
