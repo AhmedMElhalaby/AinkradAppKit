@@ -216,7 +216,13 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         isDismissing = true
         removeMonitors()
         panel.parent?.removeChildWindow(panel)
-        parentWindow?.makeKey()
+        // Only restore key focus to the parent if Ainkrad is still the
+        // active app. When dismissal was triggered by the parent window
+        // resigning key (cmd-tab, clicking another app), re-keying here
+        // would fight the user's focus change and steal focus back.
+        if NSApp.isActive {
+            parentWindow?.makeKey()
+        }
         self.panel = nil
         parentWindow = nil
         onDismiss = nil

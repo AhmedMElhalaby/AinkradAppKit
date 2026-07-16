@@ -99,12 +99,6 @@ public struct AinkradDataTable<Row: Identifiable>: View {
         .padding(.horizontal, AinkradSpacing.md)
         .padding(.vertical, AinkradSpacing.sm)
         .background(ChamferShape(cut: 6, corners: .topLeft.union(.topRight)).fill(theme.surfaceElevated.opacity(0.7)))
-        .overlay(
-            Rectangle()
-                .fill(theme.accentSecondary.opacity(0.4))
-                .frame(height: 1),
-            alignment: .bottom
-        )
     }
 
     private func headerCell(_ column: AinkradTableColumn<Row>) -> some View {
