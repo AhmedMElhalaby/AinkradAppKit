@@ -104,10 +104,16 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
     /// Guards against a fade-out's completion handler running twice, and
     /// against re-entering the teardown while a fade is already in flight.
     private var isDismissing = false
+    /// When set, positioning uses this SCREEN-coordinate rect instead of
+    /// `anchorView`'s live bounds — used by callers (e.g. a right-click
+    /// context menu) that anchor at a cursor point rather than a fixed
+    /// trigger view. Cleared on dismiss.
+    private var anchorRectOverride: CGRect?
 
     func present<Content: View>(
         maxHeight: CGFloat,
         autofocusTextField: Bool = false,
+        anchorScreenRectOverride: CGRect? = nil,
         @ViewBuilder content: @escaping () -> Content,
         onDismiss: @escaping () -> Void
     ) {
@@ -115,6 +121,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         guard let anchorView, let window = anchorView.window else { return }
         self.onDismiss = onDismiss
         self.parentWindow = window
+        self.anchorRectOverride = anchorScreenRectOverride
 
         let frame: CGRect
         let sized: AnyView
@@ -133,7 +140,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
             ?? CGRect(x: 0, y: 0, width: width, height: height)
         frame = floatingPanelFrame(
-            anchorScreenRect: anchorScreenRect() ?? .zero,
+            anchorScreenRect: anchorScreenRectOverride ?? anchorScreenRect() ?? .zero,
             contentSize: CGSize(width: width, height: height),
             screenVisibleFrame: visibleFrame
         )
@@ -213,6 +220,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         self.panel = nil
         parentWindow = nil
         onDismiss = nil
+        anchorRectOverride = nil
 
         NSAnimationContext.runAnimationGroup { context in
             context.duration = AinkradMotion.durationFast
@@ -274,7 +282,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
     /// the panel.
     private func isOutsideTriggerAndPanel(_ screenPoint: CGPoint) -> Bool {
         guard let panel else { return true }
-        let triggerRect = anchorScreenRect() ?? .zero
+        let triggerRect = anchorRectOverride ?? anchorScreenRect() ?? .zero
         return isClickOutside(point: screenPoint, panelFrame: panel.frame, triggerFrame: triggerRect)
     }
 
