@@ -59,8 +59,11 @@ private struct PanelGlow: ViewModifier {
     @Environment(\.ainkradTheme) private var theme
     func body(content: Content) -> some View {
         content
-            .shadow(color: theme.accentPrimary.opacity(0.28), radius: AinkradElevation.level2.radius)
-            .shadow(color: AinkradElevation.level2.color, radius: 20, y: 8)
+            // Match the established overlay bloom (previously host `hudPanelChrome`):
+            // a wide accent halo + a deep contact shadow, so overlays read as
+            // glowing like the Launcher/App Store panels.
+            .shadow(color: theme.accentPrimary.opacity(0.35), radius: 42)
+            .shadow(color: .black.opacity(0.5), radius: 24, y: 10)
     }
 }
 
