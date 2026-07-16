@@ -99,28 +99,38 @@ private struct AinkradToastView: View {
 }
 
 private struct AinkradToastHostModifier: ViewModifier {
-    @Environment(\.ainkradToastCenter) private var center
+    /// Owned by this modifier instance (stable across re-renders via
+    /// `@State`) and re-injected into `\.ainkradToastCenter` for `content`
+    /// below, so every descendant that reads the environment — including
+    /// whatever calls `.show(...)` — shares the SAME center this modifier
+    /// renders from. Without the re-injection, `.show(...)` callers would
+    /// read `\.ainkradToastCenter`'s environment default fresh (a distinct
+    /// instance each time, since nothing above ever set a concrete one) and
+    /// mutate a center this modifier never renders.
+    @State private var center = AinkradToastCenter()
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     func body(content: Content) -> some View {
-        content.overlay(alignment: .topTrailing) {
-            VStack(alignment: .trailing, spacing: AinkradSpacing.sm) {
-                ForEach(center.items) { item in
-                    AinkradToastView(item: item) { center.dismiss(item.id) }
-                        .transition(
-                            reduceMotion
-                                ? .opacity
-                                : .asymmetric(
-                                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                                    removal: .opacity
-                                )
-                        )
+        content
+            .environment(\.ainkradToastCenter, center)
+            .overlay(alignment: .topTrailing) {
+                VStack(alignment: .trailing, spacing: AinkradSpacing.sm) {
+                    ForEach(center.items) { item in
+                        AinkradToastView(item: item) { center.dismiss(item.id) }
+                            .transition(
+                                reduceMotion
+                                    ? .opacity
+                                    : .asymmetric(
+                                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                                        removal: .opacity
+                                    )
+                            )
+                    }
                 }
+                .padding(AinkradSpacing.lg)
+                .animation(reduceMotion ? nil : AinkradMotion.materialize, value: center.items.map(\.id))
+                .allowsHitTesting(!center.items.isEmpty)
             }
-            .padding(AinkradSpacing.lg)
-            .animation(reduceMotion ? nil : AinkradMotion.materialize, value: center.items.map(\.id))
-            .allowsHitTesting(!center.items.isEmpty)
-        }
     }
 }
 
