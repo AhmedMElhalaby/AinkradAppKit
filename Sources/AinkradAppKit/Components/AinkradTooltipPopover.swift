@@ -41,11 +41,13 @@ private struct AinkradBubbleChrome<Content: View>: View {
     }
 }
 
-/// Hover-delayed HUD tooltip bubble, positioned above the anchor in-window
-/// (a plain `.overlay`, not `AinkradFloatingPanel` — tiny bubbles don't need
-/// a top-level window and stay simpler as an overlay). Appears after a short
-/// hover delay and materializes in; skipped instantly (no delay/animation)
-/// under Reduce Motion.
+/// Hover-delayed HUD tooltip bubble, presented through `AinkradFloatingPanel`
+/// (top-level, not a plain in-view `.overlay`) so it is always fully
+/// visible — `floatingPanelFrame` flips it above/below the anchor and clamps
+/// it inside the screen's visible frame, instead of clipping at a window
+/// edge the way an `.overlay` anchored near the trigger would. Appears after
+/// a short hover delay and materializes in; skipped instantly (no
+/// delay/animation) under Reduce Motion.
 private struct AinkradTooltipModifier: ViewModifier {
     let text: String
 
@@ -68,21 +70,18 @@ private struct AinkradTooltipModifier: ViewModifier {
                     if hovering { visible = true }
                 }
             }
-            .overlay(alignment: .top) {
-                if visible {
-                    AinkradFloatingMaterialize {
-                        AinkradBubbleChrome {
-                            Text(text)
-                                .font(AinkradFontResolver.font(.caption, typography: typo))
-                                .foregroundStyle(theme.foreground.opacity(0.9))
-                                .padding(.horizontal, AinkradSpacing.sm)
-                                .padding(.vertical, AinkradSpacing.xs)
-                        }
+            .ainkradFloatingPanel(isPresented: $visible, maxHeight: 160) {
+                AinkradFloatingMaterialize {
+                    AinkradBubbleChrome {
+                        Text(text)
+                            .font(AinkradFontResolver.font(.caption, typography: typo))
+                            .foregroundStyle(theme.foreground.opacity(0.9))
+                            .padding(.horizontal, AinkradSpacing.sm)
+                            .padding(.vertical, AinkradSpacing.xs)
                     }
-                    .fixedSize()
-                    .offset(y: -28)
-                    .allowsHitTesting(false)
                 }
+                .fixedSize()
+                .allowsHitTesting(false)
             }
     }
 }
