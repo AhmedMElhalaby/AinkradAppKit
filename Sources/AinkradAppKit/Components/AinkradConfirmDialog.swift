@@ -55,9 +55,12 @@ private struct AinkradConfirmDialogModifier: ViewModifier {
             .overlay {
                 if isPresented {
                     ZStack {
-                        // Light dim scoped to THIS container's own bounds —
-                        // no full-window cover, no heavy blur.
+                        // Light dim filling THIS container's own full bounds —
+                        // no full-window cover, no heavy blur. The explicit
+                        // frame ensures the scrim fills+centers within the
+                        // host view even when that host is small/compact.
                         Color.black.opacity(0.3)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
                             .contentShape(Rectangle())
                             .onTapGesture { isPresented = false }
 
@@ -75,6 +78,7 @@ private struct AinkradConfirmDialogModifier: ViewModifier {
                                 : .scale(scale: 0.94, anchor: .center).combined(with: .opacity)
                         )
                     }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .animation(reduceMotion ? nil : AinkradMotion.materialize, value: isPresented)
                 }
             }
@@ -87,6 +91,10 @@ public extension View {
     /// the modified view's container, with the chamfer dialog card centered
     /// within it. Unlike a window-level modal, this never covers content
     /// outside the component/container it's attached to.
+    ///
+    /// Attach at your app/surface root — the dialog centers within, and
+    /// dims, the view it modifies. Attaching it to a small inner container
+    /// will scope the dim+center to that small box instead of the full app.
     ///
     /// Tapping the scrim or Cancel dismisses; Confirm runs `onConfirm` then
     /// dismisses. `isDestructive` renders the confirm action in `.danger`.
