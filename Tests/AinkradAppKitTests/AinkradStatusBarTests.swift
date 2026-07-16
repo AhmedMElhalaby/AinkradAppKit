@@ -88,3 +88,44 @@ struct SpinnerTimelineAngleTests {
         #expect(spinnerTimelineAngle(date: date, period: -1) == 0)
     }
 }
+
+@Suite("spinnerPulseOpacity")
+struct SpinnerPulseOpacityTests {
+    @Test("start of a period sits at the midpoint between the floor and ceiling")
+    func start() {
+        let date = Date(timeIntervalSinceReferenceDate: 12)
+        let opacity = spinnerPulseOpacity(date: date, period: 1.2)
+        #expect(abs(opacity - 0.675) < 0.0001)
+    }
+
+    @Test("quarter period reaches the ceiling")
+    func quarterReachesCeiling() {
+        let date = Date(timeIntervalSinceReferenceDate: 12.3)
+        let opacity = spinnerPulseOpacity(date: date, period: 1.2)
+        #expect(abs(opacity - 1.0) < 0.0001)
+    }
+
+    @Test("three-quarter period reaches the floor")
+    func threeQuarterReachesFloor() {
+        let date = Date(timeIntervalSinceReferenceDate: 12.9)
+        let opacity = spinnerPulseOpacity(date: date, period: 1.2)
+        #expect(abs(opacity - 0.35) < 0.0001)
+    }
+
+    @Test("stays within the 0.35...1.0 band across a full period")
+    func staysWithinBand() {
+        for tenth in 0..<12 {
+            let date = Date(timeIntervalSinceReferenceDate: Double(tenth) * 0.1)
+            let opacity = spinnerPulseOpacity(date: date, period: 1.2)
+            #expect(opacity >= 0.35 - 0.0001)
+            #expect(opacity <= 1.0 + 0.0001)
+        }
+    }
+
+    @Test("a non-positive period yields the ceiling rather than dividing by zero")
+    func nonPositivePeriod() {
+        let date = Date(timeIntervalSinceReferenceDate: 5)
+        #expect(spinnerPulseOpacity(date: date, period: 0) == 1.0)
+        #expect(spinnerPulseOpacity(date: date, period: -1) == 1.0)
+    }
+}

@@ -95,9 +95,24 @@ public func spinnerTimelineAngle(date: Date, period: TimeInterval = 1) -> Double
     return (elapsed / period) * 360
 }
 
+/// The opacity (`0.35...1.0`) `AinkradSpinner`'s accent arc should pulse to
+/// under Reduce Motion, at a given wall-clock `date`, completing one full
+/// sine cycle every `period` seconds. A gentle breathing pulse conveys
+/// ongoing activity without any rotation. Pure — unit-testable without
+/// SwiftUI's animation runtime. A non-positive `period` yields the ceiling
+/// (`1.0`) rather than dividing by zero.
+public func spinnerPulseOpacity(date: Date, period: TimeInterval = 1.2) -> Double {
+    guard period > 0 else { return 1.0 }
+    let floor = 0.35
+    let ceiling = 1.0
+    let mid = (floor + ceiling) / 2
+    let amplitude = (ceiling - floor) / 2
+    let elapsed = date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: period)
+    return mid + amplitude * sin(2 * Double.pi * elapsed / period)
+}
+
 /// Custom rotating arc "reactor ring" — the Cardinal HUD stand-in for
-/// `ProgressView`'s spinner. Freezes as a static ring under Reduce Motion
-/// instead of animating.
+/// `ProgressView`'s spinner.
 ///
 /// Drives the rotation from `TimelineView(.animation)`'s per-frame `context.date`
 /// via `spinnerTimelineAngle(date:period:)` rather than a `@State` toggle
@@ -105,8 +120,13 @@ public func spinnerTimelineAngle(date: Date, period: TimeInterval = 1) -> Double
 /// not reliably start spinning on this toolchain (SwiftUI sometimes never
 /// picks up the `onAppear`-driven state change). Reading the frame clock
 /// directly sidesteps that: there is no toggle to miss, so the ring always
-/// animates once mounted. Reduce Motion renders a fully static ring instead
-/// of subscribing to the timeline at all.
+/// animates once mounted.
+///
+/// Under Reduce Motion, rotation stops (no spinning arc) but the spinner must
+/// still read as "loading" rather than a frozen, dead ring — so it instead
+/// pulses the accent arc's opacity gently via `spinnerPulseOpacity(date:period:)`,
+/// also driven by `TimelineView(.animation)`. No position changes, only
+/// opacity — this satisfies Reduce Motion while still conveying activity.
 public struct AinkradSpinner: View {
     private let size: CGFloat
 
@@ -120,17 +140,19 @@ public struct AinkradSpinner: View {
     public var body: some View {
         Group {
             if reduceMotion {
-                ring(angle: .zero)
+                TimelineView(.animation) { context in
+                    ring(angle: .zero, arcOpacity: spinnerPulseOpacity(date: context.date))
+                }
             } else {
                 TimelineView(.animation) { context in
-                    ring(angle: .degrees(spinnerTimelineAngle(date: context.date)))
+                    ring(angle: .degrees(spinnerTimelineAngle(date: context.date)), arcOpacity: 1.0)
                 }
             }
         }
         .frame(width: size, height: size)
     }
 
-    private func ring(angle: Angle) -> some View {
+    private func ring(angle: Angle, arcOpacity: Double) -> some View {
         ZStack {
             Circle()
                 .stroke(theme.foreground.opacity(0.12), lineWidth: max(1.5, size * 0.08))
@@ -138,6 +160,7 @@ public struct AinkradSpinner: View {
                 .trim(from: 0, to: 0.28)
                 .stroke(theme.accentSecondary, style: StrokeStyle(lineWidth: max(1.5, size * 0.08), lineCap: .round))
                 .shadow(color: theme.accentSecondary.opacity(0.6), radius: 3)
+                .opacity(arcOpacity)
                 .rotationEffect(angle)
         }
     }
