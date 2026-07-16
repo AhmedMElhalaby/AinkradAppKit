@@ -108,7 +108,6 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
     func present<Content: View>(
         maxHeight: CGFloat,
         autofocusTextField: Bool = false,
-        coverParentWindow: Bool = false,
         @ViewBuilder content: @escaping () -> Content,
         onDismiss: @escaping () -> Void
     ) {
@@ -119,34 +118,25 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
 
         let frame: CGRect
         let sized: AnyView
-        if coverParentWindow {
-            // Modal mode: size the panel to the ENTIRE parent window (not an
-            // anchored/clamped rect) so a dim + blur backdrop can cover all
-            // its content, with the caller's content (typically a centered
-            // dialog card) laid out over that full frame.
-            frame = window.frame
-            sized = AnyView(content().frame(width: frame.width, height: frame.height))
-        } else {
-            // Measure the content's natural size first (unconstrained), then
-            // decide whether it needs to scroll under `maxHeight`.
-            let measuring = NSHostingView(rootView: AnyView(content()))
-            let natural = measuring.fittingSize
-            let width = max(natural.width, 160)
-            let height = min(max(natural.height, 1), maxHeight)
-            let needsScroll = natural.height > maxHeight
+        // Measure the content's natural size first (unconstrained), then
+        // decide whether it needs to scroll under `maxHeight`.
+        let measuring = NSHostingView(rootView: AnyView(content()))
+        let natural = measuring.fittingSize
+        let width = max(natural.width, 160)
+        let height = min(max(natural.height, 1), maxHeight)
+        let needsScroll = natural.height > maxHeight
 
-            sized = needsScroll
-                ? AnyView(ScrollView { content() }.frame(width: width, height: height))
-                : AnyView(content().frame(width: width, height: height))
+        sized = needsScroll
+            ? AnyView(ScrollView { content() }.frame(width: width, height: height))
+            : AnyView(content().frame(width: width, height: height))
 
-            let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
-                ?? CGRect(x: 0, y: 0, width: width, height: height)
-            frame = floatingPanelFrame(
-                anchorScreenRect: anchorScreenRect() ?? .zero,
-                contentSize: CGSize(width: width, height: height),
-                screenVisibleFrame: visibleFrame
-            )
-        }
+        let visibleFrame = window.screen?.visibleFrame ?? NSScreen.main?.visibleFrame
+            ?? CGRect(x: 0, y: 0, width: width, height: height)
+        frame = floatingPanelFrame(
+            anchorScreenRect: anchorScreenRect() ?? .zero,
+            contentSize: CGSize(width: width, height: height),
+            screenVisibleFrame: visibleFrame
+        )
 
         let hosting = NSHostingView(rootView: sized)
         hosting.frame = CGRect(origin: .zero, size: frame.size)
@@ -340,7 +330,6 @@ private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     var maxHeight: CGFloat
     var autofocusTextField: Bool = false
-    var coverParentWindow: Bool = false
     @ViewBuilder var panelContent: () -> PanelContent
 
     @Environment(\.ainkradTheme) private var theme
@@ -369,7 +358,7 @@ private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
         let theme = theme
         let typo = typo
         let statusColors = statusColors
-        controller.present(maxHeight: maxHeight, autofocusTextField: autofocusTextField, coverParentWindow: coverParentWindow) {
+        controller.present(maxHeight: maxHeight, autofocusTextField: autofocusTextField) {
             panelContent()
                 .environment(\.ainkradTheme, theme)
                 .environment(\.ainkradTypography, typo)
@@ -395,21 +384,5 @@ public extension View {
         @ViewBuilder content: @escaping () -> PanelContent
     ) -> some View {
         modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: maxHeight, autofocusTextField: autofocusTextField, panelContent: content))
-    }
-
-    /// Presents `content` covering the ENTIRE parent window in a top-level,
-    /// custom-drawn panel — the modal variant of `ainkradFloatingPanel`, used
-    /// for dialogs that need a full-window dim + blur backdrop with centered
-    /// content (e.g. `AinkradConfirmDialog`), rather than a small
-    /// anchor-clamped bubble. `content` is responsible for its own centering
-    /// (a `ZStack`'s default `.center` alignment does this for free) and for
-    /// the backdrop itself (scrim + `VisualEffectBlur`). Dismisses the same
-    /// way `ainkradFloatingPanel` does: caller sets `isPresented` false, Esc,
-    /// or the parent window losing key/moving/closing.
-    func ainkradModalPanel<PanelContent: View>(
-        isPresented: Binding<Bool>,
-        @ViewBuilder content: @escaping () -> PanelContent
-    ) -> some View {
-        modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: .infinity, coverParentWindow: true, panelContent: content))
     }
 }

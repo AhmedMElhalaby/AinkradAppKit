@@ -16,9 +16,10 @@ public enum AinkradBlurLevel: Equatable, Sendable {
 ///
 /// `blendingMode` defaults to `.withinWindow` (blur other layers within this
 /// same window — the usual in-app panel look) but a modal presented in its
-/// own top-level window (e.g. `AinkradConfirmDialog`'s full-window cover
-/// panel) needs `.behindWindow` instead, so it samples the parent window's
-/// content sitting behind it rather than its own near-empty panel window.
+/// own top-level window (e.g. a floating panel from
+/// `View.ainkradFloatingPanel(...)`) needs `.behindWindow` instead, so it
+/// samples the parent window's content sitting behind it rather than its own
+/// near-empty panel window.
 public struct VisualEffectBlur: NSViewRepresentable {
     public var level: AinkradBlurLevel = .panel
     public var blendingMode: NSVisualEffectView.BlendingMode = .withinWindow
