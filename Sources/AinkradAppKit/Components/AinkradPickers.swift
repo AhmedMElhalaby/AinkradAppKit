@@ -55,6 +55,14 @@ public func selectOptionRows<T: Hashable>(items: [T], selected: T) -> [(item: T,
     items.map { ($0, $0 == selected) }
 }
 
+/// Whether a picker row should render a leading color swatch for `item` — i.e.
+/// the row's `swatch(item)` resolved to a non-nil color. Pure — the swatch-
+/// visibility rule shared by the color-labeled `AinkradSelect`/
+/// `AinkradMultiSelect` overloads, unit-testable without SwiftUI.
+func shouldShowSwatch<T>(_ swatch: (T) -> Color?, for item: T) -> Bool {
+    swatch(item) != nil
+}
+
 /// Toggles `item`'s membership in `selection` — present items are removed,
 /// absent items are added. Pure — the reducer `AinkradMultiSelect` rows call
 /// on tap, unit-testable without SwiftUI.
@@ -118,6 +126,11 @@ public struct AinkradSelect<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T
     private let label: (T) -> String
+    /// Optional leading color swatch per option. A `nil` result for a row hides
+    /// its dot. Additive stored field with a default so the existing
+    /// `init(items:selection:label:)` stays byte-unchanged — see the
+    /// `swatch:`-carrying overload.
+    private var swatch: (T) -> Color? = { _ in nil }
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
@@ -127,11 +140,20 @@ public struct AinkradSelect<T: Hashable>: View {
         self.items = items; self._selection = selection; self.label = label
     }
 
+    /// Color-dot variant — option rows render a leading swatch wherever
+    /// `swatch(item)` is non-nil (e.g. GitHub-label colors). NEW overload;
+    /// the existing `init(items:selection:label:)` is untouched.
+    public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String,
+                swatch: @escaping (T) -> Color?) {
+        self.items = items; self._selection = selection; self.label = label
+        self.swatch = swatch
+    }
+
     public var body: some View {
         trigger
             .ainkradFloatingPanel(isPresented: $isOpen) {
                 PanelMaterialize {
-                    SelectPanelView(items: items, selection: $selection, label: label, onClose: close)
+                    SelectPanelView(items: items, selection: $selection, label: label, swatch: swatch, onClose: close)
                 }
             }
     }
@@ -172,6 +194,10 @@ public struct AinkradMultiSelect<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: Set<T>
     private let label: (T) -> String
+    /// Optional leading color swatch per option (see `AinkradSelect.swatch`).
+    /// Additive stored field with a default so the existing
+    /// `init(items:selection:label:)` stays byte-unchanged.
+    private var swatch: (T) -> Color? = { _ in nil }
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
@@ -179,6 +205,15 @@ public struct AinkradMultiSelect<T: Hashable>: View {
 
     public init(items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String) {
         self.items = items; self._selection = selection; self.label = label
+    }
+
+    /// Color-dot variant — rows render a leading swatch wherever `swatch(item)`
+    /// is non-nil. NEW overload; the existing `init(items:selection:label:)` is
+    /// untouched.
+    public init(items: [T], selection: Binding<Set<T>>, label: @escaping (T) -> String,
+                swatch: @escaping (T) -> Color?) {
+        self.items = items; self._selection = selection; self.label = label
+        self.swatch = swatch
     }
 
     private var triggerText: String {
@@ -189,7 +224,7 @@ public struct AinkradMultiSelect<T: Hashable>: View {
         trigger
             .ainkradFloatingPanel(isPresented: $isOpen) {
                 PanelMaterialize {
-                    MultiSelectPanelView(items: items, selection: $selection, label: label)
+                    MultiSelectPanelView(items: items, selection: $selection, label: label, swatch: swatch)
                 }
             }
     }

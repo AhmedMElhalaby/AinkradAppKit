@@ -37,6 +37,11 @@ public struct AinkradButton: View {
     private let style: AinkradButtonStyle
     private let icon: String?
     private let action: () -> Void
+    /// When `true`, the label crossfades to an in-place `AinkradSpinner` and the
+    /// button is disabled. Additive stored field with a default so the existing
+    /// `init(title:style:icon:action:)` stays byte-unchanged — see the
+    /// `isLoading:`-carrying overload below.
+    private var isLoading: Bool = false
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradStatusColors) private var statusColors
@@ -50,19 +55,30 @@ public struct AinkradButton: View {
         self.title = title; self.style = style; self.icon = icon; self.action = action
     }
 
+    /// Loading-capable variant. When `isLoading` is `true` the label crossfades
+    /// in place to an `AinkradSpinner` tinted to the button's foreground and the
+    /// button is disabled. NEW overload — `isLoading:` has NO default, so this is
+    /// a distinct symbol from `init(title:style:icon:action:)`, which is untouched.
+    public init(title: String, style: AinkradButtonStyle = .primary, icon: String? = nil,
+                isLoading: Bool, action: @escaping () -> Void) {
+        self.title = title; self.style = style; self.icon = icon
+        self.isLoading = isLoading; self.action = action
+    }
+
     private var accentColor: Color { style.isDanger ? statusColors.danger : theme.accentPrimary }
+    private var foreground: Color { style.usesAccentFill ? accentColor.contrastingText : accentColor }
 
     public var body: some View {
         Button(action: action) {
-            HStack(spacing: AinkradSpacing.xs) {
-                if let icon {
-                    Image(systemName: icon).font(.system(size: 12, weight: .semibold))
-                }
-                Text(title.uppercased())
-                    .font(AinkradFontResolver.font(.caption, weight: .semibold, typography: typo))
-                    .tracking(0.8)
+            ZStack {
+                // Both mounted; only opacity toggles so the label and spinner
+                // crossfade in place (no layout jump).
+                labelContent
+                    .foregroundStyle(foreground)
+                    .opacity(isLoading ? 0 : 1)
+                AinkradSpinner(size: 14, tint: foreground)
+                    .opacity(isLoading ? 1 : 0)
             }
-            .foregroundStyle(style.usesAccentFill ? accentColor.contrastingText : accentColor)
             .padding(.horizontal, AinkradSpacing.lg)
             .padding(.vertical, AinkradSpacing.sm)
             .background(
@@ -77,6 +93,8 @@ public struct AinkradButton: View {
             .contentShape(ChamferShape(cut: 8))
         }
         .buttonStyle(.plain)
+        .disabled(isLoading)
+        .animation(reduceMotion ? nil : AinkradMotion.hover, value: isLoading)
         .scaleEffect(pressed && !reduceMotion ? 0.97 : (hovering && !reduceMotion ? 1.02 : 1.0))
         .animation(AinkradMotion.hover, value: hovering)
         .animation(AinkradMotion.hover, value: pressed)
@@ -86,5 +104,16 @@ public struct AinkradButton: View {
                 .onChanged { _ in pressed = true }
                 .onEnded { _ in pressed = false }
         )
+    }
+
+    private var labelContent: some View {
+        HStack(spacing: AinkradSpacing.xs) {
+            if let icon {
+                Image(systemName: icon).font(.system(size: 12, weight: .semibold))
+            }
+            Text(title.uppercased())
+                .font(AinkradFontResolver.font(.caption, weight: .semibold, typography: typo))
+                .tracking(0.8)
+        }
     }
 }

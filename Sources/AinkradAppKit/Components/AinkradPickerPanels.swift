@@ -26,6 +26,7 @@ struct SelectPanelView<T: Hashable>: View {
     let items: [T]
     @Binding var selection: T
     let label: (T) -> String
+    let swatch: (T) -> Color?
     let onClose: () -> Void
 
     @Environment(\.ainkradTheme) private var theme
@@ -34,10 +35,12 @@ struct SelectPanelView<T: Hashable>: View {
     @State private var hoveredItem: T?
     @FocusState private var focused: Bool
 
-    init(items: [T], selection: Binding<T>, label: @escaping (T) -> String, onClose: @escaping () -> Void) {
+    init(items: [T], selection: Binding<T>, label: @escaping (T) -> String,
+         swatch: @escaping (T) -> Color? = { _ in nil }, onClose: @escaping () -> Void) {
         self.items = items
         self._selection = selection
         self.label = label
+        self.swatch = swatch
         self.onClose = onClose
         self._highlightedIndex = State(initialValue: pickerSelectionIndex(items: items, selection: selection.wrappedValue) ?? 0)
     }
@@ -86,6 +89,9 @@ struct SelectPanelView<T: Hashable>: View {
                     .font(.system(size: 6))
                     .foregroundStyle(theme.accentSecondary)
                     .opacity(isSelected ? 1 : 0)
+                if let dot = swatch(item) {
+                    ColorSwatchDot(color: dot, size: 9)
+                }
                 Text(label(item))
                     .font(AinkradFontResolver.font(.body, typography: typo))
                     .foregroundStyle(theme.foreground)
@@ -114,6 +120,7 @@ struct MultiSelectPanelView<T: Hashable>: View {
     let items: [T]
     @Binding var selection: Set<T>
     let label: (T) -> String
+    var swatch: (T) -> Color? = { _ in nil }
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
@@ -172,6 +179,9 @@ struct MultiSelectPanelView<T: Hashable>: View {
                             .font(.system(size: 8, weight: .bold))
                             .foregroundStyle(theme.accentSecondary)
                     }
+                }
+                if let dot = swatch(item) {
+                    ColorSwatchDot(color: dot, size: 9)
                 }
                 Text(label(item))
                     .font(AinkradFontResolver.font(.body, typography: typo))

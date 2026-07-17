@@ -1,4 +1,5 @@
 import Testing
+import SwiftUI
 @testable import AinkradAppKit
 
 @Suite("Picker selection")
@@ -7,6 +8,28 @@ struct AinkradPickerTests {
     func index() {
         #expect(pickerSelectionIndex(items: ["a","b","c"], selection: "b") == 1)
         #expect(pickerSelectionIndex(items: ["a","b"], selection: "z") == nil)
+    }
+}
+
+@Suite("Color-dot select support")
+struct AinkradSwatchSelectTests {
+    @Test("shouldShowSwatch is true only when the swatch resolves to a color")
+    func swatchVisibility() {
+        let swatch: (String) -> Color? = { $0 == "bug" ? .red : nil }
+        #expect(shouldShowSwatch(swatch, for: "bug") == true)
+        #expect(shouldShowSwatch(swatch, for: "docs") == false)
+    }
+
+    @Test("plain and swatch-carrying select inits both construct (compile smoke)")
+    func constructs() {
+        // Existing symbols must still exist, byte-unchanged.
+        _ = AinkradSelect(items: ["a", "b"], selection: .constant("a"), label: { $0 })
+        _ = AinkradMultiSelect(items: ["a", "b"], selection: .constant([]), label: { $0 })
+        // NEW color-dot overloads.
+        _ = AinkradSelect(items: ["a", "b"], selection: .constant("a"), label: { $0 },
+                          swatch: { $0 == "a" ? .green : nil })
+        _ = AinkradMultiSelect(items: ["a", "b"], selection: .constant([]), label: { $0 },
+                               swatch: { _ in .purple })
     }
 }
 
