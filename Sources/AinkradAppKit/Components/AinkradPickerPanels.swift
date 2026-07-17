@@ -20,97 +20,6 @@ import SwiftUI
 /// snapshot that was never going to be re-read. See the wave3 follow-up
 /// report for the full writeup.
 
-/// `AinkradSelect`'s option list: single selection, diamond marker, plus
-/// arrow-key/Return navigation via a highlighted-row index.
-struct SelectPanelView<T: Hashable>: View {
-    let items: [T]
-    @Binding var selection: T
-    let label: (T) -> String
-    let swatch: (T) -> Color?
-    let onClose: () -> Void
-
-    @Environment(\.ainkradTheme) private var theme
-    @Environment(\.ainkradTypography) private var typo
-    @State private var highlightedIndex: Int
-    @State private var hoveredItem: T?
-    @FocusState private var focused: Bool
-
-    init(items: [T], selection: Binding<T>, label: @escaping (T) -> String,
-         swatch: @escaping (T) -> Color? = { _ in nil }, onClose: @escaping () -> Void) {
-        self.items = items
-        self._selection = selection
-        self.label = label
-        self.swatch = swatch
-        self.onClose = onClose
-        self._highlightedIndex = State(initialValue: pickerSelectionIndex(items: items, selection: selection.wrappedValue) ?? 0)
-    }
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            ForEach(Array(items.enumerated()), id: \.offset) { index, item in
-                optionRow(item, index: index)
-            }
-        }
-        .padding(AinkradSpacing.xs)
-        .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
-        .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
-        .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
-        .frame(minWidth: 160)
-        .focusable()
-        .focused($focused)
-        .onAppear { DispatchQueue.main.async { focused = true } }
-        .onKeyPress(.upArrow) { move(-1) }
-        .onKeyPress(.downArrow) { move(1) }
-        .onKeyPress(.return) { selectHighlighted() }
-    }
-
-    private func move(_ delta: Int) -> KeyPress.Result {
-        highlightedIndex = movedHighlight(current: highlightedIndex, delta: delta, count: items.count)
-        return .handled
-    }
-
-    private func selectHighlighted() -> KeyPress.Result {
-        guard items.indices.contains(highlightedIndex) else { return .ignored }
-        selection = items[highlightedIndex]
-        onClose()
-        return .handled
-    }
-
-    private func optionRow(_ item: T, index: Int) -> some View {
-        let isSelected = item == selection
-        let isHovered = hoveredItem == item
-        let isHighlighted = index == highlightedIndex
-        return Button {
-            selection = item
-            onClose()
-        } label: {
-            HStack(spacing: AinkradSpacing.xs) {
-                Image(systemName: "diamond.fill")
-                    .font(.system(size: 6))
-                    .foregroundStyle(theme.accentSecondary)
-                    .opacity(isSelected ? 1 : 0)
-                if let dot = swatch(item) {
-                    ColorSwatchDot(color: dot, size: 9)
-                }
-                Text(label(item))
-                    .font(AinkradFontResolver.font(.body, typography: typo))
-                    .foregroundStyle(theme.foreground)
-                Spacer(minLength: 0)
-            }
-            .padding(.horizontal, AinkradSpacing.sm)
-            .padding(.vertical, AinkradSpacing.xs + 2)
-            .background(ChamferShape(cut: 4).fill((isHovered || isHighlighted) ? theme.accentSecondary.opacity(0.18) : .clear))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .animation(AinkradMotion.hover, value: isHovered)
-        .onHover { hovering in
-            hoveredItem = hovering ? item : (hoveredItem == item ? nil : hoveredItem)
-            if hovering { highlightedIndex = index }
-        }
-    }
-}
-
 /// `AinkradMultiSelect`'s option list: each row's checkmark reads `selection`
 /// live from the `@Binding<Set<T>>` on every render, so a tap flips it
 /// immediately without re-presenting the panel. Return toggles the
@@ -212,6 +121,9 @@ struct SearchableSelectPanelView<T: Hashable>: View {
     @Binding var selection: T
     let label: (T) -> String
     let placeholder: String
+    /// Optional leading color swatch per row (see `AinkradSelect.swatch`).
+    /// Defaulted so callers that don't need swatches stay unchanged.
+    var swatch: (T) -> Color? = { _ in nil }
     let onClose: () -> Void
 
     @Environment(\.ainkradTheme) private var theme
@@ -296,6 +208,9 @@ struct SearchableSelectPanelView<T: Hashable>: View {
                     .font(.system(size: 6))
                     .foregroundStyle(theme.accentSecondary)
                     .opacity(isSelected ? 1 : 0)
+                if let dot = swatch(item) {
+                    ColorSwatchDot(color: dot, size: 9)
+                }
                 Text(label(item))
                     .font(AinkradFontResolver.font(.body, typography: typo))
                     .foregroundStyle(theme.foreground)

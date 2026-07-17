@@ -59,6 +59,20 @@ public func floatingPanelFrame(
     return CGRect(x: originX, y: originY, width: contentSize.width, height: contentSize.height)
 }
 
+/// The width a floating panel's content should be laid out at: never below
+/// `minWidth`, always at least the content's natural width, and — when
+/// `matchAnchorWidth` is set — at least the trigger's own width, so a
+/// dropdown is never narrower than the field that opened it (it only ever
+/// grows to match, never shrinks). Pure — unit tested without AppKit/SwiftUI.
+public func floatingPanelContentWidth(
+    natural: CGFloat,
+    anchorWidth: CGFloat,
+    matchAnchorWidth: Bool,
+    minWidth: CGFloat = 160
+) -> CGFloat {
+    max(natural, matchAnchorWidth ? anchorWidth : 0, minWidth)
+}
+
 /// True when `point` (in SCREEN coordinates) falls outside both the panel's
 /// frame and the trigger's anchor rect. Used to distinguish a genuine
 /// outside click (which should dismiss the panel) from a click back on the
@@ -113,6 +127,7 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
     func present<Content: View>(
         maxHeight: CGFloat,
         autofocusTextField: Bool = false,
+        matchAnchorWidth: Bool = false,
         anchorScreenRectOverride: CGRect? = nil,
         @ViewBuilder content: @escaping () -> Content,
         onDismiss: @escaping () -> Void
@@ -129,7 +144,12 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
         // decide whether it needs to scroll under `maxHeight`.
         let measuring = NSHostingView(rootView: AnyView(content()))
         let natural = measuring.fittingSize
-        let width = max(natural.width, 160)
+        let anchorWidth = (anchorScreenRectOverride ?? anchorScreenRect())?.width ?? 0
+        let width = floatingPanelContentWidth(
+            natural: natural.width,
+            anchorWidth: anchorWidth,
+            matchAnchorWidth: matchAnchorWidth
+        )
         let height = min(max(natural.height, 1), maxHeight)
         let needsScroll = natural.height > maxHeight
 
@@ -344,6 +364,7 @@ private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
     @Binding var isPresented: Bool
     var maxHeight: CGFloat
     var autofocusTextField: Bool = false
+    var matchAnchorWidth: Bool = false
     @ViewBuilder var panelContent: () -> PanelContent
 
     @Environment(\.ainkradTheme) private var theme
@@ -372,7 +393,7 @@ private struct AinkradFloatingPanelModifier<PanelContent: View>: ViewModifier {
         let theme = theme
         let typo = typo
         let statusColors = statusColors
-        controller.present(maxHeight: maxHeight, autofocusTextField: autofocusTextField) {
+        controller.present(maxHeight: maxHeight, autofocusTextField: autofocusTextField, matchAnchorWidth: matchAnchorWidth) {
             panelContent()
                 .environment(\.ainkradTheme, theme)
                 .environment(\.ainkradTypography, typo)
@@ -398,5 +419,19 @@ public extension View {
         @ViewBuilder content: @escaping () -> PanelContent
     ) -> some View {
         modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: maxHeight, autofocusTextField: autofocusTextField, panelContent: content))
+    }
+
+    /// Variant that additionally floors the panel's width to the trigger's own
+    /// width (`matchAnchorWidth`), so a dropdown never renders narrower than
+    /// the field that opened it. NEW additive overload — the label-free
+    /// existing overload is byte-unchanged, keeping its exported symbol stable.
+    func ainkradFloatingPanel<PanelContent: View>(
+        isPresented: Binding<Bool>,
+        maxHeight: CGFloat = 320,
+        autofocusTextField: Bool = false,
+        matchAnchorWidth: Bool,
+        @ViewBuilder content: @escaping () -> PanelContent
+    ) -> some View {
+        modifier(AinkradFloatingPanelModifier(isPresented: isPresented, maxHeight: maxHeight, autofocusTextField: autofocusTextField, matchAnchorWidth: matchAnchorWidth, panelContent: content))
     }
 }

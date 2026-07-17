@@ -72,6 +72,39 @@ struct FloatingPanelFrameTests {
     }
 }
 
+@Suite("floatingPanelContentWidth")
+struct FloatingPanelContentWidthTests {
+    @Test("floors to minWidth when content is narrower and anchor-matching is off")
+    func floorsToMin() {
+        #expect(floatingPanelContentWidth(natural: 80, anchorWidth: 300, matchAnchorWidth: false) == 160)
+    }
+
+    @Test("uses natural width when it exceeds both the floor and the anchor")
+    func usesNatural() {
+        #expect(floatingPanelContentWidth(natural: 420, anchorWidth: 300, matchAnchorWidth: true) == 420)
+    }
+
+    @Test("grows to the anchor width when matching is on and the anchor is the widest")
+    func matchesAnchor() {
+        #expect(floatingPanelContentWidth(natural: 180, anchorWidth: 300, matchAnchorWidth: true) == 300)
+    }
+
+    @Test("ignores the anchor width entirely when matching is off")
+    func ignoresAnchorWhenOff() {
+        #expect(floatingPanelContentWidth(natural: 180, anchorWidth: 900, matchAnchorWidth: false) == 180)
+    }
+
+    @Test("only ever widens — a trigger narrower than the content never shrinks the panel")
+    func onlyWidens() {
+        #expect(floatingPanelContentWidth(natural: 250, anchorWidth: 90, matchAnchorWidth: true) == 250)
+    }
+
+    @Test("honors a custom minWidth floor")
+    func customFloor() {
+        #expect(floatingPanelContentWidth(natural: 50, anchorWidth: 0, matchAnchorWidth: false, minWidth: 200) == 200)
+    }
+}
+
 @Suite("isClickOutside trigger/panel hit-testing")
 struct IsClickOutsideTests {
     let panel = CGRect(x: 100, y: 400, width: 160, height: 120)

@@ -122,6 +122,12 @@ private struct PanelMaterialize<Content: View>: View {
 /// is never clipped by an ancestor's bounds. Dismisses on selection, outside
 /// click, Esc, or the host window losing key/moving — all handled by the
 /// floating panel itself.
+///
+/// The dropdown ALWAYS carries a live-filter search field pinned to the top
+/// of its panel (typing narrows the rows via `comboboxFilter`), and the panel
+/// is floored to the trigger's own width so it never renders narrower than the
+/// field that opened it. `AinkradSearchableSelect` is now a thin alias of this
+/// type (kept for source/ABI compatibility).
 public struct AinkradSelect<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T
@@ -131,6 +137,9 @@ public struct AinkradSelect<T: Hashable>: View {
     /// `init(items:selection:label:)` stays byte-unchanged — see the
     /// `swatch:`-carrying overload.
     private var swatch: (T) -> Color? = { _ in nil }
+    /// Placeholder shown in the always-present search field. Defaulted so the
+    /// existing inits stay byte-unchanged.
+    private var searchPlaceholder: String = "Search…"
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
@@ -149,11 +158,22 @@ public struct AinkradSelect<T: Hashable>: View {
         self.swatch = swatch
     }
 
+    /// Variant that customizes the search field's placeholder. NEW overload;
+    /// backs `AinkradSearchableSelect`'s `placeholder:` after the fold.
+    public init(items: [T], selection: Binding<T>, label: @escaping (T) -> String,
+                searchPlaceholder: String) {
+        self.items = items; self._selection = selection; self.label = label
+        self.searchPlaceholder = searchPlaceholder
+    }
+
     public var body: some View {
         trigger
-            .ainkradFloatingPanel(isPresented: $isOpen) {
+            // Always-on search field ⇒ autofocus it, and floor the panel to the
+            // trigger's width so the dropdown is never narrower than the field.
+            .ainkradFloatingPanel(isPresented: $isOpen, autofocusTextField: true, matchAnchorWidth: true) {
                 PanelMaterialize {
-                    SelectPanelView(items: items, selection: $selection, label: label, swatch: swatch, onClose: close)
+                    SearchableSelectPanelView(items: items, selection: $selection, label: label,
+                                              placeholder: searchPlaceholder, swatch: swatch, onClose: close)
                 }
             }
     }
@@ -222,7 +242,7 @@ public struct AinkradMultiSelect<T: Hashable>: View {
 
     public var body: some View {
         trigger
-            .ainkradFloatingPanel(isPresented: $isOpen) {
+            .ainkradFloatingPanel(isPresented: $isOpen, matchAnchorWidth: true) {
                 PanelMaterialize {
                     MultiSelectPanelView(items: items, selection: $selection, label: label, swatch: swatch)
                 }
@@ -295,7 +315,7 @@ public struct AinkradCombobox<T: Hashable>: View {
 
     public var body: some View {
         field
-            .ainkradFloatingPanel(isPresented: panelBinding) {
+            .ainkradFloatingPanel(isPresented: panelBinding, matchAnchorWidth: true) {
                 PanelMaterialize { optionsPanel }
             }
     }
@@ -354,20 +374,15 @@ public struct AinkradCombobox<T: Hashable>: View {
     }
 }
 
-/// `AinkradSelect` with a live-filter search field pinned to the top of its
-/// floating panel — reuses `comboboxFilter` so typing narrows the option
-/// rows below it. Click to choose (or Enter to pick the top match); Esc and
-/// outside-click dismissal are handled by the shared floating panel. Same
-/// NO-native-menu contract as the rest of the pickers.
+/// Thin alias of `AinkradSelect` — kept so existing call sites and the
+/// exported symbol keep working after search became the default on every
+/// `AinkradSelect`. Its `placeholder:` maps straight to the select's
+/// always-present search field. Prefer `AinkradSelect` directly in new code.
 public struct AinkradSearchableSelect<T: Hashable>: View {
     private let items: [T]
     @Binding private var selection: T
     private let label: (T) -> String
     private let placeholder: String
-
-    @Environment(\.ainkradTheme) private var theme
-    @Environment(\.ainkradTypography) private var typo
-    @State private var isOpen = false
 
     public init(
         items: [T],
@@ -379,42 +394,6 @@ public struct AinkradSearchableSelect<T: Hashable>: View {
     }
 
     public var body: some View {
-        trigger
-            // `autofocusTextField: true` tells the floating-panel controller
-            // to hunt down the hosted search field's backing `NSTextField`
-            // and call `makeFirstResponder` on it directly once the panel is
-            // key — see `AinkradFloatingPanelController.present`.
-            .ainkradFloatingPanel(isPresented: $isOpen, autofocusTextField: true) {
-                PanelMaterialize {
-                    SearchableSelectPanelView(items: items, selection: $selection, label: label, placeholder: placeholder, onClose: close)
-                }
-            }
-    }
-
-    private func open() { isOpen = true }
-    private func close() { isOpen = false }
-
-    private var trigger: some View {
-        Button {
-            isOpen ? close() : open()
-        } label: {
-            HStack(spacing: AinkradSpacing.xs) {
-                Text(label(selection))
-                    .font(AinkradFontResolver.font(.body, typography: typo))
-                    .foregroundStyle(theme.foreground)
-                Spacer(minLength: AinkradSpacing.sm)
-                Image(systemName: isOpen ? "chevron.up" : "chevron.down")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundStyle(theme.accentSecondary.opacity(0.85))
-            }
-            .padding(.horizontal, AinkradSpacing.md)
-            .padding(.vertical, AinkradSpacing.sm)
-            .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.5)))
-            .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentPrimary.opacity(isOpen ? 0.75 : 0.3), lineWidth: 1.25))
-            .shadow(color: theme.accentPrimary.opacity(isOpen ? 0.4 : 0), radius: isOpen ? 5 : 0)
-            .contentShape(ChamferShape(cut: 8))
-        }
-        .buttonStyle(.plain)
-        .animation(AinkradMotion.hover, value: isOpen)
+        AinkradSelect(items: items, selection: $selection, label: label, searchPlaceholder: placeholder)
     }
 }
