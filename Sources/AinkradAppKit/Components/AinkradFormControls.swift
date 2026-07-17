@@ -163,10 +163,21 @@ public struct AinkradTextArea: View {
     @Environment(\.ainkradTypography) private var typo
     @FocusState private var isFocused: Bool
 
+    /// Two EXPLICIT overloads (no defaulted param) so both mangled symbols
+    /// exist: `init(text:placeholder:)` re-mints the exact symbol pre-d38b2a8
+    /// plugins (e.g. Leyline) linked against — repairing the `dlopen` break the
+    /// earlier defaulted-param change caused — while `autoFocus:` callers
+    /// resolve to the 3-arg init. Swift prefers the non-defaulted 2-arg overload
+    /// on exact 2-arg calls, so there is no ambiguity. NEVER collapse these back
+    /// into one defaulted-param init (that changes/drops the 2-arg symbol → ABI
+    /// break). See ainkrad-hostthemetokens-abi memory.
+    public init(text: Binding<String>, placeholder: String) {
+        self._text = text; self.placeholder = placeholder; self.autoFocus = false
+    }
+
     /// `autoFocus` focuses the editor the first time it appears — for overlays
     /// (e.g. a summoned Quick-Ask) that should accept typing immediately.
-    /// Defaults to `false`, so existing call sites are unaffected (additive).
-    public init(text: Binding<String>, placeholder: String, autoFocus: Bool = false) {
+    public init(text: Binding<String>, placeholder: String, autoFocus: Bool) {
         self._text = text; self.placeholder = placeholder; self.autoFocus = autoFocus
     }
 
