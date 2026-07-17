@@ -138,16 +138,28 @@ public struct AinkradSwatchChip: View {
 public struct AinkradBadge: View {
     private let text: String
     private let status: AinkradStatus
+    /// When non-nil, the badge derives its fill/text/border straight from this
+    /// tint instead of the `status`→color mapping (for accent pills like
+    /// GitMage's open/merged states and AUTHOR/current badges). Stored at the
+    /// END with a default so the original `init(text:status:)` is unchanged.
+    private let tint: Color?
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradStatusColors) private var statusColors
     @Environment(\.ainkradTypography) private var typo
 
     public init(text: String, status: AinkradStatus = .neutral) {
-        self.text = text; self.status = status
+        self.text = text; self.status = status; self.tint = nil
     }
 
-    private var color: Color { status.color(in: theme, statusColors: statusColors) }
+    /// Tint-driven variant — distinct symbol from `init(text:status:)`
+    /// (different second label). Mirrors the status version's fill/text/border
+    /// opacities, sourced from `tint`.
+    public init(text: String, tint: Color) {
+        self.text = text; self.status = .neutral; self.tint = tint
+    }
+
+    private var color: Color { tint ?? status.color(in: theme, statusColors: statusColors) }
 
     public var body: some View {
         Text(text.uppercased())

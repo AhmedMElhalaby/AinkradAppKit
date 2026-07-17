@@ -26,6 +26,17 @@ struct AinkradSwatchChipTests {
     }
 }
 
+@Suite("AinkradBadge")
+struct AinkradBadgeTests {
+    @Test("status and tint variants both construct (compile smoke)")
+    func constructs() {
+        _ = AinkradBadge(text: "neutral")
+        _ = AinkradBadge(text: "ok", status: .success)
+        _ = AinkradBadge(text: "open", tint: .green)
+        _ = AinkradBadge(text: "merged", tint: .purple)
+    }
+}
+
 @Suite("AinkradStatus")
 struct AinkradStatusTests {
     @Test("four cases")

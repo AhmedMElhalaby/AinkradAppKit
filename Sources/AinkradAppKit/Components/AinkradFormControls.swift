@@ -158,6 +158,9 @@ public struct AinkradTextArea: View {
     @Binding private var text: String
     private let placeholder: String
     private let autoFocus: Bool
+    /// Editor's minimum height. Stored at the END with the historical default
+    /// (80) so both existing inits keep their exact behavior.
+    private let minHeight: CGFloat
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
@@ -173,12 +176,24 @@ public struct AinkradTextArea: View {
     /// break). See ainkrad-hostthemetokens-abi memory.
     public init(text: Binding<String>, placeholder: String) {
         self._text = text; self.placeholder = placeholder; self.autoFocus = false
+        self.minHeight = 80
     }
 
     /// `autoFocus` focuses the editor the first time it appears — for overlays
     /// (e.g. a summoned Quick-Ask) that should accept typing immediately.
     public init(text: Binding<String>, placeholder: String, autoFocus: Bool) {
         self._text = text; self.placeholder = placeholder; self.autoFocus = autoFocus
+        self.minHeight = 80
+    }
+
+    /// Shorter/taller composer variant — `minHeight` replaces the hardcoded 80.
+    /// Distinct symbol from the two inits above (different third label), and the
+    /// non-defaulted `minHeight` keeps a bare 2-arg call resolving to
+    /// `init(text:placeholder:)`, so no ambiguity. For GitMage's compact
+    /// comment composers.
+    public init(text: Binding<String>, placeholder: String, minHeight: CGFloat) {
+        self._text = text; self.placeholder = placeholder; self.autoFocus = false
+        self.minHeight = minHeight
     }
 
     public var body: some View {
@@ -200,7 +215,7 @@ public struct AinkradTextArea: View {
                 .padding(.horizontal, AinkradSpacing.md)
                 .padding(.vertical, AinkradSpacing.sm)
         }
-        .frame(minHeight: 80)
+        .frame(minHeight: minHeight)
         .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.5)))
         .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentPrimary.opacity(isFocused ? 0.9 : 0.25), lineWidth: isFocused ? 1.5 : 1.25))
         .shadow(color: theme.accentSecondary.opacity(isFocused ? 0.4 : 0), radius: isFocused ? 6 : 0)

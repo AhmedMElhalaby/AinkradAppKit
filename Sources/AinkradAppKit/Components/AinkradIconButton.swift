@@ -5,6 +5,11 @@ import SwiftUI
 public struct AinkradIconButton: View {
     private let systemName: String
     private let action: () -> Void
+    /// Button frame edge (width == height). Defaults to the historical fixed
+    /// 30×30 so the original `init(systemName:action:)` keeps its exact look.
+    private let size: CGFloat
+    /// Self-managed hover tooltip; `nil` = no tooltip (original behavior).
+    private let tooltip: String?
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradReduceMotion) private var reduceMotion
@@ -12,23 +17,43 @@ public struct AinkradIconButton: View {
 
     public init(systemName: String, action: @escaping () -> Void) {
         self.systemName = systemName; self.action = action
+        self.size = 30; self.tooltip = nil
     }
 
+    /// Sized (and optionally tooltipped) variant. `size` is non-defaulted, so
+    /// this is a distinct mangled symbol from `init(systemName:action:)` — the
+    /// existing symbol is untouched. The chamfer cut and glyph scale with `size`.
+    public init(systemName: String, size: CGFloat, tooltip: String? = nil, action: @escaping () -> Void) {
+        self.systemName = systemName; self.action = action
+        self.size = size; self.tooltip = tooltip
+    }
+
+    /// Chamfer cut scaled off the frame — 6 at the historical 30×30.
+    private var cut: CGFloat { size * 0.2 }
+    /// Glyph point size scaled off the frame — ~13 at the historical 30×30.
+    private var glyphSize: CGFloat { size * 0.433 }
+
     public var body: some View {
-        Button(action: action) {
+        let button = Button(action: action) {
             Image(systemName: systemName)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: glyphSize, weight: .semibold))
                 .foregroundStyle(theme.foreground.opacity(hovering ? 1.0 : 0.75))
-                .frame(width: 30, height: 30)
-                .background(ChamferShape(cut: 6).fill(theme.surfaceElevated.opacity(hovering ? 0.7 : 0.4)))
-                .overlay(ChamferShape(cut: 6).strokeBorder(theme.accentSecondary.opacity(hovering ? 0.85 : 0.35), lineWidth: 1))
+                .frame(width: size, height: size)
+                .background(ChamferShape(cut: cut).fill(theme.surfaceElevated.opacity(hovering ? 0.7 : 0.4)))
+                .overlay(ChamferShape(cut: cut).strokeBorder(theme.accentSecondary.opacity(hovering ? 0.85 : 0.35), lineWidth: 1))
                 .shadow(color: theme.accentSecondary.opacity(hovering ? 0.5 : 0), radius: hovering ? 5 : 0)
-                .contentShape(ChamferShape(cut: 6))
+                .contentShape(ChamferShape(cut: cut))
         }
         .buttonStyle(.plain)
         .scaleEffect(hovering && !reduceMotion ? 1.05 : 1.0)
         .animation(AinkradMotion.hover, value: hovering)
         .onHover { hovering = $0 }
+
+        if let tooltip {
+            button.ainkradTooltip(tooltip)
+        } else {
+            button
+        }
     }
 }
 
