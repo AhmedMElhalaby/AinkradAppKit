@@ -129,6 +129,12 @@ public func spinnerPulseOpacity(date: Date, period: TimeInterval = 1.2) -> Doubl
 /// opacity — this satisfies Reduce Motion while still conveying activity.
 public struct AinkradSpinner: View {
     private let size: CGFloat
+    /// Optional arc tint. `nil` (the default set by `init(size:)`) keeps the
+    /// original `accentSecondary` arc; a non-nil value is used verbatim so an
+    /// in-button spinner can match the button's foreground (e.g. white-on-
+    /// primary). Additive stored field with a default so `init(size:)` stays
+    /// byte-unchanged — see `init(size:tint:)`.
+    private var tint: Color? = nil
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradReduceMotion) private var reduceMotion
@@ -136,6 +142,16 @@ public struct AinkradSpinner: View {
     public init(size: CGFloat = 20) {
         self.size = size
     }
+
+    /// Tinted variant — colors the arc with `tint` instead of `accentSecondary`,
+    /// for white-on-primary in-button spinners. NEW overload (distinct symbol);
+    /// the existing `init(size:)` is untouched.
+    public init(size: CGFloat, tint: Color) {
+        self.size = size
+        self.tint = tint
+    }
+
+    private var arcColor: Color { tint ?? theme.accentSecondary }
 
     public var body: some View {
         Group {
@@ -158,8 +174,8 @@ public struct AinkradSpinner: View {
                 .stroke(theme.foreground.opacity(0.12), lineWidth: max(1.5, size * 0.08))
             Circle()
                 .trim(from: 0, to: 0.28)
-                .stroke(theme.accentSecondary, style: StrokeStyle(lineWidth: max(1.5, size * 0.08), lineCap: .round))
-                .shadow(color: theme.accentSecondary.opacity(0.6), radius: 3)
+                .stroke(arcColor, style: StrokeStyle(lineWidth: max(1.5, size * 0.08), lineCap: .round))
+                .shadow(color: arcColor.opacity(0.6), radius: 3)
                 .opacity(arcOpacity)
                 .rotationEffect(angle)
         }

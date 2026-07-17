@@ -1,6 +1,19 @@
 import Foundation
 import Testing
+import SwiftUI
 @testable import AinkradAppKit
+
+@Suite("AinkradSpinner inits")
+struct AinkradSpinnerInitTests {
+    @Test("existing init(size:) and the new init(size:tint:) both construct (compile smoke)")
+    func constructs() {
+        // Existing symbol must still exist, byte-unchanged.
+        _ = AinkradSpinner(size: 20)
+        _ = AinkradSpinner()
+        // NEW overload: tinted arc for in-button spinners.
+        _ = AinkradSpinner(size: 14, tint: .white)
+    }
+}
 
 @Suite("filledSegments")
 struct FilledSegmentsTests {

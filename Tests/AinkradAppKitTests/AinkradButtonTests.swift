@@ -1,5 +1,18 @@
 import Testing
+import SwiftUI
 @testable import AinkradAppKit
+
+@Suite("AinkradButton inits")
+struct AinkradButtonInitTests {
+    @Test("existing init and the new isLoading overload both construct (compile smoke)")
+    func constructs() {
+        // Existing symbol must still exist, byte-unchanged.
+        _ = AinkradButton(title: "Fetch", style: .primary, icon: "arrow.down") {}
+        // NEW overload: isLoading has no default, a distinct symbol.
+        _ = AinkradButton(title: "Fetch", style: .primary, icon: "arrow.down", isLoading: true) {}
+        _ = AinkradButton(title: "Push", isLoading: false) {}
+    }
+}
 
 @Suite("AinkradButtonStyle")
 struct AinkradButtonStyleTests {

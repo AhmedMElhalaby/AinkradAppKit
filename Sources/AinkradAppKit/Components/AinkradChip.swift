@@ -62,6 +62,77 @@ public struct AinkradChip: View {
     }
 }
 
+/// Small chamfered color swatch — the leading dot shared by color-labeled
+/// picker rows (`AinkradSelect`/`AinkradMultiSelect`'s `swatch:` overloads) and
+/// `AinkradSwatchChip`. Internal; not part of the plugin ABI surface.
+struct ColorSwatchDot: View {
+    let color: Color
+    var size: CGFloat = 10
+
+    @Environment(\.ainkradTheme) private var theme
+
+    var body: some View {
+        ChamferShape(cut: 2, corners: .all)
+            .fill(color)
+            .frame(width: size, height: size)
+            .overlay(
+                ChamferShape(cut: 2, corners: .all)
+                    .strokeBorder(theme.foreground.opacity(0.25), lineWidth: 0.5)
+            )
+    }
+}
+
+/// Chip carrying a leading color swatch — for GitHub-label filter bars. Renders
+/// a `ColorSwatchDot` before the label; when `onTap` is supplied it behaves as a
+/// toggle chip (`isOn` drives the lit/selected treatment). NEW public type,
+/// purely additive — old plugins never reference it.
+public struct AinkradSwatchChip: View {
+    private let label: String
+    private let swatch: Color
+    private let isOn: Bool
+    private let onTap: (() -> Void)?
+
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradTypography) private var typo
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
+    @State private var hovering = false
+
+    public init(label: String, swatch: Color, isOn: Bool = false, onTap: (() -> Void)? = nil) {
+        self.label = label; self.swatch = swatch; self.isOn = isOn; self.onTap = onTap
+    }
+
+    /// Whether this chip behaves as a tappable toggle (vs. a static tag).
+    public var isToggle: Bool { onTap != nil }
+
+    private var borderColor: Color { isOn ? theme.accentPrimary : theme.accentSecondary }
+
+    public var body: some View {
+        let content = HStack(spacing: AinkradSpacing.xs) {
+            ColorSwatchDot(color: swatch)
+            Text(label)
+                .font(AinkradFontResolver.font(.caption, typography: typo))
+        }
+        .foregroundStyle(theme.foreground.opacity(isOn ? 1 : 0.85))
+        .padding(.horizontal, AinkradSpacing.sm)
+        .padding(.vertical, AinkradSpacing.xs)
+        .background(ChamferShape(cut: 5).fill(theme.surfaceElevated.opacity(isOn ? 0.8 : (hovering ? 0.65 : 0.45))))
+        .overlay(ChamferShape(cut: 5).strokeBorder(borderColor.opacity(isOn ? 0.85 : (hovering ? 0.6 : 0.3)), lineWidth: isOn ? 1.25 : 1))
+        .shadow(color: theme.accentPrimary.opacity(isOn ? 0.3 : 0), radius: isOn ? 4 : 0)
+        .scaleEffect(hovering && !reduceMotion ? 1.03 : 1.0)
+        .animation(AinkradMotion.hover, value: hovering)
+        .animation(AinkradMotion.hover, value: isOn)
+        .contentShape(ChamferShape(cut: 5))
+        .onHover { hovering = $0 }
+
+        if let onTap {
+            Button(action: onTap) { content }
+                .buttonStyle(.plain)
+        } else {
+            content
+        }
+    }
+}
+
 /// Small status pill — filled with the status color at low opacity, text in
 /// the status color.
 public struct AinkradBadge: View {
