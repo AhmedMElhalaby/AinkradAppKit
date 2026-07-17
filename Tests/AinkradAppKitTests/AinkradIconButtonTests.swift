@@ -16,3 +16,16 @@ struct AinkradToggleButtonTests {
         #expect(buttonOn.isActive == true)
     }
 }
+
+@Suite("AinkradIconButton")
+struct AinkradIconButtonTests {
+    @Test("all three call shapes construct (existing 2-arg + sized + sized+tooltip)")
+    func constructs() {
+        // Existing (byte-unchanged) init.
+        _ = AinkradIconButton(systemName: "gear") {}
+        // New sized init (tooltip defaulted nil).
+        _ = AinkradIconButton(systemName: "gear", size: 22) {}
+        // New sized init with explicit tooltip.
+        _ = AinkradIconButton(systemName: "gear", size: 44, tooltip: "Settings") {}
+    }
+}
