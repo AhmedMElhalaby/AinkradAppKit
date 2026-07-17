@@ -157,13 +157,17 @@ public struct AinkradSearchField: View {
 public struct AinkradTextArea: View {
     @Binding private var text: String
     private let placeholder: String
+    private let autoFocus: Bool
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @FocusState private var isFocused: Bool
 
-    public init(text: Binding<String>, placeholder: String) {
-        self._text = text; self.placeholder = placeholder
+    /// `autoFocus` focuses the editor the first time it appears — for overlays
+    /// (e.g. a summoned Quick-Ask) that should accept typing immediately.
+    /// Defaults to `false`, so existing call sites are unaffected (additive).
+    public init(text: Binding<String>, placeholder: String, autoFocus: Bool = false) {
+        self._text = text; self.placeholder = placeholder; self.autoFocus = autoFocus
     }
 
     public var body: some View {
@@ -190,6 +194,10 @@ public struct AinkradTextArea: View {
         .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentPrimary.opacity(isFocused ? 0.9 : 0.25), lineWidth: isFocused ? 1.5 : 1.25))
         .shadow(color: theme.accentSecondary.opacity(isFocused ? 0.4 : 0), radius: isFocused ? 6 : 0)
         .animation(AinkradMotion.hover, value: isFocused)
+        .onAppear {
+            guard autoFocus else { return }
+            DispatchQueue.main.async { isFocused = true }
+        }
     }
 }
 
