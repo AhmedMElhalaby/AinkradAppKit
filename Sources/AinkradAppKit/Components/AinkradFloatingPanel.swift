@@ -208,6 +208,15 @@ final class AinkradFloatingPanelController: NSObject, NSWindowDelegate {
                 guard let panel, let self, self.panel === panel else { return }
                 if let field = Self.firstTextField(in: panel.contentView) {
                     panel.makeFirstResponder(field)
+                    // Defense-in-depth: disable inline text-prediction/
+                    // completion on the field editor so macOS's completion
+                    // service (SPCompletionListServiceViewController) never
+                    // attaches a remote view here — see AinkradFormControls'
+                    // AutoGrowingTextView for the primary fix and rationale.
+                    if let editor = (field as? NSTextField)?.currentEditor() as? NSTextView {
+                        editor.isAutomaticTextCompletionEnabled = false
+                        if #available(macOS 14.0, *) { editor.inlinePredictionType = .no }
+                    }
                 }
             }
         }

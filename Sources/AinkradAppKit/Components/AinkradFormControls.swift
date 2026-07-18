@@ -352,6 +352,11 @@ private struct AutoGrowingTextView: NSViewRepresentable {
         tv.delegate = context.coordinator
         tv.isRichText = false
         tv.allowsUndo = true
+        tv.isAutomaticTextCompletionEnabled = false
+        tv.isAutomaticSpellingCorrectionEnabled = false
+        tv.isAutomaticQuoteSubstitutionEnabled = false
+        tv.isAutomaticDashSubstitutionEnabled = false
+        if #available(macOS 14.0, *) { tv.inlinePredictionType = .no }
         tv.drawsBackground = false
         tv.font = font
         tv.textColor = textColor
