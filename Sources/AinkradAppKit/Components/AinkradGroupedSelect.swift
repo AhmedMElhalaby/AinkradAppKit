@@ -220,13 +220,17 @@ struct GroupedSelectPanelView<T: Hashable>: View {
 
     private func sectionView(_ section: AinkradGroupedSection<T>) -> some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(section.header.uppercased())
-                .font(AinkradFontResolver.font(.caption, typography: typo))
-                .foregroundStyle(theme.foreground.opacity(0.45))
-                .kerning(1.0)
-                .padding(.horizontal, AinkradSpacing.sm)
-                .padding(.top, AinkradSpacing.xs)
-                .padding(.bottom, 2)
+            // An empty header (e.g. a trailing action-only section) collapses —
+            // no blank header line above its rows.
+            if !section.header.isEmpty {
+                Text(section.header.uppercased())
+                    .font(AinkradFontResolver.font(.caption, typography: typo))
+                    .foregroundStyle(theme.foreground.opacity(0.45))
+                    .kerning(1.0)
+                    .padding(.horizontal, AinkradSpacing.sm)
+                    .padding(.top, AinkradSpacing.xs)
+                    .padding(.bottom, 2)
+            }
             ForEach(section.rows, id: \.self) { row in
                 optionRow(row)
             }
