@@ -19,6 +19,12 @@ struct AinkradGroupedSelectTests {
     @Test("empty query returns all sections") func all() {
         #expect(filterGroupedSections(sections, query: "").count == 2)
     }
+    @Test("a header match keeps the whole section (search by group name)") func headerMatch() {
+        let out = filterGroupedSections(sections, query: "ollama")
+        #expect(out.count == 1)
+        #expect(out.first?.header == "Ollama")
+        #expect(out.first?.rows.map(\.value) == ["llama3"])  // all rows kept, not filtered by title
+    }
     @Test("flattened selectable rows skip disabled + headers") func selectable() {
         #expect(selectableValues(sections) == ["gpt-4o", "llama3"])  // o3 disabled
     }

@@ -42,6 +42,10 @@ public func filterGroupedSections<T>(_ sections: [AinkradGroupedSection<T>], que
     let q = query.trimmingCharacters(in: .whitespaces).lowercased()
     guard !q.isEmpty else { return sections }
     return sections.compactMap { section in
+        // A header match (e.g. a connection/provider name) keeps the whole
+        // section; otherwise keep only rows whose title matches. This lets a
+        // grouped select be searched by group name as well as by row.
+        if section.header.lowercased().contains(q) { return section }
         let rows = section.rows.filter { $0.title.lowercased().contains(q) }
         return rows.isEmpty ? nil : AinkradGroupedSection(header: section.header, rows: rows)
     }
