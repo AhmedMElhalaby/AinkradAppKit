@@ -164,6 +164,20 @@ struct GroupedSelectPanelView<T: Hashable>: View {
     private var filteredSections: [AinkradGroupedSection<T>] { filterGroupedSections(sections, query: query) }
     private var highlightableValues: [T] { selectableValues(filteredSections) }
 
+    /// One flattened, lazily-rendered stream of headers + rows. Flattening (rather
+    /// than nesting a VStack of rows per section) keeps rendering cheap even when a
+    /// single provider returns hundreds of models — only near-visible items are
+    /// realized by the `LazyVStack`, so opening the panel stays snappy.
+    private enum PanelItem: Hashable {
+        case header(String)
+        case row(AinkradGroupedRow<T>)
+    }
+    private var flatItems: [PanelItem] {
+        filteredSections.flatMap { section -> [PanelItem] in
+            (section.header.isEmpty ? [] : [.header(section.header)]) + section.rows.map { PanelItem.row($0) }
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: AinkradSpacing.xs) {
             searchField
@@ -174,9 +188,18 @@ struct GroupedSelectPanelView<T: Hashable>: View {
                     .padding(.horizontal, AinkradSpacing.sm)
                     .padding(.vertical, AinkradSpacing.xs)
             } else {
-                ForEach(filteredSections, id: \.self) { section in
-                    sectionView(section)
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        ForEach(flatItems, id: \.self) { item in
+                            switch item {
+                            case .header(let header): headerView(header)
+                            case .row(let row): optionRow(row)
+                            }
+                        }
+                    }
                 }
+                .frame(maxHeight: 320)
+                .scrollBounceBehavior(.basedOnSize)
             }
         }
         .padding(AinkradSpacing.xs)
@@ -218,23 +241,17 @@ struct GroupedSelectPanelView<T: Hashable>: View {
             .overlay(ChamferShape(cut: 4).strokeBorder(theme.accentPrimary.opacity(0.3), lineWidth: 1))
     }
 
-    private func sectionView(_ section: AinkradGroupedSection<T>) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // An empty header (e.g. a trailing action-only section) collapses —
-            // no blank header line above its rows.
-            if !section.header.isEmpty {
-                Text(section.header.uppercased())
-                    .font(AinkradFontResolver.font(.caption, typography: typo))
-                    .foregroundStyle(theme.foreground.opacity(0.45))
-                    .kerning(1.0)
-                    .padding(.horizontal, AinkradSpacing.sm)
-                    .padding(.top, AinkradSpacing.xs)
-                    .padding(.bottom, 2)
-            }
-            ForEach(section.rows, id: \.self) { row in
-                optionRow(row)
-            }
-        }
+    // Section header row in the flattened `LazyVStack`. Empty headers are never
+    // emitted into `flatItems`, so this always renders a real label.
+    private func headerView(_ header: String) -> some View {
+        Text(header.uppercased())
+            .font(AinkradFontResolver.font(.caption, typography: typo))
+            .foregroundStyle(theme.foreground.opacity(0.45))
+            .kerning(1.0)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, AinkradSpacing.sm)
+            .padding(.top, AinkradSpacing.xs)
+            .padding(.bottom, 2)
     }
 
     private func optionRow(_ row: AinkradGroupedRow<T>) -> some View {
