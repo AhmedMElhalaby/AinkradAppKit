@@ -206,7 +206,7 @@ struct GroupedSelectPanelView<T: Hashable>: View {
         .background(ChamferShape(cut: 8).fill(theme.surfaceElevated.opacity(0.97)))
         .overlay(ChamferShape(cut: 8).strokeBorder(theme.accentSecondary.opacity(0.55), lineWidth: 1.25))
         .shadow(color: theme.accentSecondary.opacity(0.35), radius: 10, y: 4)
-        .frame(minWidth: 220)
+        .frame(minWidth: 340)
         .onAppear { DispatchQueue.main.async { searchFocused = true } }
         .onChange(of: query) { _, _ in highlightedIndex = 0 }
         .onKeyPress(.upArrow) { move(-1) }
