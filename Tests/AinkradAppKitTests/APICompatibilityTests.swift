@@ -2,9 +2,9 @@ import Testing
 @testable import AinkradAppKit
 
 struct APICompatibilityTests {
-    @Test("current SDK reports API version 6")
+    @Test("current SDK reports API version 7")
     func currentVersion() {
-        #expect(AinkradAppKit.apiVersion == 6)
+        #expect(AinkradAppKit.apiVersion == 7)
     }
 
     @Test("a version inside the supported range is compatible")

@@ -87,17 +87,17 @@ struct AinkradMotionMaterializeTests {
     }
 }
 
-@Suite("AinkradAppKit v6")
+@Suite("AinkradAppKit v7")
 struct AinkradAppKitVersionTests {
-    @Test("scales shipped in the v6 API")
-    func versionIsSix() {
-        #expect(AinkradAppKit.apiVersion == 6)
+    @Test("scales shipped in the v7 API")
+    func versionIsSeven() {
+        #expect(AinkradAppKit.apiVersion == 7)
     }
 
-    @Test("v4 plugins remain loadable under a v6 host (additive bump)")
+    @Test("v4 plugins remain loadable under a v7 host (additive bump)")
     func v4StillCompatible() {
-        #expect(AinkradAppKit.isCompatible(bundleAPIVersion: 4, minSupported: 4, current: 6))
-        #expect(AinkradAppKit.isCompatible(bundleAPIVersion: 6, minSupported: 4, current: 6))
-        #expect(!AinkradAppKit.isCompatible(bundleAPIVersion: 7, minSupported: 4, current: 6))
+        #expect(AinkradAppKit.isCompatible(bundleAPIVersion: 4, minSupported: 4, current: 7))
+        #expect(AinkradAppKit.isCompatible(bundleAPIVersion: 7, minSupported: 4, current: 7))
+        #expect(!AinkradAppKit.isCompatible(bundleAPIVersion: 8, minSupported: 4, current: 7))
     }
 }
