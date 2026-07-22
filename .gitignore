@@ -4,3 +4,6 @@
 
 # Xcode/SwiftPM per-user state
 .swiftpm/
+
+# ABI digester scratch output (baseline itself is committed)
+abi/report.txt
