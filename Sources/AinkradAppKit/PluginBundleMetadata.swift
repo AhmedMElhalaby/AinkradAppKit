@@ -9,6 +9,12 @@ public enum PluginInfoKey {
     public static let apiVersion = "AinkradAPIVersion"
     public static let principalClass = "NSPrincipalClass"
     public static let presentation = "AinkradPresentation"
+    /// Store-listing completeness fields (sub-project D). Read directly from
+    /// the Info.plist by `StorePolicy` callers rather than folded into the
+    /// strict `PluginBundleMetadata.parse` (which stays ABI-frozen): a bundle
+    /// missing these still parses/loads, but fails `StorePolicy` review.
+    public static let author = "AinkradAuthor"
+    public static let description = "description"
 }
 
 /// How a plugin's window should be presented by the host. Defaults to `.pane`
