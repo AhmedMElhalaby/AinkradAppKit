@@ -65,4 +65,14 @@ struct PresentationMetadataTests {
         let m = try PluginBundleMetadata.parse(infoDictionary: base([PluginInfoKey.presentation: "junk"])).get()
         #expect(m.presentation == .pane)
     }
+
+    // Store-listing completeness keys (sub-project D). These names are a
+    // cross-repo contract — the scaffold template, `ainkrad publish`, and the
+    // host installer all read the same strings when building a `StoreManifestInput`
+    // — so lock them here against an accidental rename.
+    @Test("store-listing Info.plist key names are the cross-repo contract")
+    func storeListingKeyNames() {
+        #expect(PluginInfoKey.author == "AinkradAuthor")
+        #expect(PluginInfoKey.description == "description")
+    }
 }
