@@ -7,4 +7,7 @@ depending on the host binary.
 ## Building a plugin
 
 Start from the template: https://github.com/AhmedMElhalaby/AinkradPluginTemplate
-("Use this template"), then follow its README.
+("Use this template"). For the full scaffold → dev → validate → publish workflow (the
+`ainkrad` CLI, the `Info.plist` key reference, and the generation contract this SDK's
+`AinkradAppKit.apiVersion` participates in), see
+[Build an Ainkrad App](https://github.com/AhmedMElhalaby/AinkradPluginTemplate/blob/master/docs/Build-an-Ainkrad-App.md).
