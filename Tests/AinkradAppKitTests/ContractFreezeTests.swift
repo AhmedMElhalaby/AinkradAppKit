@@ -99,19 +99,35 @@ struct ContractFreezeTests {
 
     // MARK: - Generation window
 
-    @Test("The supported range spans two generations, not one")
-    func generationWindowExists() {
-        // With minSupported == current, a bump de-registered every installed
-        // plugin the instant it shipped. The window is the migration path.
-        #expect(AinkradAppKit.minSupportedAPIVersion == AinkradAppKit.apiVersion - 1)
+    @Test("The supported range is honest about what can actually load")
+    func generationWindowIsHonest() {
+        // The POLICY is a one-release window (`current - 1`), so a generation
+        // bump is a migration rather than an outage. It takes effect from
+        // generation 9.
+        //
+        // Generation 8 cannot honour it: splitting the module renamed every
+        // symbol (Swift mangles the module name in), so a generation-7 binary
+        // passes the version check and then fails to LINK. Promising support
+        // we cannot deliver turns a clear "update this app" into an opaque
+        // "failed to load", so minSupported equals current for this generation.
+        // See abi/README-module-renames.md.
+        #expect(AinkradAppKit.minSupportedAPIVersion == AinkradAppKit.apiVersion,
+                "generation 8 is a hard break; do not advertise a window")
+
+        // Whatever the window is, the range must be self-consistent: the
+        // current generation loads, the future one does not.
         #expect(AinkradAppKit.isCompatible(
-            bundleAPIVersion: AinkradAppKit.apiVersion - 1,
+            bundleAPIVersion: AinkradAppKit.apiVersion,
             minSupported: AinkradAppKit.minSupportedAPIVersion,
-            current: AinkradAppKit.apiVersion), "the previous generation must still load")
+            current: AinkradAppKit.apiVersion))
         #expect(!AinkradAppKit.isCompatible(
             bundleAPIVersion: AinkradAppKit.apiVersion + 1,
             minSupported: AinkradAppKit.minSupportedAPIVersion,
             current: AinkradAppKit.apiVersion), "a future generation must not load")
+        #expect(!AinkradAppKit.isCompatible(
+            bundleAPIVersion: AinkradAppKit.minSupportedAPIVersion - 1,
+            minSupported: AinkradAppKit.minSupportedAPIVersion,
+            current: AinkradAppKit.apiVersion), "below the floor must not load")
     }
 
     // MARK: - Layering
