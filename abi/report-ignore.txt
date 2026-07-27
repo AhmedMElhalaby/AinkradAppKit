@@ -1,0 +1,11 @@
+# Reviewed, non-breaking digester findings. Extended regexes, one per line.
+#
+# Everything NOT matched here fails `make abi-check`. Keep this list short and
+# justify every entry — it is the only thing standing between an added protocol
+# requirement and every installed plugin failing to load.
+
+# This package ships no @available annotations at all (it targets exactly one
+# deployment target, declared once in Package.swift), so the digester flags
+# every newly-added declaration this way. Purely additive, and additions are
+# safe under library evolution.
+is a new API without '@available'

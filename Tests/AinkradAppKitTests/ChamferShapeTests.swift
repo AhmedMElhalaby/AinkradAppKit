@@ -1,6 +1,8 @@
 import Testing
 import CoreGraphics
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("ChamferShape")
 struct ChamferShapeTests {

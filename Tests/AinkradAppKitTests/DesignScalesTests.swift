@@ -2,6 +2,8 @@ import Testing
 import CoreGraphics
 import SwiftUI
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("AinkradSpacing")
 struct AinkradSpacingTests {
@@ -89,9 +91,9 @@ struct AinkradMotionMaterializeTests {
 
 @Suite("AinkradAppKit v7")
 struct AinkradAppKitVersionTests {
-    @Test("scales shipped in the v7 API")
+    @Test("scales shipped in the v8 API")
     func versionIsSeven() {
-        #expect(AinkradAppKit.apiVersion == 7)
+        #expect(AinkradAppKit.apiVersion == 8)
     }
 
     @Test("v4 plugins remain loadable under a v7 host (additive bump)")

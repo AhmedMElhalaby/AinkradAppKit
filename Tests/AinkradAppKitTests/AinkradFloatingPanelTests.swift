@@ -1,6 +1,8 @@
 import Foundation
 import Testing
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("floatingPanelFrame positioning")
 struct FloatingPanelFrameTests {

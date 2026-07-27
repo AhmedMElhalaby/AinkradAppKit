@@ -1,6 +1,8 @@
 import Testing
 import SwiftUI
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("AinkradTheme environment")
 struct AinkradThemeEnvironmentTests {

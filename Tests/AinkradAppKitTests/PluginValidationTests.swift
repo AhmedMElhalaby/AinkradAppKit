@@ -1,5 +1,7 @@
 import Testing
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite struct PluginValidationTests {
     private func meta(_ api: Int) -> PluginBundleMetadata {

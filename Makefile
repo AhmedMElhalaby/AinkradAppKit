@@ -4,26 +4,35 @@ SDK := $(shell xcrun --show-sdk-path)
 TARGET := arm64-apple-macosx14.0
 DIGESTER := xcrun swift-api-digester
 MODULES := .build/release
-ABI := abi/AinkradAppKit.abi.json
+ABI := abi/AinkradAppKitContract.abi.json
 ALLOWLIST := abi/breakage-allowlist.txt
 
 .PHONY: build abi-baseline abi-check test
 build:
 	swift build -c release
 
+# The baseline tracks AinkradAppKitContract ONLY.
+#
+# It used to cover the whole package, so every HUD component tweak registered as
+# an ABI event and the committed baseline was ~90% component churn — real
+# contract changes had nothing to stand out against. The contract is the only
+# module whose ABI can stop an installed plugin from loading, so it is the only
+# one held to this standard. AinkradAppKitUI is free to move.
+
 # Regenerate the committed ABI baseline (run after an intentional, reviewed change).
 abi-baseline: build
-	$(DIGESTER) -dump-sdk -abi -module AinkradAppKit \
+	$(DIGESTER) -dump-sdk -abi -module AinkradAppKitContract \
 	  -o $(ABI) -I $(MODULES) -sdk $(SDK) -target $(TARGET)
 
 # Fail if the current module has an ABI break vs. the committed baseline.
+# The pass/fail decision lives in scripts/abi-check.sh — see the comment there
+# for why `grep "has been"` was not enough: it cannot see added protocol
+# requirements, which are exactly the break library evolution does NOT cover.
 abi-check: build
-	$(DIGESTER) -diagnose-sdk -abi -module AinkradAppKit \
+	$(DIGESTER) -diagnose-sdk -abi -module AinkradAppKitContract \
 	  -baseline-path $(ABI) -I $(MODULES) -sdk $(SDK) -target $(TARGET) \
-	  -breakage-allowlist-path $(ALLOWLIST) -o abi/report.txt ; \
-	if grep -q "has been" abi/report.txt 2>/dev/null; then \
-	  echo "ABI BREAK vs baseline (bump generation or allowlist):"; cat abi/report.txt; exit 1; \
-	else echo "abi-check: no breaking changes"; fi
+	  -breakage-allowlist-path $(ALLOWLIST) -o abi/report.txt
+	@./scripts/abi-check.sh abi/report.txt
 
 test:
 	swift test

@@ -1,0 +1,50 @@
+name: CI
+
+# AinkradAppKit is the ABI contract every plugin in the family binds to, and
+# until now it had no .github directory at all — `make abi-check` ran only when
+# someone remembered, which is how its baseline drifted four commits behind
+# without anyone noticing.
+#
+# TOOLCHAIN CAVEAT: this package currently needs the macOS 27 beta SDK, which
+# GitHub-hosted runners do not have. Point `runs-on` at a self-hosted runner
+# with Xcode-beta installed, or wait for that Xcode to ship. Until then the
+# same checks run locally via `scripts/preflight.sh` in the host repo, which
+# `scripts/release.sh` invokes — so a release cannot skip them even while this
+# workflow is dormant.
+
+on:
+  push:
+    branches: [master, main, development]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select toolchain
+        run: |
+          if [[ -d /Applications/Xcode-beta.app ]]; then
+            echo "DEVELOPER_DIR=/Applications/Xcode-beta.app/Contents/Developer" >> "$GITHUB_ENV"
+          fi
+
+      - name: Build
+        run: swift build -c release
+
+      - name: Test
+        run: swift test
+
+      # The point of this workflow. An added protocol requirement is the one
+      # ABI break library evolution does NOT cover: an already-installed plugin
+      # has no witness for it and fails to load. Nothing in a normal build
+      # catches that; this does.
+      - name: ABI check
+        run: make abi-check
+
+      - name: Upload ABI report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: abi-report
+          path: abi/report.txt
