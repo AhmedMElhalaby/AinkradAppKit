@@ -19,14 +19,32 @@ public enum AinkradAppKit {
 
     /// The oldest generation a host built on this SDK still loads.
     ///
-    /// Deliberately `apiVersion - 1`, giving each generation a one-release
-    /// deprecation window. Before this, the host's `minSupported` tracked
-    /// `current` exactly, so bumping the generation **instantly de-registered
-    /// every installed plugin**: the bump and the breakage were the same
-    /// event, with no release in between for plugin authors to rebuild
-    /// against. A window turns a generation bump into a migration instead of
-    /// an outage.
-    public static let minSupportedAPIVersion = apiVersion - 1
+    /// **Generation 8 is a HARD break, so this equals `apiVersion`.**
+    ///
+    /// The intent was `apiVersion - 1` — a one-release deprecation window, so
+    /// a generation bump is a migration rather than an outage. That is the
+    /// right long-term policy and it takes effect from generation 9.
+    ///
+    /// It cannot apply to generation 8, because splitting the module into
+    /// `AinkradAppKitContract` + `AinkradAppKitUI` **renamed every symbol**:
+    /// Swift mangles the module name into its mangled names, so a plugin
+    /// compiled against generation 7 references 71 `AinkradAppKit…` symbols
+    /// that no longer exist. It passes the version check and then fails to
+    /// link — `Bundle.load()` returns false.
+    ///
+    /// Claiming to support generation 7 here would be a promise the loader
+    /// cannot keep: the user would see "plugin failed to load" instead of the
+    /// honest "built against generation 7; this host supports 8 — update the
+    /// app". Verified empirically by signing a real hardened-runtime build and
+    /// loading both a stale and a freshly-built plugin.
+    ///
+    /// Neither guardrail caught this, which is worth remembering:
+    /// `swift-api-digester` compared the new contract module against a baseline
+    /// regenerated *from that same module*, so the move was invisible to it;
+    /// and `ContractFreezeTests` checks source-level conformance, not symbol
+    /// mangling. A module rename is an ABI break that looks like a no-op to
+    /// both. See `abi/README-module-renames.md`.
+    public static let minSupportedAPIVersion = apiVersion
 
     /// A bundle built against `bundleAPIVersion` is loadable exactly when it
     /// falls within the host's inclusive supported range.
