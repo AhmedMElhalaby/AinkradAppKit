@@ -1,0 +1,150 @@
+import SwiftUI
+import AppKit
+import AinkradAppKitContract
+
+/// One row of a `.ainkradContextMenu(_:)` — a title, optional leading SF
+/// Symbol, an optional destructive style, and the action to run on selection.
+public struct AinkradMenuItem: Identifiable {
+    public let id = UUID()
+    public let title: String
+    public let systemName: String?
+    public let isDestructive: Bool
+    public let action: () -> Void
+
+    public init(title: String, systemName: String? = nil, isDestructive: Bool = false, action: @escaping () -> Void) {
+        self.title = title
+        self.systemName = systemName
+        self.isDestructive = isDestructive
+        self.action = action
+    }
+}
+
+/// Zero-footprint `NSView` that reports right mouse-down events (in SCREEN
+/// coordinates, matching `NSEvent.mouseLocation` used throughout
+/// `AinkradFloatingPanelController`) via `onRightClick`, then forwards the
+/// event via `super` so normal right-click behavior elsewhere is undisturbed.
+/// This — deliberately not any AppKit/SwiftUI native context-menu API — is
+/// how `.ainkradContextMenu(_:)` detects a right-click; the menu itself is
+/// drawn entirely by `AinkradContextMenuList` inside a floating panel.
+private final class AinkradRightClickCatcherView: NSView {
+    var onRightClick: ((CGPoint) -> Void)?
+
+    override func rightMouseDown(with event: NSEvent) {
+        onRightClick?(NSEvent.mouseLocation)
+        super.rightMouseDown(with: event)
+    }
+}
+
+private struct AinkradContextMenuCatcher: NSViewRepresentable {
+    let controller: AinkradFloatingPanelController
+    let onRightClick: (CGPoint) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = AinkradRightClickCatcherView()
+        view.onRightClick = onRightClick
+        controller.anchorView = view
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        guard let view = nsView as? AinkradRightClickCatcherView else { return }
+        view.onRightClick = onRightClick
+        controller.anchorView = view
+    }
+}
+
+/// The chamfer floating-panel content for `.ainkradContextMenu(_:)` — hover
+/// scan per row, optional leading icons, destructive rows tinted with
+/// `ainkradStatusColors.danger`. Selecting a row runs its action then
+/// dismisses.
+private struct AinkradContextMenuList: View {
+    let items: [AinkradMenuItem]
+    let dismiss: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(items) { item in
+                AinkradContextMenuRow(item: item) {
+                    item.action()
+                    dismiss()
+                }
+            }
+        }
+        .padding(AinkradSpacing.xs)
+        .ainkradPanel()
+    }
+}
+
+private struct AinkradContextMenuRow: View {
+    let item: AinkradMenuItem
+    let onSelect: () -> Void
+
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradStatusColors) private var statusColors
+    @Environment(\.ainkradTypography) private var typo
+    @State private var hovering = false
+
+    private var tint: Color { item.isDestructive ? statusColors.danger : theme.foreground.opacity(0.9) }
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack(spacing: AinkradSpacing.sm) {
+                if let systemName = item.systemName {
+                    Image(systemName: systemName).font(.system(size: 12, weight: .semibold))
+                }
+                Text(item.title)
+                    .font(AinkradFontResolver.font(.body, typography: typo))
+                Spacer(minLength: AinkradSpacing.md)
+            }
+            .foregroundStyle(tint)
+            .padding(.horizontal, AinkradSpacing.sm)
+            .padding(.vertical, AinkradSpacing.xs)
+            .background(ChamferShape(cut: 4).fill(hovering ? theme.accentSecondary.opacity(0.14) : .clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering = $0 }
+    }
+}
+
+private struct AinkradContextMenuModifier: ViewModifier {
+    let items: [AinkradMenuItem]
+
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradTypography) private var typo
+    @Environment(\.ainkradStatusColors) private var statusColors
+    @State private var controller = AinkradFloatingPanelController()
+
+    func body(content: Content) -> some View {
+        content.background(
+            AinkradContextMenuCatcher(controller: controller, onRightClick: present)
+        )
+    }
+
+    private func present(at screenPoint: CGPoint) {
+        let theme = theme
+        let typo = typo
+        let statusColors = statusColors
+        controller.present(
+            maxHeight: 320,
+            anchorScreenRectOverride: CGRect(origin: screenPoint, size: .zero)
+        ) {
+            AinkradContextMenuList(items: items, dismiss: { controller.dismiss() })
+                .environment(\.ainkradTheme, theme)
+                .environment(\.ainkradTypography, typo)
+                .environment(\.ainkradStatusColors, statusColors)
+        } onDismiss: {}
+    }
+}
+
+public extension View {
+    /// Presents a CUSTOM right-click context menu — chamfer list, hover
+    /// scan, optional icons, destructive styling — via `AinkradFloatingPanel`
+    /// positioned at the cursor. Deliberately not a native AppKit/SwiftUI
+    /// context-menu API: this renders the same borderless, non-activating
+    /// floating panel used by the kit's selects/comboboxes, just anchored at
+    /// the right-click point instead of below a fixed trigger view.
+    func ainkradContextMenu(_ items: [AinkradMenuItem]) -> some View {
+        modifier(AinkradContextMenuModifier(items: items))
+    }
+}

@@ -1,6 +1,8 @@
 import Testing
 import Foundation
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @MainActor
 @Suite("AgentContext")
@@ -32,8 +34,8 @@ struct AgentContextTests {
         #expect(reg.snapshots().isEmpty)
     }
 
-    @Test("apiVersion is 7")
+    @Test("apiVersion is 8")
     func apiVersionBumped() {
-        #expect(AinkradAppKit.apiVersion == 7)
+        #expect(AinkradAppKit.apiVersion == 8)
     }
 }

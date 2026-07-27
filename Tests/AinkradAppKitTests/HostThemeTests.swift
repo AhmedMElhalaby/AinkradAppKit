@@ -2,6 +2,8 @@ import Testing
 import SwiftUI
 import Observation
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @MainActor
 struct HostThemeTests {

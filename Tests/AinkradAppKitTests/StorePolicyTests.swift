@@ -1,5 +1,7 @@
 import Testing
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite struct StorePolicyTests {
     private func metadata(apiVersion: Int = 7) -> PluginBundleMetadata {

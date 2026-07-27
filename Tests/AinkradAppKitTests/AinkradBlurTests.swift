@@ -1,6 +1,8 @@
 import Testing
 import AppKit
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("AinkradBlurLevel")
 struct AinkradBlurLevelTests {

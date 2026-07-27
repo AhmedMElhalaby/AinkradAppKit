@@ -1,5 +1,7 @@
 import Testing
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("AinkradCommandMenu selection toggle")
 struct CommandMenuToggleTests {

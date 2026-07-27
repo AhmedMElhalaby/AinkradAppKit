@@ -2,6 +2,8 @@ import Foundation
 import Testing
 import SwiftUI
 @testable import AinkradAppKit
+@testable import AinkradAppKitContract
+@testable import AinkradAppKitUI
 
 @Suite("AinkradSpinner inits")
 struct AinkradSpinnerInitTests {

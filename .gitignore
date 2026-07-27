@@ -1,4 +1,6 @@
 .build/
+# xcodebuild -derivedDataPath scratch (a plugin repo's `make build` writes here)
+build/
 *.xcodeproj
 .DS_Store
 
