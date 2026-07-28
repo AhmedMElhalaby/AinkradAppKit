@@ -67,15 +67,27 @@ public struct MCPResourceSpec: Sendable {
     public init(appID: String) { self.appID = appID }
 
     /// Registering the same name twice keeps the first — matching the host's
-    /// `AgentToolRegistry`, where the earlier registration wins.
-    public func addTool(_ spec: MCPToolSpec) {
-        guard !tools.contains(where: { $0.name == spec.name }) else { return }
+    /// `AgentToolRegistry`, where the earlier registration wins. Reports failure
+    /// (rather than silently no-oping) so a plugin author gets a signal that a
+    /// tool was dropped — either because its name collided or because its
+    /// `schemaJSON` didn't parse as a JSON object — instead of discovering it
+    /// only when the assistant never sees the tool.
+    @discardableResult
+    public func addTool(_ spec: MCPToolSpec) -> Bool {
+        guard !tools.contains(where: { $0.name == spec.name }),
+              Self.parseSchema(spec.schemaJSON) != nil else { return false }
         tools.append(spec)
+        return true
     }
 
-    public func addResource(_ spec: MCPResourceSpec) {
-        guard !resources.contains(where: { $0.uri == spec.uri }) else { return }
+    /// Reports failure (rather than silently no-oping) so a plugin author gets
+    /// a signal that a resource was dropped because its `uri` collided with an
+    /// already-registered one.
+    @discardableResult
+    public func addResource(_ spec: MCPResourceSpec) -> Bool {
+        guard !resources.contains(where: { $0.uri == spec.uri }) else { return false }
         resources.append(spec)
+        return true
     }
 
     /// Handles one JSON-RPC message. Returns the encoded response, or an EMPTY
@@ -88,7 +100,11 @@ public struct MCPResourceSpec: Sendable {
                                 "error": ["code": -32700, "message": "parse error"]])
         }
         guard let id = root["id"] else { return "" }   // notification
-        let method = root["method"] as? String ?? ""
+        guard let method = root["method"] as? String else {
+            // Has an id but no method at all — a malformed request, not a
+            // lookup against a method that simply doesn't exist.
+            return Self.error(id, code: -32600, message: "invalid request: missing method")
+        }
         let params = root["params"] as? [String: Any] ?? [:]
 
         switch method {
@@ -104,7 +120,10 @@ public struct MCPResourceSpec: Sendable {
                 [
                     "name": spec.name,
                     "description": spec.description,
-                    "inputSchema": Self.parseSchema(spec.schemaJSON),
+                    // Fallback is unreachable: `addTool` already rejects specs
+                    // whose `schemaJSON` doesn't parse, so every stored spec's
+                    // schema parses here too.
+                    "inputSchema": Self.parseSchema(spec.schemaJSON) ?? ["type": "object"],
                     "annotations": [
                         "destructiveHint": spec.destructive,
                         "readOnlyHint": spec.readOnly,
@@ -138,7 +157,7 @@ public struct MCPResourceSpec: Sendable {
         case "resources/read":
             guard let uri = params["uri"] as? String,
                   let spec = resources.first(where: { $0.uri == uri }) else {
-                return Self.error(id, code: -32602,
+                return Self.error(id, code: -32002,
                                   message: "unknown resource '\(params["uri"] as? String ?? "")'")
             }
             let text = await spec.provider()
@@ -154,28 +173,42 @@ public struct MCPResourceSpec: Sendable {
     // MARK: - encoding helpers
 
     static func result(_ id: Any, _ result: [String: Any]) -> String {
-        encode(["jsonrpc": "2.0", "id": id, "result": result])
+        encode(["jsonrpc": "2.0", "id": id, "result": result], id: id)
     }
 
     static func error(_ id: Any, code: Int, message: String) -> String {
-        encode(["jsonrpc": "2.0", "id": id, "error": ["code": code, "message": message]])
+        encode(["jsonrpc": "2.0", "id": id, "error": ["code": code, "message": message]], id: id)
     }
 
-    static func encode(_ object: [String: Any]) -> String {
+    /// `id` is passed separately from `object` so the encode-failure fallback
+    /// can echo the real request id — a transport correlating replies by id
+    /// would otherwise leave that continuation dangling until timeout. `nil`
+    /// only for the `-32700` parse-error path, where no id could be recovered
+    /// because the message itself failed to parse.
+    static func encode(_ object: [String: Any], id: Any? = nil) -> String {
         guard let data = try? JSONSerialization.data(withJSONObject: object),
               let string = String(data: data, encoding: .utf8) else {
-            return #"{"jsonrpc":"2.0","id":null,"error":{"code":-32603,"message":"encode failed"}}"#
+            let fallbackID = id ?? NSNull()
+            guard let fallbackData = try? JSONSerialization.data(withJSONObject: [
+                "jsonrpc": "2.0", "id": fallbackID,
+                "error": ["code": -32603, "message": "encode failed"],
+            ] as [String: Any]),
+                  let fallbackString = String(data: fallbackData, encoding: .utf8) else {
+                return #"{"jsonrpc":"2.0","id":null,"error":{"code":-32603,"message":"encode failed"}}"#
+            }
+            return fallbackString
         }
         return string
     }
 
-    /// Parses a tool's schema string into a nested object. An unparseable schema
-    /// degrades to a permissive object schema rather than breaking `tools/list`
-    /// for every other tool on the server.
-    static func parseSchema(_ json: String) -> [String: Any] {
+    /// Parses a tool's schema string into a nested object. Returns `nil` when
+    /// the string doesn't parse as a JSON object, so `addTool` can reject a
+    /// malformed schema at registration rather than silently degrading it to
+    /// a permissive object schema at `tools/list` time.
+    static func parseSchema(_ json: String) -> [String: Any]? {
         guard let data = json.data(using: .utf8),
               let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
-            return ["type": "object"]
+            return nil
         }
         return object
     }

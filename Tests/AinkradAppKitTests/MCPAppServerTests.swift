@@ -79,9 +79,13 @@ struct MCPAppServerTests {
         let tools = try #require(result["tools"] as? [[String: Any]])
         #expect(tools.count == 2)
         #expect(tools[0]["name"] as? String == "echo")
-        // inputSchema must be a nested OBJECT, not the raw schema string.
+        // inputSchema must be a nested OBJECT, not the raw schema string —
+        // and must carry the REAL parsed schema, not just a generic
+        // `{"type":"object"}` fallback shape that any implementation would
+        // produce even if it ignored `schemaJSON` entirely.
         let schema = try #require(tools[0]["inputSchema"] as? [String: Any])
-        #expect(schema["type"] as? String == "object")
+        let properties = try #require(schema["properties"] as? [String: Any])
+        #expect(properties["text"] != nil)
         let annotations = try #require(tools[1]["annotations"] as? [String: Any])
         #expect(annotations["destructiveHint"] as? Bool == true)
     }
@@ -141,12 +145,70 @@ struct MCPAppServerTests {
         #expect(contents[0]["text"] as? String == "live value")
     }
 
-    @Test("resources/read on an unknown uri returns JSON-RPC error -32602")
+    @Test("resources/read on an unknown uri returns JSON-RPC error -32002")
     func resourcesReadUnknown() async throws {
         let server = MCPAppServer(appID: "demo")
         let reply = await server.handle(
             #"{"jsonrpc":"2.0","id":"10","method":"resources/read","params":{"uri":"demo://ghost"}}"#)
         let error = try #require(try decode(reply)["error"] as? [String: Any])
-        #expect(error["code"] as? Int == -32602)
+        #expect(error["code"] as? Int == -32002)
+    }
+
+    @Test("a message with an id but no method returns invalid request -32600")
+    func missingMethod() async throws {
+        let server = MCPAppServer(appID: "demo")
+        let reply = await server.handle(#"{"jsonrpc":"2.0","id":"11","params":{}}"#)
+        let json = try decode(reply)
+        #expect(json["id"] as? String == "11")
+        let error = try #require(json["error"] as? [String: Any])
+        #expect(error["code"] as? Int == -32600)
+    }
+
+    @Test("addTool returns false and registers nothing for a duplicate name")
+    func addToolDuplicateName() async throws {
+        let server = demoServer()
+        let added = server.addTool(.init(
+            name: "echo", description: "A second echo.",
+            schemaJSON: #"{"type":"object"}"#
+        ) { _ in AgentActionResult(text: "second", isError: false) })
+        #expect(added == false)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"12","method":"tools/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let tools = try #require(result["tools"] as? [[String: Any]])
+        #expect(tools.count == 2)   // still just echo + boom, not a third
+    }
+
+    @Test("addTool returns false and registers nothing for a malformed schemaJSON")
+    func addToolMalformedSchema() async throws {
+        let server = MCPAppServer(appID: "demo")
+        let added = server.addTool(.init(
+            name: "broken", description: "Bad schema.",
+            schemaJSON: "not json"
+        ) { _ in AgentActionResult(text: "n/a", isError: false) })
+        #expect(added == false)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"13","method":"tools/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let tools = try #require(result["tools"] as? [[String: Any]])
+        #expect(tools.isEmpty)
+    }
+
+    @Test("addResource returns false and registers nothing for a duplicate uri")
+    func addResourceDuplicateURI() async throws {
+        let server = MCPAppServer(appID: "demo")
+        let first = server.addResource(.init(uri: "demo://buffer", title: "Buffer") { "one" })
+        #expect(first == true)
+        let second = server.addResource(.init(uri: "demo://buffer", title: "Buffer 2") { "two" })
+        #expect(second == false)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"14","method":"resources/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let resources = try #require(result["resources"] as? [[String: Any]])
+        #expect(resources.count == 1)
+        #expect(resources[0]["name"] as? String == "Buffer")
     }
 }
