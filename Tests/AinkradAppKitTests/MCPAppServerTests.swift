@@ -90,6 +90,51 @@ struct MCPAppServerTests {
         #expect(annotations["destructiveHint"] as? Bool == true)
     }
 
+    /// The host force-opens an app's window only for tools that say they need
+    /// it, so the flag has to survive `tools/list` in BOTH states — a key that
+    /// is merely absent when false reads as "unknown" on the host side.
+    @Test("tools/list emits ainkrad/requiresLiveApp for both states")
+    func toolsListRequiresLiveApp() async throws {
+        let server = MCPAppServer(appID: "demo")
+        server.addTool(.init(name: "headless", description: "",
+                             schemaJSON: #"{"type":"object"}"#) { _ in
+            AgentActionResult(text: "ok", isError: false)
+        })
+        var live = MCPToolSpec(name: "onscreen", description: "",
+                               schemaJSON: #"{"type":"object"}"#) { _ in
+            AgentActionResult(text: "ok", isError: false)
+        }
+        live.requiresLiveApp = true
+        server.addTool(live)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"2","method":"tools/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let tools = try #require(result["tools"] as? [[String: Any]])
+        let headless = try #require(tools[0]["annotations"] as? [String: Any])
+        let onscreen = try #require(tools[1]["annotations"] as? [String: Any])
+        #expect(headless["ainkrad/requiresLiveApp"] as? Bool == false)
+        #expect(onscreen["ainkrad/requiresLiveApp"] as? Bool == true)
+    }
+
+    @Test("resources/list emits ainkrad/requiresLiveApp for both states")
+    func resourcesListRequiresLiveApp() async throws {
+        let server = MCPAppServer(appID: "demo")
+        server.addResource(.init(uri: "demo://cold", title: "Cold") { "" })
+        var live = MCPResourceSpec(uri: "demo://live", title: "Live") { "" }
+        live.requiresLiveApp = true
+        server.addResource(live)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"8","method":"resources/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let resources = try #require(result["resources"] as? [[String: Any]])
+        let cold = try #require(resources[0]["annotations"] as? [String: Any])
+        let hot = try #require(resources[1]["annotations"] as? [String: Any])
+        #expect(cold["ainkrad/requiresLiveApp"] as? Bool == false)
+        #expect(hot["ainkrad/requiresLiveApp"] as? Bool == true)
+    }
+
     @Test("tools/call invokes the handler and wraps the text as MCP content")
     func toolsCallSuccess() async throws {
         let reply = await demoServer().handle(
