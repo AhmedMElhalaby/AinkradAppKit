@@ -196,6 +196,71 @@ struct MCPAppServerTests {
         #expect(tools.isEmpty)
     }
 
+    /// Pins which `handle` methods are allowed to invoke an app-supplied
+    /// closure. A host repo's `AppServerActivator.methodsRequiringLiveApp =
+    /// ["tools/call", "resources/read"]` depends on this staying exactly
+    /// true — it decides whether the host needs to spin up the live app
+    /// instance (vs. answering from cached metadata) based on the method
+    /// name alone. If a future change made e.g. `tools/list` reach into a
+    /// tool's handler, that list would silently go stale and the host would
+    /// serve metadata without the live app it needs. Every method `handle`
+    /// currently supports is driven here so the flags can only flip on the
+    /// two calls that are supposed to flip them.
+    @Test("only tools/call and resources/read invoke app-supplied closures")
+    func onlyLiveMethodsInvokeClosures() async throws {
+        final class Flags: @unchecked Sendable {
+            var didCallToolHandler = false
+            var didCallResourceProvider = false
+        }
+        let flags = Flags()
+
+        let server = MCPAppServer(appID: "demo")
+        server.addTool(.init(
+            name: "echo", description: "Echo.",
+            schemaJSON: #"{"type":"object"}"#
+        ) { _ in
+            flags.didCallToolHandler = true
+            return AgentActionResult(text: "called", isError: false)
+        })
+        server.addResource(.init(uri: "demo://buffer", title: "Buffer") {
+            flags.didCallResourceProvider = true
+            return "called"
+        })
+
+        func expectFlagsUnset(_ label: String) {
+            #expect(flags.didCallToolHandler == false, "\(label) must not invoke the tool handler")
+            #expect(flags.didCallResourceProvider == false, "\(label) must not invoke the resource provider")
+        }
+
+        _ = await server.handle(#"{"jsonrpc":"2.0","id":"1","method":"initialize","params":{}}"#)
+        expectFlagsUnset("initialize")
+
+        _ = await server.handle(#"{"jsonrpc":"2.0","id":"2","method":"tools/list","params":{}}"#)
+        expectFlagsUnset("tools/list")
+
+        _ = await server.handle(#"{"jsonrpc":"2.0","id":"3","method":"resources/list","params":{}}"#)
+        expectFlagsUnset("resources/list")
+
+        // Notification (no id) — must not touch either closure.
+        _ = await server.handle(
+            #"{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}"#)
+        expectFlagsUnset("notification")
+
+        // Unknown/unsupported method.
+        _ = await server.handle(#"{"jsonrpc":"2.0","id":"4","method":"nope/nope","params":{}}"#)
+        expectFlagsUnset("unknown method")
+
+        // Now the two methods that ARE allowed to reach app state.
+        _ = await server.handle(
+            #"{"jsonrpc":"2.0","id":"5","method":"tools/call","params":{"name":"echo","arguments":{}}}"#)
+        #expect(flags.didCallToolHandler == true)
+        #expect(flags.didCallResourceProvider == false)
+
+        _ = await server.handle(
+            #"{"jsonrpc":"2.0","id":"6","method":"resources/read","params":{"uri":"demo://buffer"}}"#)
+        #expect(flags.didCallResourceProvider == true)
+    }
+
     @Test("addResource returns false and registers nothing for a duplicate uri")
     func addResourceDuplicateURI() async throws {
         let server = MCPAppServer(appID: "demo")
