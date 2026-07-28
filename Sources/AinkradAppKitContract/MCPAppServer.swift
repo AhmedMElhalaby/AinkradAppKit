@@ -50,15 +50,55 @@ public struct MCPToolSpec: Sendable {
     }
 }
 
+/// The outcome of one resource read: the body plus whether producing it FAILED.
+///
+/// A bare `String` cannot distinguish "here is the terminal buffer" from "no
+/// terminal is currently open" — the model has to interpret prose to tell them
+/// apart. This is the resource-side twin of `AgentActionResult`, kept as its own
+/// type rather than reusing that one because an action result is documented as
+/// the outcome of an *action*, and a read is not one.
+public struct MCPResourceContent: Equatable, Sendable {
+    /// The resource body, or the failure explanation when `isError` is true.
+    public let text: String
+    /// True when the resource could not be produced; the host surfaces the read
+    /// as an error tool result rather than passing `text` off as content.
+    public let isError: Bool
+
+    public init(text: String, isError: Bool = false) {
+        self.text = text
+        self.isError = isError
+    }
+}
+
 /// One resource an app publishes for on-demand reads.
 public struct MCPResourceSpec: Sendable {
     public let uri: String
     public let title: String
     public let mimeType: String
+    /// WHEN the model should read this resource, e.g. "read this when the
+    /// workspace context shows a truncated terminal". `title` names the thing;
+    /// this says why you would reach for it, and it is the only part the model
+    /// can act on when choosing between several resources.
+    ///
+    /// Named `purpose` rather than `description`: a stored property literally
+    /// called `description` reads at every call site as the
+    /// `CustomStringConvertible` member, and would shadow it outright if the
+    /// type ever adopted that protocol. It still goes on the wire as MCP's
+    /// standard `description` field.
+    ///
+    /// Settable `var` with a default for the same ABI reason as
+    /// `requiresLiveApp` — see below.
+    public var purpose: String = ""
     /// See `MCPToolSpec.requiresLiveApp` — same meaning, same ABI reasoning for
     /// why it is a settable `var` and not an `init` parameter.
     public var requiresLiveApp: Bool = false
     public let provider: @MainActor @Sendable () async -> String
+    /// Optional richer provider that can report failure. When set it WINS over
+    /// `provider`, which then goes uncalled; when nil the plain `provider` runs
+    /// and its text is treated as a success. Additive on purpose: changing
+    /// `provider`'s type, or adding an `init` parameter, remangles a symbol
+    /// every already-compiled plugin bundle links against.
+    public var resultProvider: (@MainActor @Sendable () async -> MCPResourceContent)?
 
     public init(uri: String, title: String, mimeType: String = "text/plain",
                 provider: @escaping @MainActor @Sendable () async -> String) {
@@ -174,8 +214,12 @@ public struct MCPResourceSpec: Sendable {
                 // Resources have no standard MCP annotations block, but the host
                 // reads the flag the same way it does for tools, so carry it in
                 // the same namespaced key under an `annotations` object.
+                // `description` is standard MCP and always emitted, empty when
+                // the app didn't set `purpose` — one shape for the host to
+                // decode rather than a key that comes and goes.
                 [
                     "uri": spec.uri, "name": spec.title, "mimeType": spec.mimeType,
+                    "description": spec.purpose,
                     "annotations": ["ainkrad/requiresLiveApp": spec.requiresLiveApp],
                 ]
             }])
@@ -186,10 +230,29 @@ public struct MCPResourceSpec: Sendable {
                 return Self.error(id, code: -32002,
                                   message: "unknown resource '\(params["uri"] as? String ?? "")'")
             }
-            let text = await spec.provider()
-            return Self.result(id, ["contents": [
-                ["uri": spec.uri, "mimeType": spec.mimeType, "text": text],
-            ]])
+            // `resultProvider` wins when set; otherwise the legacy `provider`
+            // runs and its text is a success by definition.
+            let outcome: MCPResourceContent
+            if let richProvider = spec.resultProvider {
+                outcome = await richProvider()
+            } else {
+                outcome = MCPResourceContent(text: await spec.provider())
+            }
+            // A failed READ is still a successful RPC — same split as
+            // `tools/call`, where an MCP `error` means the call could not be
+            // made at all. But `resources/read`'s result has no spec'd place to
+            // say "this failed": `isError` belongs to CallToolResult only, and
+            // the contents entry is just uri/mimeType/text. So the flag rides
+            // alongside `contents` under the same `ainkrad/` namespace used for
+            // `annotations["ainkrad/requiresLiveApp"]`, and is always emitted so
+            // the host reads one shape. A generic MCP client ignores it and
+            // still sees the text.
+            return Self.result(id, [
+                "contents": [
+                    ["uri": spec.uri, "mimeType": spec.mimeType, "text": outcome.text],
+                ],
+                "ainkrad/isError": outcome.isError,
+            ])
 
         default:
             return Self.error(id, code: -32601, message: "unknown method '\(method)'")
