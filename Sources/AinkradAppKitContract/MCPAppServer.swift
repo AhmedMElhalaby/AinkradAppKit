@@ -25,6 +25,16 @@ public struct MCPToolSpec: Sendable {
     public let destructive: Bool
     /// Surfaced as MCP `readOnlyHint`.
     public let readOnly: Bool
+    /// True only when the tool genuinely needs the app's WINDOW on screen (it
+    /// drives live view state rather than a store/client the app owns headlessly).
+    /// The host force-opens the app before dispatching such a call; everything
+    /// else runs in the background, which is what a tool call should do.
+    ///
+    /// Deliberately a settable `var` with a default rather than a new parameter
+    /// on `init`: adding a parameter changes the initializer's mangled name and
+    /// every already-compiled plugin bundle binds to the old one. Authors opt in
+    /// with `var spec = MCPToolSpec(…); spec.requiresLiveApp = true`.
+    public var requiresLiveApp: Bool = false
     /// Receives the call's `arguments` object as a JSON string.
     public let handler: @MainActor @Sendable (String) async -> AgentActionResult
 
@@ -45,6 +55,9 @@ public struct MCPResourceSpec: Sendable {
     public let uri: String
     public let title: String
     public let mimeType: String
+    /// See `MCPToolSpec.requiresLiveApp` — same meaning, same ABI reasoning for
+    /// why it is a settable `var` and not an `init` parameter.
+    public var requiresLiveApp: Bool = false
     public let provider: @MainActor @Sendable () async -> String
 
     public init(uri: String, title: String, mimeType: String = "text/plain",
@@ -124,9 +137,16 @@ public struct MCPResourceSpec: Sendable {
                     // whose `schemaJSON` doesn't parse, so every stored spec's
                     // schema parses here too.
                     "inputSchema": Self.parseSchema(spec.schemaJSON) ?? ["type": "object"],
+                    // `ainkrad/requiresLiveApp` is namespaced because it is NOT
+                    // a standard MCP annotation, unlike its two neighbours — a
+                    // generic MCP client must be able to tell ours apart from
+                    // the spec'd ones. Always emitted, including `false`, so
+                    // the host reads one shape rather than inferring a default
+                    // from absence.
                     "annotations": [
                         "destructiveHint": spec.destructive,
                         "readOnlyHint": spec.readOnly,
+                        "ainkrad/requiresLiveApp": spec.requiresLiveApp,
                     ],
                 ]
             }])
@@ -151,7 +171,13 @@ public struct MCPResourceSpec: Sendable {
 
         case "resources/list":
             return Self.result(id, ["resources": resources.map { spec in
-                ["uri": spec.uri, "name": spec.title, "mimeType": spec.mimeType]
+                // Resources have no standard MCP annotations block, but the host
+                // reads the flag the same way it does for tools, so carry it in
+                // the same namespaced key under an `annotations` object.
+                [
+                    "uri": spec.uri, "name": spec.title, "mimeType": spec.mimeType,
+                    "annotations": ["ainkrad/requiresLiveApp": spec.requiresLiveApp],
+                ]
             }])
 
         case "resources/read":
