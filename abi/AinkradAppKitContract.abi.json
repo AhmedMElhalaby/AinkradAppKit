@@ -1205,6 +1205,52 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "minSupportedAPIVersion",
+            "printedName": "minSupportedAPIVersion",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract0abC0O22minSupportedAPIVersionSivpZ",
+            "mangledName": "$s21AinkradAppKitContract0abC0O22minSupportedAPIVersionSivpZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract0abC0O22minSupportedAPIVersionSivgZ",
+                "mangledName": "$s21AinkradAppKitContract0abC0O22minSupportedAPIVersionSivgZ",
+                "moduleName": "AinkradAppKitContract",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Function",
             "name": "isCompatible",
             "printedName": "isCompatible(bundleAPIVersion:minSupported:current:)",
@@ -2319,6 +2365,51 @@
             ]
           },
           {
+            "kind": "Var",
+            "name": "statusColors",
+            "printedName": "statusColors",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract9HostThemeC12statusColorsAA0e6StatusH0Vvp",
+            "mangledName": "$s21AinkradAppKitContract9HostThemeC12statusColorsAA0e6StatusH0Vvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "SetterAccess",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "HostStatusColors",
+                    "printedName": "AinkradAppKitContract.HostStatusColors",
+                    "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract9HostThemeC12statusColorsAA0e6StatusH0Vvg",
+                "mangledName": "$s21AinkradAppKitContract9HostThemeC12statusColorsAA0e6StatusH0Vvg",
+                "moduleName": "AinkradAppKitContract",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
             "kind": "Constructor",
             "name": "init",
             "printedName": "init(_:)",
@@ -2371,6 +2462,33 @@
               "Custom"
             ],
             "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "updateStatusColors",
+            "printedName": "updateStatusColors(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract9HostThemeC18updateStatusColorsyyAA0ehI0VF",
+            "mangledName": "$s21AinkradAppKitContract9HostThemeC18updateStatusColorsyyAA0ehI0VF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
           }
         ],
         "declKind": "Class",
@@ -2395,6 +2513,275 @@
             "printedName": "Copyable",
             "usr": "s:s8CopyableP",
             "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "HostStatusColors",
+        "printedName": "HostStatusColors",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "success",
+            "printedName": "success",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV7success7SwiftUI5ColorVvp",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV7success7SwiftUI5ColorVvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV7success7SwiftUI5ColorVvg",
+                "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV7success7SwiftUI5ColorVvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "warning",
+            "printedName": "warning",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV7warning7SwiftUI5ColorVvp",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV7warning7SwiftUI5ColorVvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV7warning7SwiftUI5ColorVvg",
+                "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV7warning7SwiftUI5ColorVvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "danger",
+            "printedName": "danger",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV6danger7SwiftUI5ColorVvp",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV6danger7SwiftUI5ColorVvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Color",
+                    "printedName": "SwiftUI.Color",
+                    "usr": "s:7SwiftUI5ColorV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV6danger7SwiftUI5ColorVvg",
+                "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV6danger7SwiftUI5ColorVvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(success:warning:danger:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Color",
+                "printedName": "SwiftUI.Color",
+                "usr": "s:7SwiftUI5ColorV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV7success7warning6dangerAC7SwiftUI5ColorV_A2Itcfc",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV7success7warning6dangerAC7SwiftUI5ColorV_A2Itcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(derivedFrom:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HostThemeTokens",
+                "printedName": "AinkradAppKitContract.HostThemeTokens",
+                "usr": "s:21AinkradAppKitContract15HostThemeTokensV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV11derivedFromAcA0E11ThemeTokensV_tcfc",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV11derivedFromAcA0E11ThemeTokensV_tcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HostStatusColors",
+                "printedName": "AinkradAppKitContract.HostStatusColors",
+                "usr": "s:21AinkradAppKitContract16HostStatusColorsV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16HostStatusColorsV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:21AinkradAppKitContract16HostStatusColorsV",
+        "mangledName": "$s21AinkradAppKitContract16HostStatusColorsV",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
           },
           {
             "kind": "Conformance",
@@ -3174,6 +3561,960 @@
             "printedName": "Equatable",
             "usr": "s:SQ",
             "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "AinkradAppMCP",
+        "printedName": "AinkradAppMCP",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "makeMCPServer",
+            "printedName": "makeMCPServer(host:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MCPAppServer",
+                "printedName": "AinkradAppKitContract.MCPAppServer",
+                "usr": "s:21AinkradAppKitContract12MCPAppServerC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "HostServices",
+                "printedName": "any AinkradAppKitContract.HostServices",
+                "usr": "s:21AinkradAppKitContract12HostServicesP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract0aB3MCPP13makeMCPServer4hostAA12MCPAppServerCAA12HostServices_p_tFZ",
+            "mangledName": "$s21AinkradAppKitContract0aB3MCPP13makeMCPServer4hostAA12MCPAppServerCAA12HostServices_p_tFZ",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.AinkradAppMCP>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.AinkradAppMCP>",
+            "static": true,
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:21AinkradAppKitContract0aB3MCPP",
+        "mangledName": "$s21AinkradAppKitContract0aB3MCPP",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "MCPToolSpec",
+        "printedName": "MCPToolSpec",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "name",
+            "printedName": "name",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV4nameSSvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV4nameSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV4nameSSvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV4nameSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "description",
+            "printedName": "description",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV11descriptionSSvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV11descriptionSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV11descriptionSSvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV11descriptionSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "schemaJSON",
+            "printedName": "schemaJSON",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV10schemaJSONSSvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV10schemaJSONSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV10schemaJSONSSvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV10schemaJSONSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "destructive",
+            "printedName": "destructive",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV11destructiveSbvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV11destructiveSbvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV11destructiveSbvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV11destructiveSbvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "readOnly",
+            "printedName": "readOnly",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV8readOnlySbvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV8readOnlySbvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV8readOnlySbvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV8readOnlySbvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "handler",
+            "printedName": "handler",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.String) async -> AinkradAppKitContract.AgentActionResult",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AgentActionResult",
+                    "printedName": "AinkradAppKitContract.AgentActionResult",
+                    "usr": "s:21AinkradAppKitContract17AgentActionResultV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV7handleryAA17AgentActionResultVSSYaYbScMYccvp",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV7handleryAA17AgentActionResultVSSYaYbScMYccvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) async -> AinkradAppKitContract.AgentActionResult",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "AgentActionResult",
+                        "printedName": "AinkradAppKitContract.AgentActionResult",
+                        "usr": "s:21AinkradAppKitContract17AgentActionResultV"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV7handleryAA17AgentActionResultVSSYaYbScMYccvg",
+                "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV7handleryAA17AgentActionResultVSSYaYbScMYccvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(name:description:schemaJSON:destructive:readOnly:handler:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MCPToolSpec",
+                "printedName": "AinkradAppKitContract.MCPToolSpec",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "hasDefaultArg": true,
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(Swift.String) async -> AinkradAppKitContract.AgentActionResult",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "AgentActionResult",
+                    "printedName": "AinkradAppKitContract.AgentActionResult",
+                    "usr": "s:21AinkradAppKitContract17AgentActionResultV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract11MCPToolSpecV4name11description10schemaJSON11destructive8readOnly7handlerACSS_S2SS2bAA17AgentActionResultVSSYaYbScMYcctcfc",
+            "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV4name11description10schemaJSON11destructive8readOnly7handlerACSS_S2SS2bAA17AgentActionResultVSSYaYbScMYcctcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:21AinkradAppKitContract11MCPToolSpecV",
+        "mangledName": "$s21AinkradAppKitContract11MCPToolSpecV",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "MCPResourceSpec",
+        "printedName": "MCPResourceSpec",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "uri",
+            "printedName": "uri",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract15MCPResourceSpecV3uriSSvp",
+            "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV3uriSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV3uriSSvg",
+                "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV3uriSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "title",
+            "printedName": "title",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract15MCPResourceSpecV5titleSSvp",
+            "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV5titleSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV5titleSSvg",
+                "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV5titleSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "mimeType",
+            "printedName": "mimeType",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract15MCPResourceSpecV8mimeTypeSSvp",
+            "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV8mimeTypeSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV8mimeTypeSSvg",
+                "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV8mimeTypeSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "provider",
+            "printedName": "provider",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() async -> Swift.String",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract15MCPResourceSpecV8providerSSyYaYbScMYccvp",
+            "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV8providerSSyYaYbScMYccvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "() async -> Swift.String",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Void",
+                        "printedName": "()"
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV8providerSSyYaYbScMYccvg",
+                "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV8providerSSyYaYbScMYccvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(uri:title:mimeType:provider:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MCPResourceSpec",
+                "printedName": "AinkradAppKitContract.MCPResourceSpec",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "hasDefaultArg": true,
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() async -> Swift.String",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract15MCPResourceSpecV3uri5title8mimeType8providerACSS_S3SyYaYbScMYcctcfc",
+            "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV3uri5title8mimeType8providerACSS_S3SyYaYbScMYcctcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:21AinkradAppKitContract15MCPResourceSpecV",
+        "mangledName": "$s21AinkradAppKitContract15MCPResourceSpecV",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "MCPAppServer",
+        "printedName": "MCPAppServer",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "appID",
+            "printedName": "appID",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract12MCPAppServerC5appIDSSvp",
+            "mangledName": "$s21AinkradAppKitContract12MCPAppServerC5appIDSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "HasStorage",
+              "Custom"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract12MCPAppServerC5appIDSSvg",
+                "mangledName": "$s21AinkradAppKitContract12MCPAppServerC5appIDSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(appID:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "MCPAppServer",
+                "printedName": "AinkradAppKitContract.MCPAppServer",
+                "usr": "s:21AinkradAppKitContract12MCPAppServerC"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract12MCPAppServerC5appIDACSS_tcfc",
+            "mangledName": "$s21AinkradAppKitContract12MCPAppServerC5appIDACSS_tcfc",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "addTool",
+            "printedName": "addTool(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MCPToolSpec",
+                "printedName": "AinkradAppKitContract.MCPToolSpec",
+                "usr": "s:21AinkradAppKitContract11MCPToolSpecV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract12MCPAppServerC7addToolySbAA11MCPToolSpecVF",
+            "mangledName": "$s21AinkradAppKitContract12MCPAppServerC7addToolySbAA11MCPToolSpecVF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "DiscardableResult",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "addResource",
+            "printedName": "addResource(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "MCPResourceSpec",
+                "printedName": "AinkradAppKitContract.MCPResourceSpec",
+                "usr": "s:21AinkradAppKitContract15MCPResourceSpecV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract12MCPAppServerC11addResourceySbAA15MCPResourceSpecVF",
+            "mangledName": "$s21AinkradAppKitContract12MCPAppServerC11addResourceySbAA15MCPResourceSpecVF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "DiscardableResult",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "handle",
+            "printedName": "handle(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract12MCPAppServerC6handleyS2SYaF",
+            "mangledName": "$s21AinkradAppKitContract12MCPAppServerC6handleyS2SYaF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:21AinkradAppKitContract12MCPAppServerC",
+        "mangledName": "$s21AinkradAppKitContract12MCPAppServerC",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Final",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
           },
           {
             "kind": "Conformance",
@@ -4425,6 +5766,571 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "PluginInstanceID",
+        "printedName": "PluginInstanceID",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "rawValue",
+            "printedName": "rawValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "UUID",
+                "printedName": "Foundation.UUID",
+                "usr": "s:10Foundation4UUIDV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16PluginInstanceIDV8rawValue10Foundation4UUIDVvp",
+            "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV8rawValue10Foundation4UUIDVvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "UUID",
+                    "printedName": "Foundation.UUID",
+                    "usr": "s:10Foundation4UUIDV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV8rawValue10Foundation4UUIDVvg",
+                "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV8rawValue10Foundation4UUIDVvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(rawValue:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "UUID",
+                "printedName": "Foundation.UUID",
+                "hasDefaultArg": true,
+                "usr": "s:10Foundation4UUIDV"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16PluginInstanceIDV8rawValueAC10Foundation4UUIDV_tcfc",
+            "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV8rawValueAC10Foundation4UUIDV_tcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16PluginInstanceIDV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "hash",
+            "printedName": "hash(into:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Hasher",
+                "printedName": "Swift.Hasher",
+                "paramValueOwnership": "InOut",
+                "usr": "s:s6HasherV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16PluginInstanceIDV4hash4intoys6HasherVz_tF",
+            "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV4hash4intoys6HasherVz_tF",
+            "moduleName": "AinkradAppKitContract",
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "hashValue",
+            "printedName": "hashValue",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16PluginInstanceIDV9hashValueSivp",
+            "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV9hashValueSivp",
+            "moduleName": "AinkradAppKitContract",
+            "implicit": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV9hashValueSivg",
+                "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV9hashValueSivg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:21AinkradAppKitContract16PluginInstanceIDV",
+        "mangledName": "$s21AinkradAppKitContract16PluginInstanceIDV",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Hashable",
+            "printedName": "Hashable",
+            "usr": "s:SH",
+            "mangledName": "$sSH"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "PluginInstanceIdentity",
+        "printedName": "PluginInstanceIdentity",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "instanceID",
+            "printedName": "instanceID",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract22PluginInstanceIdentityP10instanceIDAA0efI0Vvp",
+            "mangledName": "$s21AinkradAppKitContract22PluginInstanceIdentityP10instanceIDAA0efI0Vvp",
+            "moduleName": "AinkradAppKitContract",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PluginInstanceID",
+                    "printedName": "AinkradAppKitContract.PluginInstanceID",
+                    "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract22PluginInstanceIdentityP10instanceIDAA0efI0Vvg",
+                "mangledName": "$s21AinkradAppKitContract22PluginInstanceIdentityP10instanceIDAA0efI0Vvg",
+                "moduleName": "AinkradAppKitContract",
+                "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginInstanceIdentity>",
+                "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginInstanceIdentity>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:21AinkradAppKitContract22PluginInstanceIdentityP",
+        "mangledName": "$s21AinkradAppKitContract22PluginInstanceIdentityP",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "AinkradAppTeardown",
+        "printedName": "AinkradAppTeardown",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "teardown",
+            "printedName": "teardown(instance:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract0aB8TeardownP8teardown8instanceyAA16PluginInstanceIDV_tFZ",
+            "mangledName": "$s21AinkradAppKitContract0aB8TeardownP8teardown8instanceyAA16PluginInstanceIDV_tFZ",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.AinkradAppTeardown>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.AinkradAppTeardown>",
+            "static": true,
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:21AinkradAppKitContract0aB8TeardownP",
+        "mangledName": "$s21AinkradAppKitContract0aB8TeardownP",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "PluginInstanceStorage",
+        "printedName": "PluginInstanceStorage",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceStorage",
+                "printedName": "AinkradAppKitContract.PluginInstanceStorage<τ_0_0>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  }
+                ],
+                "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract21PluginInstanceStorageCACyxGycfc",
+            "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageCACyxGycfc",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0>",
+            "sugared_genericSig": "<Value>",
+            "declAttributes": [
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "value",
+            "printedName": "value(for:make:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "GenericTypeParam",
+                "printedName": "τ_0_0"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() -> τ_0_0",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "typeAttributes": [
+                  "noescape"
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC5value3for4makexAA0eF2IDV_xyXEtF",
+            "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageC5value3for4makexAA0eF2IDV_xyXEtF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0>",
+            "sugared_genericSig": "<Value>",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "remove",
+            "printedName": "remove(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "τ_0_0?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "GenericTypeParam",
+                    "printedName": "τ_0_0"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginInstanceID",
+                "printedName": "AinkradAppKitContract.PluginInstanceID",
+                "usr": "s:21AinkradAppKitContract16PluginInstanceIDV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC6removeyxSgAA0eF2IDVF",
+            "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageC6removeyxSgAA0eF2IDVF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0>",
+            "sugared_genericSig": "<Value>",
+            "declAttributes": [
+              "Final",
+              "DiscardableResult",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "count",
+            "printedName": "count",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC5countSivp",
+            "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageC5countSivp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC5countSivg",
+                "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageC5countSivg",
+                "moduleName": "AinkradAppKitContract",
+                "genericSig": "<τ_0_0>",
+                "sugared_genericSig": "<Value>",
+                "declAttributes": [
+                  "Final"
+                ],
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:21AinkradAppKitContract21PluginInstanceStorageC",
+        "mangledName": "$s21AinkradAppKitContract21PluginInstanceStorageC",
+        "moduleName": "AinkradAppKitContract",
+        "genericSig": "<τ_0_0>",
+        "sugared_genericSig": "<Value>",
+        "declAttributes": [
+          "Final",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "PluginValidationError",
         "printedName": "PluginValidationError",
         "children": [
@@ -4656,6 +6562,1253 @@
             "printedName": "Escapable",
             "usr": "s:s9EscapableP",
             "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SSHLaunchPayload",
+        "printedName": "SSHLaunchPayload",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "kind",
+            "printedName": "kind",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4kindSSvp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4kindSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4kindSSvg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4kindSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "version",
+            "printedName": "version",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV7versionSivp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV7versionSivp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV7versionSivg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV7versionSivg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "host",
+            "printedName": "host",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4hostSSvp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4hostSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4hostSSvg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4hostSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "port",
+            "printedName": "port",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4portSivp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4portSivp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4portSivg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4portSivg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "username",
+            "printedName": "username",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV8usernameSSvp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV8usernameSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV8usernameSSvg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV8usernameSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "identityFile",
+            "printedName": "identityFile",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV12identityFileSSSgvp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV12identityFileSSSgvp",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV12identityFileSSSgvg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV12identityFileSSSgvg",
+                "moduleName": "AinkradAppKitContract",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "currentVersion",
+            "printedName": "currentVersion",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV14currentVersionSivpZ",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV14currentVersionSivpZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV14currentVersionSivgZ",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV14currentVersionSivgZ",
+                "moduleName": "AinkradAppKitContract",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(host:port:username:identityFile:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SSHLaunchPayload",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4host4port8username12identityFileACSS_SiS2SSgtcfc",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4host4port8username12identityFileACSS_SiS2SSgtcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SSHLaunchPayload",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "AinkradAppKitContract",
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Var",
+            "name": "json",
+            "printedName": "json",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4jsonSSvp",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4jsonSSvp",
+            "moduleName": "AinkradAppKitContract",
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4jsonSSvg",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4jsonSSvg",
+                "moduleName": "AinkradAppKitContract",
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(json:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SSHLaunchPayload",
+                    "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                    "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV4jsonACSgSSSg_tcfc",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV4jsonACSgSSSg_tcfc",
+            "moduleName": "AinkradAppKitContract",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "TypeDecl",
+            "name": "ValidationError",
+            "printedName": "ValidationError",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "emptyHost",
+                "printedName": "emptyHost",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "ValidationError",
+                        "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                        "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO9emptyHostyA2EmF",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO9emptyHostyA2EmF",
+                "moduleName": "AinkradAppKitContract"
+              },
+              {
+                "kind": "Var",
+                "name": "portOutOfRange",
+                "printedName": "portOutOfRange",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type) -> (Swift.Int) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO14portOutOfRangeyAESicAEmF",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO14portOutOfRangeyAESicAEmF",
+                "moduleName": "AinkradAppKitContract"
+              },
+              {
+                "kind": "Var",
+                "name": "optionLikeValue",
+                "printedName": "optionLikeValue",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type) -> (Swift.String, Swift.String) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.String, Swift.String) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(field: Swift.String, value: Swift.String)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "String",
+                                "printedName": "Swift.String",
+                                "usr": "s:SS"
+                              },
+                              {
+                                "kind": "TypeNominal",
+                                "name": "String",
+                                "printedName": "Swift.String",
+                                "usr": "s:SS"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO15optionLikeValueyAESS_SStcAEmF",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO15optionLikeValueyAESS_SStcAEmF",
+                "moduleName": "AinkradAppKitContract"
+              },
+              {
+                "kind": "Var",
+                "name": "unsupportedVersion",
+                "printedName": "unsupportedVersion",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type) -> (Swift.Int) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int) -> AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "ValidationError",
+                            "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO18unsupportedVersionyAESicAEmF",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO18unsupportedVersionyAESicAEmF",
+                "moduleName": "AinkradAppKitContract"
+              },
+              {
+                "kind": "Function",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ValidationError",
+                    "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "ValidationError",
+                    "printedName": "AinkradAppKitContract.SSHLaunchPayload.ValidationError",
+                    "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO2eeoiySbAE_AEtFZ",
+                "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO2eeoiySbAE_AEtFZ",
+                "moduleName": "AinkradAppKitContract",
+                "static": true,
+                "implicit": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Enum",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV15ValidationErrorO",
+            "moduleName": "AinkradAppKitContract",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Error",
+                "printedName": "Error",
+                "usr": "s:s5ErrorP",
+                "mangledName": "$ss5ErrorP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP",
+                "mangledName": "$ss8SendableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "SendableMetatype",
+                "printedName": "SendableMetatype",
+                "usr": "s:s16SendableMetatypeP",
+                "mangledName": "$ss16SendableMetatypeP"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "validated",
+            "printedName": "validated()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SSHLaunchPayload",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV9validatedACyKF",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV9validatedACyKF",
+            "moduleName": "AinkradAppKitContract",
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SSHLaunchPayload",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SSHLaunchPayload",
+                "printedName": "AinkradAppKitContract.SSHLaunchPayload",
+                "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV6encode2toys7Encoder_p_tKF",
+            "moduleName": "AinkradAppKitContract",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:21AinkradAppKitContract16SSHLaunchPayloadV",
+        "mangledName": "$s21AinkradAppKitContract16SSHLaunchPayloadV",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "PluginLaunchOutcome",
+        "printedName": "PluginLaunchOutcome",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "opened",
+            "printedName": "opened",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradAppKitContract.PluginLaunchOutcome.Type) -> AinkradAppKitContract.PluginLaunchOutcome",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PluginLaunchOutcome",
+                    "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                    "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradAppKitContract.PluginLaunchOutcome.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO6openedyA2CmF",
+            "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO6openedyA2CmF",
+            "moduleName": "AinkradAppKitContract"
+          },
+          {
+            "kind": "Var",
+            "name": "unknownApp",
+            "printedName": "unknownApp",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradAppKitContract.PluginLaunchOutcome.Type) -> (Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradAppKitContract.PluginLaunchOutcome.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO07unknownB0yACSScACmF",
+            "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO07unknownB0yACSScACmF",
+            "moduleName": "AinkradAppKitContract"
+          },
+          {
+            "kind": "Var",
+            "name": "disabled",
+            "printedName": "disabled",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradAppKitContract.PluginLaunchOutcome.Type) -> (Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradAppKitContract.PluginLaunchOutcome.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO8disabledyACSScACmF",
+            "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO8disabledyACSScACmF",
+            "moduleName": "AinkradAppKitContract"
+          },
+          {
+            "kind": "Var",
+            "name": "refused",
+            "printedName": "refused",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradAppKitContract.PluginLaunchOutcome.Type) -> (Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> AinkradAppKitContract.PluginLaunchOutcome",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(reason: Swift.String)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "String",
+                            "printedName": "Swift.String",
+                            "usr": "s:SS"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradAppKitContract.PluginLaunchOutcome.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "PluginLaunchOutcome",
+                        "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO7refusedyACSS_tcACmF",
+            "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO7refusedyACSS_tcACmF",
+            "moduleName": "AinkradAppKitContract"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginLaunchOutcome",
+                "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "PluginLaunchOutcome",
+                "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradAppKitContract",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO",
+        "mangledName": "$s21AinkradAppKitContract19PluginLaunchOutcomeO",
+        "moduleName": "AinkradAppKitContract",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "PluginAppLauncherResult",
+        "printedName": "PluginAppLauncherResult",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "openReportingOutcome",
+            "printedName": "openReportingOutcome(appID:payload:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PluginLaunchOutcome",
+                "printedName": "AinkradAppKitContract.PluginLaunchOutcome",
+                "usr": "s:21AinkradAppKitContract19PluginLaunchOutcomeO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract06PluginB14LauncherResultP20openReportingOutcome5appID7payloadAA0e6LaunchJ0OSS_SSSgtF",
+            "mangledName": "$s21AinkradAppKitContract06PluginB14LauncherResultP20openReportingOutcome5appID7payloadAA0e6LaunchJ0OSS_SSSgtF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginAppLauncherResult>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginAppLauncherResult>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:21AinkradAppKitContract06PluginB14LauncherResultP",
+        "mangledName": "$s21AinkradAppKitContract06PluginB14LauncherResultP",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
           }
         ]
       },
@@ -5402,6 +8555,136 @@
             "printedName": "Copyable",
             "usr": "s:s8CopyableP",
             "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "EnvironmentValues",
+        "printedName": "EnvironmentValues",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "ainkradPaneIsFocused",
+            "printedName": "ainkradPaneIsFocused",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvp",
+            "mangledName": "$s7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvp",
+            "moduleName": "AinkradAppKitContract",
+            "isFromExtension": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvg",
+                "mangledName": "$s7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvg",
+                "moduleName": "AinkradAppKitContract",
+                "isFromExtension": true,
+                "accessorKind": "get"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Set",
+                "printedName": "Set()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvs",
+                "mangledName": "$s7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvs",
+                "moduleName": "AinkradAppKitContract",
+                "isFromExtension": true,
+                "accessorKind": "set"
+              },
+              {
+                "kind": "Accessor",
+                "name": "Modify",
+                "printedName": "Modify()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvM",
+                "mangledName": "$s7SwiftUI17EnvironmentValuesV21AinkradAppKitContractE20ainkradPaneIsFocusedSbvM",
+                "moduleName": "AinkradAppKitContract",
+                "isFromExtension": true,
+                "accessorKind": "_modify"
+              }
+            ]
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:7SwiftUI17EnvironmentValuesV",
+        "mangledName": "$s7SwiftUI17EnvironmentValuesV",
+        "moduleName": "SwiftUICore",
+        "intro_Macosx": "10.15",
+        "intro_iOS": "13.0",
+        "intro_tvOS": "13.0",
+        "intro_watchOS": "6.0",
+        "declAttributes": [
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "OriginallyDefinedIn",
+          "Available",
+          "Available",
+          "Available",
+          "Available"
+        ],
+        "isExternal": true,
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "CustomStringConvertible",
+            "printedName": "CustomStringConvertible",
+            "usr": "s:s23CustomStringConvertibleP",
+            "mangledName": "$ss23CustomStringConvertibleP"
           },
           {
             "kind": "Conformance",
