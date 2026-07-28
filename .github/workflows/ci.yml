@@ -7,13 +7,15 @@ name: CI
 #
 # This workflow is NOT dormant: Build and Test run fine on macos-latest, which
 # lacks the Xcode-beta SDK — the package doesn't actually need it for those
-# steps. ABI check used to fail here only because the Makefile unconditionally
-# forced DEVELOPER_DIR to Xcode-beta's path (`:=`), overriding the toolchain
-# selection below; it's now `?=` so this workflow's choice wins. The reason
-# the check exists at all: an added protocol requirement is the one ABI break
-# library evolution does NOT cover — an already-installed plugin has no
-# witness for it and fails to load. Nothing in a normal build catches that;
-# this does.
+# steps. ABI check used to fail here because the Makefile unconditionally
+# forced DEVELOPER_DIR to Xcode-beta's path even when it didn't exist. The
+# Makefile now falls back to `xcode-select -p` itself whenever Xcode-beta is
+# absent and DEVELOPER_DIR wasn't supplied, so the "Select toolchain" step
+# below is only a no-op safety net on runners that DO have Xcode-beta — it no
+# longer needs to "win" over anything. The reason the check exists at all: an
+# added protocol requirement is the one ABI break library evolution does NOT
+# cover — an already-installed plugin has no witness for it and fails to
+# load. Nothing in a normal build catches that; this does.
 
 on:
   push:
