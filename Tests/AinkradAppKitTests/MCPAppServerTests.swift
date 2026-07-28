@@ -190,6 +190,54 @@ struct MCPAppServerTests {
         #expect(contents[0]["text"] as? String == "live value")
     }
 
+    @Test("resources/list emits purpose as MCP's description field")
+    func resourcesListPurpose() async throws {
+        let server = MCPAppServer(appID: "demo")
+        var described = MCPResourceSpec(uri: "demo://buffer", title: "Buffer") { "" }
+        described.purpose = "Read when the workspace context shows a truncated terminal."
+        server.addResource(described)
+        // The second one never sets `purpose`, proving the key is still present
+        // (as an empty string) rather than vanishing — the host decodes one shape.
+        server.addResource(.init(uri: "demo://plain", title: "Plain") { "" })
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"11","method":"resources/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let resources = try #require(result["resources"] as? [[String: Any]])
+        #expect(resources[0]["description"] as? String
+                == "Read when the workspace context shows a truncated terminal.")
+        #expect(resources[1]["description"] as? String == "")
+    }
+
+    @Test("resources/read flags a resultProvider failure without an RPC error")
+    func resourcesReadFailure() async throws {
+        let server = MCPAppServer(appID: "demo")
+        var spec = MCPResourceSpec(uri: "demo://buffer", title: "Buffer") { "unused" }
+        spec.resultProvider = { MCPResourceContent(text: "no terminal is open", isError: true) }
+        server.addResource(spec)
+
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"12","method":"resources/read","params":{"uri":"demo://buffer"}}"#)
+        let json = try decode(reply)
+        #expect(json["error"] == nil)
+        let result = try #require(json["result"] as? [String: Any])
+        #expect(result["ainkrad/isError"] as? Bool == true)
+        let contents = try #require(result["contents"] as? [[String: Any]])
+        // `resultProvider` wins outright: the legacy provider's "unused" must
+        // not leak into the body.
+        #expect(contents[0]["text"] as? String == "no terminal is open")
+    }
+
+    @Test("resources/read with a plain provider reports success")
+    func resourcesReadPlainProviderNotAnError() async throws {
+        let server = MCPAppServer(appID: "demo")
+        server.addResource(.init(uri: "demo://buffer", title: "Buffer") { "live value" })
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"13","method":"resources/read","params":{"uri":"demo://buffer"}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        #expect(result["ainkrad/isError"] as? Bool == false)
+    }
+
     @Test("resources/read on an unknown uri returns JSON-RPC error -32002")
     func resourcesReadUnknown() async throws {
         let server = MCPAppServer(appID: "demo")
