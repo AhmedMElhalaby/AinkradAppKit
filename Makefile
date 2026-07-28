@@ -1,4 +1,6 @@
-DEVELOPER_DIR := /Applications/Xcode-beta.app/Contents/Developer
+# The project currently needs the macOS 27 beta SDK; default to Xcode-beta when
+# it's installed. Override on the command line: `make abi-check DEVELOPER_DIR=…`.
+DEVELOPER_DIR ?= /Applications/Xcode-beta.app/Contents/Developer
 export DEVELOPER_DIR
 SDK := $(shell xcrun --show-sdk-path)
 TARGET := arm64-apple-macosx14.0

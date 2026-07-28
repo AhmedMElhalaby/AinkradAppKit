@@ -5,12 +5,15 @@ name: CI
 # someone remembered, which is how its baseline drifted four commits behind
 # without anyone noticing.
 #
-# TOOLCHAIN CAVEAT: this package currently needs the macOS 27 beta SDK, which
-# GitHub-hosted runners do not have. Point `runs-on` at a self-hosted runner
-# with Xcode-beta installed, or wait for that Xcode to ship. Until then the
-# same checks run locally via `scripts/preflight.sh` in the host repo, which
-# `scripts/release.sh` invokes — so a release cannot skip them even while this
-# workflow is dormant.
+# This workflow is NOT dormant: Build and Test run fine on macos-latest, which
+# lacks the Xcode-beta SDK — the package doesn't actually need it for those
+# steps. ABI check used to fail here only because the Makefile unconditionally
+# forced DEVELOPER_DIR to Xcode-beta's path (`:=`), overriding the toolchain
+# selection below; it's now `?=` so this workflow's choice wins. The reason
+# the check exists at all: an added protocol requirement is the one ABI break
+# library evolution does NOT cover — an already-installed plugin has no
+# witness for it and fails to load. Nothing in a normal build catches that;
+# this does.
 
 on:
   push:
