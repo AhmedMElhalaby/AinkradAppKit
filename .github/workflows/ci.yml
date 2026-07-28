@@ -5,12 +5,30 @@ name: CI
 # someone remembered, which is how its baseline drifted four commits behind
 # without anyone noticing.
 #
-# TOOLCHAIN CAVEAT: this package currently needs the macOS 27 beta SDK, which
-# GitHub-hosted runners do not have. Point `runs-on` at a self-hosted runner
-# with Xcode-beta installed, or wait for that Xcode to ship. Until then the
-# same checks run locally via `scripts/preflight.sh` in the host repo, which
-# `scripts/release.sh` invokes — so a release cannot skip them even while this
-# workflow is dormant.
+# This workflow is NOT dormant: Build and Test run fine on macos-latest, which
+# lacks Xcode-beta — the package doesn't need it for those steps.
+#
+# The ABI check is different, and on a hosted runner it CANNOT run honestly.
+# swift-api-digester reads the binary .swiftmodule that `swift build` just
+# produced, and a binary swiftmodule is only readable by the exact compiler
+# build that wrote it. Under a foreign toolchain the digester fails to load the
+# module and then — without aborting — diffs an empty module against the
+# committed baseline, reporting every type in the contract as removed. That is
+# a false break, not a check. (Seen here as `Failed to load module:
+# AinkradAppKitContract` followed by 39 bogus removals.) Note it is a toolchain
+# constraint, not an SDK one: the beta digester against the CommandLineTools
+# SDK passes fine; the CLT digester against a beta-built module does not.
+#
+# So the Makefile gates the check on Xcode-beta and, when it is absent, SKIPS
+# IT LOUDLY: a banner plus a ::warning:: annotation on the run saying the ABI
+# contract was NOT verified. Green here therefore means "build + tests passed;
+# ABI unverified", never "ABI verified". The contract is verified for real by
+# scripts/preflight.sh in the host repo (invoked by scripts/release.sh) on a
+# machine that has the beta toolchain, so no release ships unguarded.
+#
+# Why the check exists at all: an added protocol requirement is the one ABI
+# break library evolution does NOT cover — an already-installed plugin has no
+# witness for it and fails to load. Nothing in a normal build catches that.
 
 on:
   push:
@@ -35,11 +53,12 @@ jobs:
       - name: Test
         run: swift test
 
-      # The point of this workflow. An added protocol requirement is the one
-      # ABI break library evolution does NOT cover: an already-installed plugin
-      # has no witness for it and fails to load. Nothing in a normal build
-      # catches that; this does.
-      - name: ABI check
+      # Runs for real only on a runner that has Xcode-beta (the toolchain that
+      # builds this package and generated abi/AinkradAppKitContract.abi.json).
+      # Anywhere else it prints a loud SKIPPED banner and a ::warning::
+      # annotation — see the header comment. It never reports a pass for a
+      # check that did not run.
+      - name: ABI check (skipped loudly without the beta toolchain)
         run: make abi-check
 
       - name: Upload ABI report on failure
