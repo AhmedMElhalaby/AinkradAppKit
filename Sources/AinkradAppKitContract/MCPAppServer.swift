@@ -130,6 +130,22 @@ public struct MCPResourceSpec: Sendable {
                 "isError": outcome.isError,
             ])
 
+        case "resources/list":
+            return Self.result(id, ["resources": resources.map { spec in
+                ["uri": spec.uri, "name": spec.title, "mimeType": spec.mimeType]
+            }])
+
+        case "resources/read":
+            guard let uri = params["uri"] as? String,
+                  let spec = resources.first(where: { $0.uri == uri }) else {
+                return Self.error(id, code: -32602,
+                                  message: "unknown resource '\(params["uri"] as? String ?? "")'")
+            }
+            let text = await spec.provider()
+            return Self.result(id, ["contents": [
+                ["uri": spec.uri, "mimeType": spec.mimeType, "text": text],
+            ]])
+
         default:
             return Self.error(id, code: -32601, message: "unknown method '\(method)'")
         }

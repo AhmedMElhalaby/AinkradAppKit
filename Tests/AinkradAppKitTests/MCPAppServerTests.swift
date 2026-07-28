@@ -115,4 +115,38 @@ struct MCPAppServerTests {
         let error = try #require(try decode(reply)["error"] as? [String: Any])
         #expect(error["code"] as? Int == -32602)
     }
+
+    @Test("resources/list reports registered resources")
+    func resourcesList() async throws {
+        let server = MCPAppServer(appID: "demo")
+        server.addResource(.init(uri: "demo://buffer", title: "Buffer") { "hello" })
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"8","method":"resources/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let resources = try #require(result["resources"] as? [[String: Any]])
+        #expect(resources.count == 1)
+        #expect(resources[0]["uri"] as? String == "demo://buffer")
+        #expect(resources[0]["name"] as? String == "Buffer")
+        #expect(resources[0]["mimeType"] as? String == "text/plain")
+    }
+
+    @Test("resources/read returns the provider's current text")
+    func resourcesRead() async throws {
+        let server = MCPAppServer(appID: "demo")
+        server.addResource(.init(uri: "demo://buffer", title: "Buffer") { "live value" })
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"9","method":"resources/read","params":{"uri":"demo://buffer"}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let contents = try #require(result["contents"] as? [[String: Any]])
+        #expect(contents[0]["text"] as? String == "live value")
+    }
+
+    @Test("resources/read on an unknown uri returns JSON-RPC error -32602")
+    func resourcesReadUnknown() async throws {
+        let server = MCPAppServer(appID: "demo")
+        let reply = await server.handle(
+            #"{"jsonrpc":"2.0","id":"10","method":"resources/read","params":{"uri":"demo://ghost"}}"#)
+        let error = try #require(try decode(reply)["error"] as? [String: Any])
+        #expect(error["code"] as? Int == -32602)
+    }
 }
