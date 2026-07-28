@@ -89,6 +89,7 @@ public struct MCPResourceSpec: Sendable {
         }
         guard let id = root["id"] else { return "" }   // notification
         let method = root["method"] as? String ?? ""
+        let params = root["params"] as? [String: Any] ?? [:]
 
         switch method {
         case "initialize":
@@ -97,6 +98,38 @@ public struct MCPResourceSpec: Sendable {
                 "serverInfo": ["name": appID, "version": "1.0"],
                 "capabilities": ["tools": [String: Any](), "resources": [String: Any]()],
             ])
+
+        case "tools/list":
+            return Self.result(id, ["tools": tools.map { spec in
+                [
+                    "name": spec.name,
+                    "description": spec.description,
+                    "inputSchema": Self.parseSchema(spec.schemaJSON),
+                    "annotations": [
+                        "destructiveHint": spec.destructive,
+                        "readOnlyHint": spec.readOnly,
+                    ],
+                ]
+            }])
+
+        case "tools/call":
+            guard let name = params["name"] as? String,
+                  let spec = tools.first(where: { $0.name == name }) else {
+                return Self.error(id, code: -32602,
+                                  message: "unknown tool '\(params["name"] as? String ?? "")'")
+            }
+            let arguments = params["arguments"] as? [String: Any] ?? [:]
+            let argumentJSON = Self.encodeAny(arguments)
+            let outcome = await spec.handler(argumentJSON)
+            // A handler FAILURE is a successful RPC carrying isError:true — an
+            // MCP `error` means the call could not be made at all. `MCPClient`
+            // relies on this split: it throws on `error`, and surfaces
+            // `isError` as a visible tool result.
+            return Self.result(id, [
+                "content": [["type": "text", "text": outcome.text]],
+                "isError": outcome.isError,
+            ])
+
         default:
             return Self.error(id, code: -32601, message: "unknown method '\(method)'")
         }
@@ -117,6 +150,23 @@ public struct MCPResourceSpec: Sendable {
               let string = String(data: data, encoding: .utf8) else {
             return #"{"jsonrpc":"2.0","id":null,"error":{"code":-32603,"message":"encode failed"}}"#
         }
+        return string
+    }
+
+    /// Parses a tool's schema string into a nested object. An unparseable schema
+    /// degrades to a permissive object schema rather than breaking `tools/list`
+    /// for every other tool on the server.
+    static func parseSchema(_ json: String) -> [String: Any] {
+        guard let data = json.data(using: .utf8),
+              let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            return ["type": "object"]
+        }
+        return object
+    }
+
+    static func encodeAny(_ object: [String: Any]) -> String {
+        guard let data = try? JSONSerialization.data(withJSONObject: object),
+              let string = String(data: data, encoding: .utf8) else { return "{}" }
         return string
     }
 }

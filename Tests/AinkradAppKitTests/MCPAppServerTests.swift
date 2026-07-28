@@ -51,4 +51,68 @@ struct MCPAppServerTests {
             #"{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}"#)
         #expect(reply.isEmpty)
     }
+
+    func demoServer() -> MCPAppServer {
+        let server = MCPAppServer(appID: "demo")
+        server.addTool(.init(
+            name: "echo",
+            description: "Echo the input back.",
+            schemaJSON: #"{"type":"object","properties":{"text":{"type":"string"}}}"#,
+            destructive: false, readOnly: true
+        ) { json in
+            AgentActionResult(text: "got \(json)", isError: false)
+        })
+        server.addTool(.init(
+            name: "boom", description: "Always fails.",
+            schemaJSON: #"{"type":"object"}"#, destructive: true
+        ) { _ in
+            AgentActionResult(text: "exploded", isError: true)
+        })
+        return server
+    }
+
+    @Test("tools/list reports each tool with a parsed schema and annotations")
+    func toolsList() async throws {
+        let reply = await demoServer().handle(
+            #"{"jsonrpc":"2.0","id":"2","method":"tools/list","params":{}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        let tools = try #require(result["tools"] as? [[String: Any]])
+        #expect(tools.count == 2)
+        #expect(tools[0]["name"] as? String == "echo")
+        // inputSchema must be a nested OBJECT, not the raw schema string.
+        let schema = try #require(tools[0]["inputSchema"] as? [String: Any])
+        #expect(schema["type"] as? String == "object")
+        let annotations = try #require(tools[1]["annotations"] as? [String: Any])
+        #expect(annotations["destructiveHint"] as? Bool == true)
+    }
+
+    @Test("tools/call invokes the handler and wraps the text as MCP content")
+    func toolsCallSuccess() async throws {
+        let reply = await demoServer().handle(
+            #"{"jsonrpc":"2.0","id":"3","method":"tools/call","params":{"name":"echo","arguments":{"text":"hi"}}}"#)
+        let result = try #require(try decode(reply)["result"] as? [String: Any])
+        #expect(result["isError"] as? Bool == false)
+        let content = try #require(result["content"] as? [[String: Any]])
+        let text = try #require(content.first?["text"] as? String)
+        #expect(text.contains("\"text\""))
+        #expect(text.contains("hi"))
+    }
+
+    @Test("tools/call surfaces a handler failure as isError, not an RPC error")
+    func toolsCallHandlerFailure() async throws {
+        let reply = await demoServer().handle(
+            #"{"jsonrpc":"2.0","id":"4","method":"tools/call","params":{"name":"boom","arguments":{}}}"#)
+        let json = try decode(reply)
+        #expect(json["error"] == nil)
+        let result = try #require(json["result"] as? [String: Any])
+        #expect(result["isError"] as? Bool == true)
+    }
+
+    @Test("tools/call on an unknown tool returns JSON-RPC error -32602")
+    func toolsCallUnknownTool() async throws {
+        let reply = await demoServer().handle(
+            #"{"jsonrpc":"2.0","id":"5","method":"tools/call","params":{"name":"ghost","arguments":{}}}"#)
+        let error = try #require(try decode(reply)["error"] as? [String: Any])
+        #expect(error["code"] as? Int == -32602)
+    }
 }
