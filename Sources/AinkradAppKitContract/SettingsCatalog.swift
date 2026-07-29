@@ -124,6 +124,12 @@ public struct SettingsPage: Identifiable {
     public let groups: [SettingsGroup]
     /// Set for app pages so the sidebar renders the app's neon tile.
     public let appID: String?
+    /// A count the sidebar row renders as a badge — pending skill proposals,
+    /// say. A CLOSURE, not a stored count, deliberately: the number changes
+    /// while the overlay is open, and a value snapshotted when the catalog was
+    /// built would go stale. `nil` means this page never badges; a closure
+    /// returning 0 means "nothing pending right now" and shows nothing.
+    public let badge: (@MainActor () -> Int)?
 
     public nonisolated var id: SettingsPath { path }
     public var allFields: [SettingsField] { groups.flatMap(\.fields) }
@@ -135,7 +141,8 @@ public struct SettingsPage: Identifiable {
         group: SettingsPageGroup,
         order: Int,
         groups: [SettingsGroup],
-        appID: String? = nil
+        appID: String? = nil,
+        badge: (@MainActor () -> Int)? = nil
     ) {
         self.path = path
         self.title = title
@@ -144,6 +151,7 @@ public struct SettingsPage: Identifiable {
         self.order = order
         self.groups = groups
         self.appID = appID
+        self.badge = badge
     }
 }
 
