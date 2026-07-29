@@ -11,10 +11,19 @@ import SwiftUI
     static func makeSettingsView(host: HostServices) -> AnyView
     /// The window's own background fill (color + opacity). Default `nil`.
     static func chromeFill(host: HostServices) -> Color?
+    /// Publish this app's settings as descriptors so the host can index,
+    /// deep-link, and lay them out with every other setting. Return `nil`
+    /// (the default) to keep rendering `makeSettingsView(host:)` unchanged —
+    /// the app is then searchable by name only.
+    ///
+    /// Migration is incremental: declare the fields you can, and leave the
+    /// rest as a single `.custom` field wrapping your existing view.
+    static func settingsCatalog(host: HostServices) -> SettingsPage?
 }
 
 public extension AinkradApp {
     static func chromeFill(host: HostServices) -> Color? { nil }
+    static func settingsCatalog(host: HostServices) -> SettingsPage? { nil }
 }
 
 /// A bundle's `NSPrincipalClass` conforms to this; the host casts the loaded
