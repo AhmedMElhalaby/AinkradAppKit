@@ -45,6 +45,32 @@ public struct SettingsGroupView: View {
         return matchedPaths.contains(path) ? 1.0 : 0.35
     }
 
+    /// True when every field in the group is a pane (`.custom`) rather than a
+    /// control — i.e. the group contributes no rows of its own at all.
+    public static func isPaneOnly(_ group: SettingsGroup) -> Bool {
+        !group.fields.isEmpty && group.fields.allSatisfy {
+            SettingsRow.presentation(for: $0) == .pane
+        }
+    }
+
+    /// Whether to draw the catalog's group header.
+    ///
+    /// An always-expanded group made only of panes gets none: the pane
+    /// already renders its own section heading, and stacking the catalog's
+    /// title above it put two heading idioms on nearly every page. Suppressing
+    /// the catalog side (rather than editing ten pane files) keeps the panes
+    /// usable standalone and keeps the heading nearest the content it labels.
+    ///
+    /// A `.collapsedByDefault` group ALWAYS keeps its header even when it is
+    /// pane-only — that header is the disclosure control, and without it the
+    /// group could never be opened. That is also the escape hatch for a pane
+    /// with no heading of its own (e.g. tool hooks): declaring the group
+    /// collapsible keeps a title on screen.
+    public static func showsHeader(for group: SettingsGroup) -> Bool {
+        guard group.disclosure == .always else { return true }
+        return !isPaneOnly(group)
+    }
+
     public static func hitCount(group: SettingsGroup, matchedPaths: Set<SettingsPath>?) -> Int {
         guard let matchedPaths else { return 0 }
         return group.fields.filter { matchedPaths.contains($0.path) }.count
@@ -80,7 +106,19 @@ public struct SettingsGroupView: View {
         }
     }
 
+    @ViewBuilder
     private var header: some View {
+        if Self.showsHeader(for: group) {
+            visibleHeader
+        } else {
+            // No heading — the pane draws its own. Still an anchor, so
+            // deep-links and the mini-map that address the GROUP path keep
+            // resolving to the right place in the scroller.
+            Color.clear.frame(height: 0).id(group.path)
+        }
+    }
+
+    private var visibleHeader: some View {
         Group {
             if group.disclosure == .collapsedByDefault {
                 Button {

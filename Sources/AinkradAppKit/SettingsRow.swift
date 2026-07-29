@@ -13,6 +13,19 @@ public enum SettingsRowLayout: Sendable, Equatable {
     }
 }
 
+/// How a field is presented. A `.custom` field is not a control that fits a
+/// 220pt trailing column — it is an entire pane (a manager UI, an editor)
+/// that draws its own headings and its own cards. Rendering one through the
+/// row path clamps it into the control rail and wraps it in a second layer of
+/// card chrome, so it gets its own presentation instead: full width, no
+/// label/control split, no row chrome.
+public enum SettingsFieldPresentation: Sendable, Equatable {
+    /// Label on the left, control on the shared trailing rail, row chrome.
+    case row
+    /// The field owns the full content width and draws its own chrome.
+    case pane
+}
+
 /// One row = one setting. Label, help on the second line (never a tooltip —
 /// hover-hidden explanations make settings unlearnable), optional badges, and
 /// the control in a fixed-width trailing column so every control in a pane
@@ -29,6 +42,15 @@ public struct SettingsRow: View {
     public init(field: SettingsField, layout: SettingsRowLayout) {
         self.field = field
         self.layout = layout
+    }
+
+    /// `.custom` is a pane; the seven real control kinds are rows. Pure, so
+    /// the split is testable without rendering anything.
+    public static func presentation(for field: SettingsField) -> SettingsFieldPresentation {
+        switch field.kind {
+        case .custom: return .pane
+        case .toggle, .select, .slider, .text, .secure, .shortcut, .action: return .row
+        }
     }
 
     public static func badges(for field: SettingsField) -> [String] {
@@ -57,7 +79,24 @@ public struct SettingsRow: View {
         return min(max(quantized, range.lowerBound), range.upperBound)
     }
 
+    @ViewBuilder
     public var body: some View {
+        switch Self.presentation(for: field) {
+        case .pane: paneBody
+        case .row:  rowBody
+        }
+    }
+
+    /// A pane occupies the full content width and is not wrapped: no control
+    /// column (which would squeeze a whole manager UI into 220pt), no
+    /// padding, no chamfer fill, and no hover border (which would light up
+    /// around the entire pane whenever the pointer entered it). The pane
+    /// draws its own headings and cards.
+    private var paneBody: some View {
+        control.frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var rowBody: some View {
         Group {
             switch layout {
             case .sideBySide:
