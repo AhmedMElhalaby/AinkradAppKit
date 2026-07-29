@@ -36,7 +36,29 @@ public struct SettingsGroupView: View {
         self.layout = layout
         self.matchedPaths = matchedPaths
         self.highlightedPath = highlightedPath
-        _isExpanded = State(initialValue: group.disclosure == .always)
+        _isExpanded = State(initialValue: group.disclosure == .always
+            || Self.mustExpand(group: group, highlightedPath: highlightedPath, matchedPaths: matchedPaths))
+    }
+
+    /// A collapsed group must open by itself whenever the thing a user is
+    /// looking for lives inside it — otherwise it is unreachable: a deep-link
+    /// scroll target with no `.id()` in the hierarchy silently does nothing,
+    /// and a search match behind an unopened disclosure is a result the UI
+    /// is hiding from the very search that found it. `.always` groups never
+    /// need this (their content is never removed from the hierarchy), but
+    /// the check is harmless to run for them too.
+    public static func mustExpand(
+        group: SettingsGroup,
+        highlightedPath: SettingsPath?,
+        matchedPaths: Set<SettingsPath>?
+    ) -> Bool {
+        if let highlightedPath, group.fields.contains(where: { $0.path == highlightedPath }) {
+            return true
+        }
+        if let matchedPaths, group.fields.contains(where: { matchedPaths.contains($0.path) }) {
+            return true
+        }
+        return false
     }
 
     /// Non-matching rows dim; they are never removed. Half-hidden sections
@@ -88,6 +110,20 @@ public struct SettingsGroupView: View {
                     rows
                 }
                 .id(group.path)
+                // A deep-link or a new filter can name a target inside this
+                // group after it has already rendered collapsed — force it
+                // open then. Never auto-collapses back: once opened for a
+                // reason, closing is the user's call.
+                .onChange(of: highlightedPath) { _, newValue in
+                    if Self.mustExpand(group: group, highlightedPath: newValue, matchedPaths: matchedPaths) {
+                        isExpanded = true
+                    }
+                }
+                .onChange(of: matchedPaths) { _, newValue in
+                    if Self.mustExpand(group: group, highlightedPath: highlightedPath, matchedPaths: newValue) {
+                        isExpanded = true
+                    }
+                }
             } else if Self.showsHeader(for: group) {
                 AinkradSectionFrame(title: group.title) {
                     rows
