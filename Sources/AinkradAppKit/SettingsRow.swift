@@ -88,12 +88,20 @@ public struct SettingsRow: View {
     }
 
     /// A pane occupies the full content width and is not wrapped: no control
-    /// column (which would squeeze a whole manager UI into 220pt), no
-    /// padding, no chamfer fill, and no hover border (which would light up
-    /// around the entire pane whenever the pointer entered it). The pane
-    /// draws its own headings and cards.
+    /// column (which would squeeze a whole manager UI into 220pt), no chamfer
+    /// fill, and no hover border (which would light up around the entire pane
+    /// whenever the pointer entered it). The pane draws its own headings and
+    /// cards.
+    ///
+    /// It does get the same inset a row gets inside its card, for two
+    /// reasons: pane content would otherwise sit flush against the
+    /// deep-link highlight stroke that can be drawn around it, and pane text
+    /// would start 14pt to the left of row text on a mixed page. Matching
+    /// `rowBody`'s padding keeps every page on one left rail.
     private var paneBody: some View {
-        control.frame(maxWidth: .infinity, alignment: .leading)
+        control
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(SettingsMetrics.paneInset)
     }
 
     private var rowBody: some View {
