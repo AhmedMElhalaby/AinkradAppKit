@@ -111,14 +111,20 @@ public struct AinkradSearchField: View {
     @Binding private var text: String
     private let placeholder: String
     private let onSubmit: (() -> Void)?
+    /// Lets a caller drive focus from outside (e.g. a ⌘F shortcut owned by a
+    /// parent view). `nil` (the default) keeps the field's own internal
+    /// `@FocusState` — every existing call site is unaffected.
+    private let externalFocus: FocusState<Bool>.Binding?
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    @FocusState private var isFocused: Bool
+    @FocusState private var internalFocus: Bool
 
-    public init(text: Binding<String>, placeholder: String, onSubmit: (() -> Void)? = nil) {
-        self._text = text; self.placeholder = placeholder; self.onSubmit = onSubmit
+    public init(text: Binding<String>, placeholder: String, onSubmit: (() -> Void)? = nil, focus: FocusState<Bool>.Binding? = nil) {
+        self._text = text; self.placeholder = placeholder; self.onSubmit = onSubmit; self.externalFocus = focus
     }
+
+    private var isFocused: Bool { externalFocus?.wrappedValue ?? internalFocus }
 
     public var body: some View {
         HStack(spacing: AinkradSpacing.sm) {
@@ -126,13 +132,7 @@ public struct AinkradSearchField: View {
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(theme.accentSecondary.opacity(isFocused ? 0.95 : 0.55))
 
-            TextField(placeholder, text: $text)
-                .focused($isFocused)
-                .textFieldStyle(.plain)
-                .font(AinkradFontResolver.font(.body, typography: typo))
-                .foregroundStyle(theme.foreground)
-                .tint(theme.accentSecondary)
-                .onSubmit { onSubmit?() }
+            textField
 
             if !text.isEmpty {
                 Button { text = "" } label: {
@@ -149,6 +149,22 @@ public struct AinkradSearchField: View {
         .overlay(ChamferShape(cut: 6).strokeBorder(theme.accentPrimary.opacity(isFocused ? 0.9 : 0.25), lineWidth: isFocused ? 1.5 : 1.25))
         .shadow(color: theme.accentSecondary.opacity(isFocused ? 0.45 : 0), radius: isFocused ? 6 : 0)
         .animation(AinkradMotion.hover, value: isFocused)
+    }
+
+    @ViewBuilder
+    private var textField: some View {
+        let base = TextField(placeholder, text: $text)
+            .textFieldStyle(.plain)
+            .font(AinkradFontResolver.font(.body, typography: typo))
+            .foregroundStyle(theme.foreground)
+            .tint(theme.accentSecondary)
+            .onSubmit { onSubmit?() }
+
+        if let externalFocus {
+            base.focused(externalFocus)
+        } else {
+            base.focused($internalFocus)
+        }
     }
 }
 
@@ -478,20 +494,56 @@ public struct AinkradSlider: View {
 public struct AinkradFormRow<Control: View>: View {
     public let title: String
     public let help: String?
+    /// Short uppercase tags rendered beside the title — e.g. ADVANCED,
+    /// RESTART REQUIRED. Empty by default so existing call sites are unchanged.
+    public let badges: [String]
+    /// Fixed width for the control, so every control in a form shares one
+    /// vertical rail. `nil` keeps the previous behaviour: the control sizes
+    /// itself and right-aligns after a Spacer.
+    public let controlWidth: CGFloat?
     private let control: Control
+    private let accessory: AnyView?
+
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    public init(title: String, help: String? = nil, @ViewBuilder control: () -> Control) {
-        self.title = title; self.help = help; self.control = control()
+
+    public init(
+        title: String,
+        help: String? = nil,
+        badges: [String] = [],
+        controlWidth: CGFloat? = nil,
+        accessory: (() -> AnyView)? = nil,
+        @ViewBuilder control: () -> Control
+    ) {
+        self.title = title
+        self.help = help
+        self.badges = badges
+        self.controlWidth = controlWidth
+        self.accessory = accessory?()
+        self.control = control()
     }
+
     public var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        // `.center`, not `.firstTextBaseline`: with a two-line label (title +
+        // help) baseline alignment pins the control to the title's line,
+        // floating it at the top of the row instead of the middle of the
+        // label block. `.center` centres the control against the whole
+        // label block regardless of how many lines it has, and degrades to
+        // the same visual result as baseline alignment for a single-line
+        // label (title only) since there's only one line to center against.
+        HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: AinkradSpacing.xs / 2) {
                 HStack(spacing: AinkradSpacing.xs) {
                     Rectangle()
                         .fill(theme.accentSecondary.opacity(0.55))
                         .frame(width: 2, height: 12)
-                    Text(title).font(AinkradFontResolver.font(.body, typography: typo)).foregroundStyle(theme.foreground)
+                    Text(title)
+                        .font(AinkradFontResolver.font(.body, typography: typo))
+                        .foregroundStyle(theme.foreground)
+                    ForEach(badges, id: \.self) { badge in
+                        AinkradBadge(text: badge, tint: theme.accentSecondary)
+                    }
+                    if let accessory { accessory }
                 }
                 if let help {
                     Text(help)
@@ -501,7 +553,11 @@ public struct AinkradFormRow<Control: View>: View {
                 }
             }
             Spacer(minLength: AinkradSpacing.lg)
-            control
+            if let controlWidth {
+                control.frame(width: controlWidth, alignment: .trailing)
+            } else {
+                control
+            }
         }
     }
 }

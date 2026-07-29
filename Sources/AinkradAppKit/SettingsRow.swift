@@ -101,62 +101,56 @@ public struct SettingsRow: View {
     private var paneBody: some View {
         control
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(SettingsMetrics.paneInset)
+            .padding(AinkradSpacing.md)
     }
 
+    /// The row path is `AinkradFormRow` — the kit's form row — plus the
+    /// settings-specific card chrome. Badges and the revert affordance are
+    /// handed to FormRow's own slots rather than re-implemented here, and the
+    /// fixed control width is what puts every control on one vertical rail.
     private var rowBody: some View {
-        Group {
-            switch layout {
-            case .sideBySide:
-                HStack(alignment: .top, spacing: 12) {
-                    labelColumn
-                    Spacer(minLength: 12)
-                    control.frame(width: SettingsMetrics.controlColumnWidth, alignment: .trailing)
-                }
-            case .stacked:
-                VStack(alignment: .leading, spacing: 10) {
-                    labelColumn
-                    control.frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+        AinkradFormRow(
+            title: field.label,
+            help: field.help,
+            badges: Self.badges(for: field).map { $0.uppercased() },
+            controlWidth: layout == .sideBySide ? SettingsMetrics.controlColumnWidth : nil,
+            // Handed to FormRow whenever the affordance is *meaningful*
+            // (modified + resettable), not only while hovered. Passing it
+            // conditionally on `isHovered` would add/remove the button from
+            // the layout on hover, changing the row's height. Reserving the
+            // space and fading the button's opacity on hover instead keeps
+            // geometry constant — only the paint changes.
+            accessory: Self.showsRevert(for: field) ? { AnyView(revertButton) } : nil
+        ) {
+            control
         }
-        .padding(14)
+        .padding(AinkradSpacing.md)
         .background(ChamferShape(cut: AinkradRadius.md).fill(tokens.surfaceElevated.opacity(0.5)))
         .overlay(ChamferShape(cut: AinkradRadius.md)
             .strokeBorder(tokens.accentPrimary.opacity(isHovered ? 0.3 : 0.15), lineWidth: 1))
         .onHover { isHovered = $0 }
-        .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: isHovered)
+        .animation(reduceMotion ? nil : .easeOut(duration: AinkradMotion.durationFast), value: isHovered)
     }
 
-    private var labelColumn: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-                Text(field.label)
-                    .font(AinkradFontResolver.font(.body, weight: .medium, typography: typo))
-                    .foregroundStyle(tokens.foreground.opacity(0.9))
-                ForEach(Self.badges(for: field), id: \.self) { badge in
-                    AinkradBadge(text: badge.uppercased(), tint: tokens.accentSecondary)
-                }
-                if isHovered, Self.showsRevert(for: field), let reset = field.reset {
-                    Button(action: reset) {
-                        // `.system(size:)` here sizes an SF Symbol *glyph*,
-                        // not text — the AinkradFont-only rule governs text
-                        // typography, not icon point size, so this isn't a
-                        // violation of it.
-                        Image(systemName: "arrow.uturn.backward")
-                            .font(.system(size: 10))
-                            .foregroundStyle(tokens.accentSecondary.opacity(0.9))
-                    }
-                    .buttonStyle(.plain)
-                    .help(field.defaultDescription.map { "Reset to \($0)" } ?? "Reset to default")
-                }
+    /// Restores this field's default. Lives here rather than in FormRow
+    /// because "modified vs default" is a settings concept the kit has no
+    /// opinion about. Always occupies its layout space when the affordance
+    /// is meaningful (see `rowBody`); only its opacity — not its presence —
+    /// responds to hover, so hovering never changes the row's height.
+    @ViewBuilder
+    private var revertButton: some View {
+        if let reset = field.reset {
+            Button(action: reset) {
+                // Sizes an SF Symbol glyph, not text — the kit font API does
+                // not apply to icon glyphs.
+                Image(systemName: "arrow.uturn.backward")
+                    .font(.system(size: 10))
+                    .foregroundStyle(tokens.accentSecondary.opacity(0.9))
             }
-            if let help = field.help {
-                Text(help)
-                    .font(AinkradFontResolver.font(.caption, typography: typo))
-                    .foregroundStyle(tokens.foreground.opacity(0.5))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            .buttonStyle(.plain)
+            .opacity(isHovered ? 1 : 0)
+            .allowsHitTesting(isHovered)
+            .help(field.defaultDescription.map { "Reset to \($0)" } ?? "Reset to default")
         }
     }
 

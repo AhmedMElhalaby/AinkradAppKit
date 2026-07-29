@@ -14,11 +14,6 @@ public enum SettingsMetrics {
     public static let sidebarWidth: CGFloat = 240
     public static let controlColumnWidth: CGFloat = 220
 
-    /// Inset applied inside a `.custom` pane. Matches the padding a row gets
-    /// inside its card, so pane text and row text share one left rail and
-    /// pane content never sits flush against a surrounding stroke.
-    public static let paneInset: CGFloat = 14
-
     /// Below this the mini-map is hidden.
     public static let miniMapBreakpoint: CGFloat = 640
     /// Above this rows lay out side-by-side on a shared control rail.

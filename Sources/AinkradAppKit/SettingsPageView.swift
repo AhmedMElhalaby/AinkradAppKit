@@ -4,7 +4,11 @@ import AinkradAppKitUI
 
 /// A settings page: one scrolling column of groups with sticky headers, an
 /// optional "on this page" mini-map at width, and the deep-link scroll +
-/// highlight target. No nested tabs anywhere — depth is the enemy here.
+/// highlight target. Pages with three or more groups (measured against the
+/// real catalog: Tools has 3, Permissions & Sandbox has 4) get a top tab bar
+/// instead, one tab per group, so a tall page never becomes a long scroll —
+/// see `usesTabs(page:)`. This is deliberately narrow: it separates groups
+/// within one topic, not different topics, which stay flat top-level pages.
 public struct SettingsPageView: View {
     @Environment(\.ainkradTheme) private var tokens
     @Environment(\.ainkradTypography) private var typo
@@ -14,6 +18,8 @@ public struct SettingsPageView: View {
     private let matchedPaths: Set<SettingsPath>?
     private let highlightedPath: SettingsPath?
 
+    @State private var selectedTab: Int = 0
+
     public init(
         page: SettingsPage,
         matchedPaths: Set<SettingsPath>? = nil,
@@ -22,6 +28,21 @@ public struct SettingsPageView: View {
         self.page = page
         self.matchedPaths = matchedPaths
         self.highlightedPath = highlightedPath
+        // Seed the active tab on the FIRST render, not one frame later via
+        // `.onChange` — otherwise a deep-link or a pre-filled search arriving
+        // with the initial view already selects the wrong tab and the first
+        // `scrollTo` targets a row that isn't in the hierarchy yet.
+        var initialTab = 0
+        if let highlightedPath, let index = Self.tabIndex(containing: highlightedPath, page: page) {
+            initialTab = index
+        } else if let matchedPaths, !matchedPaths.isEmpty, !page.groups.isEmpty,
+                  Self.tabHitCount(group: page.groups[0], matchedPaths: matchedPaths) == 0,
+                  let firstHit = page.groups.firstIndex(where: {
+                      Self.tabHitCount(group: $0, matchedPaths: matchedPaths) > 0
+                  }) {
+            initialTab = firstHit
+        }
+        self._selectedTab = State(initialValue: initialTab)
     }
 
     public static func showsMiniMap(page: SettingsPage, width: CGFloat) -> Bool {
@@ -44,52 +65,198 @@ public struct SettingsPageView: View {
         showsMiniMap(page: page, width: totalWidth) ? totalWidth - miniMapOccupiedWidth : totalWidth
     }
 
+    /// Tall pages get a tab bar instead of a long scroll. Threshold measured
+    /// against the real catalog: Tools has 3 groups and Permissions & Sandbox
+    /// has 4; every other page has 1-2, and a tab bar over two groups is worse
+    /// than none.
+    public static func usesTabs(page: SettingsPage) -> Bool {
+        page.groups.count >= tabThreshold
+    }
+    static let tabThreshold = 3
+
+    /// Matches inside one group, for the badge on its tab. A filter must never
+    /// be able to hide a match behind an unselected tab.
+    public static func tabHitCount(group: SettingsGroup, matchedPaths: Set<SettingsPath>?) -> Int {
+        guard let matchedPaths else { return 0 }
+        return group.fields.filter { matchedPaths.contains($0.path) }.count
+    }
+
+    /// The `.id` carried by the single `SettingsGroupView` the tabbed branch
+    /// renders. It is a function, not a literal at the call site, so
+    /// `deepLinkTarget` below reasons about the SAME value the view applies:
+    /// if this ever stops varying per group, both the view and the test that
+    /// pins it change together.
+    public static func groupViewIdentity(page: SettingsPage, index: Int) -> SettingsPath {
+        page.groups[index].path
+    }
+
+    /// Where a deep-link actually LANDS, as one value: which tab must be
+    /// active, which group owns the field, and whether that group will really
+    /// be expanded once rendered.
+    ///
+    /// This exists because "the group's `mustExpand` returns true" is not the
+    /// same claim as "the field is on screen". On a tabbed page the seeding
+    /// that consumes `mustExpand` only runs when the rendered group view has
+    /// its own identity; with identity collapsed across tabs the seeding is
+    /// skipped and the group shows whatever the previously-visible tab left
+    /// behind. Pure, so the composition is testable without rendering.
+    public static func deepLinkTarget(
+        page: SettingsPage,
+        highlightedPath: SettingsPath
+    ) -> DeepLinkTarget? {
+        guard let index = tabIndex(containing: highlightedPath, page: page) else { return nil }
+        let group = page.groups[index]
+        let tabbed = usesTabs(page: page)
+        // Untabbed pages render every group in a `ForEach` keyed by the
+        // group's own id, so seeding always runs. Tabbed pages only honour it
+        // when the one rendered slot is identified per group.
+        let identities = page.groups.indices.map { groupViewIdentity(page: page, index: $0) }
+        let seedingRuns = !tabbed || Set(identities).count == identities.count
+        let expanded = group.disclosure == .always
+            || (seedingRuns && SettingsGroupView.mustExpand(
+                group: group, highlightedPath: highlightedPath, matchedPaths: nil))
+        return DeepLinkTarget(
+            tabIndex: tabbed ? index : nil, groupPath: group.path, groupIsExpanded: expanded)
+    }
+
+    public struct DeepLinkTarget: Equatable, Sendable {
+        /// The tab that must be selected, or `nil` on an untabbed page.
+        public let tabIndex: Int?
+        public let groupPath: SettingsPath
+        /// Whether the owning group is actually open when it renders.
+        public let groupIsExpanded: Bool
+
+        public init(tabIndex: Int?, groupPath: SettingsPath, groupIsExpanded: Bool) {
+            self.tabIndex = tabIndex
+            self.groupPath = groupPath
+            self.groupIsExpanded = groupIsExpanded
+        }
+    }
+
+    /// The tab holding `path`, so a deep-link can switch tabs before scrolling.
+    public static func tabIndex(containing path: SettingsPath, page: SettingsPage) -> Int? {
+        page.groups.firstIndex { group in
+            group.path == path || group.fields.contains { $0.path == path }
+        }
+    }
+
     public var body: some View {
         GeometryReader { geo in
             let layout = SettingsRowLayout(detailWidth: Self.rowAreaWidth(page: page, totalWidth: geo.size.width))
+            let tabbed = Self.usesTabs(page: page)
             HStack(alignment: .top, spacing: 0) {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        // Each `SettingsGroupView`'s body is itself a
-                        // `Section` (header + content). Nesting those inside
-                        // this `LazyVStack(pinnedViews: [.sectionHeaders])`
-                        // is what actually pins the group headers while
-                        // scrolling — `pinnedViews` only pins the headers of
-                        // real `Section`s in the hierarchy, and SwiftUI
-                        // resolves a custom view's declared `body` inline, so
-                        // the `Section` returned by `SettingsGroupView.body`
-                        // counts exactly as if it were written here directly.
-                        LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
-                            if !page.resettableFields.isEmpty {
-                                pageHeader
+                VStack(alignment: .leading, spacing: 0) {
+                    if tabbed {
+                        tabBar
+                    }
+                    ScrollViewReader { proxy in
+                        ScrollView {
+                            // Each `SettingsGroupView`'s body is itself a
+                            // `Section` (header + content). Nesting those inside
+                            // this `LazyVStack(pinnedViews: [.sectionHeaders])`
+                            // is what actually pins the group headers while
+                            // scrolling — `pinnedViews` only pins the headers of
+                            // real `Section`s in the hierarchy, and SwiftUI
+                            // resolves a custom view's declared `body` inline, so
+                            // the `Section` returned by `SettingsGroupView.body`
+                            // counts exactly as if it were written here directly.
+                            LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
+                                if !page.resettableFields.isEmpty {
+                                    pageHeader
+                                }
+                                if tabbed {
+                                    let index = min(selectedTab, page.groups.count - 1)
+                                    SettingsGroupView(
+                                        group: page.groups[index], layout: layout,
+                                        matchedPaths: matchedPaths,
+                                        highlightedPath: highlightedPath)
+                                        // MUST stay: the tabbed branch renders
+                                        // exactly one group at a fixed
+                                        // structural slot, so without a
+                                        // per-group identity SwiftUI treats
+                                        // every tab's group as the SAME view.
+                                        // `SettingsGroupView`'s `@State
+                                        // isExpanded` would then persist across
+                                        // tab switches and its `State(initial
+                                        // Value: … mustExpand(…))` seeding
+                                        // would never re-run — a collapsed
+                                        // group inherited from the previous tab
+                                        // renders as a bare header, and a
+                                        // deep-link into it scrolls to an id
+                                        // that isn't in the hierarchy.
+                                        // `groupViewIdentity` is the value
+                                        // `deepLinkTarget` reasons about, so
+                                        // the test and the view cannot drift.
+                                        .id(Self.groupViewIdentity(page: page, index: index))
+                                } else {
+                                    ForEach(page.groups) { group in
+                                        SettingsGroupView(
+                                            group: group, layout: layout,
+                                            matchedPaths: matchedPaths,
+                                            highlightedPath: highlightedPath)
+                                    }
+                                }
                             }
-                            ForEach(page.groups) { group in
-                                SettingsGroupView(
-                                    group: group, layout: layout,
-                                    matchedPaths: matchedPaths,
-                                    highlightedPath: highlightedPath)
+                            .padding(18)
+                        }
+                        .scrollContentBackground(.hidden)
+                        .onChange(of: highlightedPath) { _, path in
+                            // A deep-link may name a field on an inactive tab;
+                            // switch to it before the scroll, or the user is
+                            // sent to an invisible row.
+                            guard let path, tabbed,
+                                  let index = Self.tabIndex(containing: path, page: page) else { return }
+                            selectedTab = index
+                        }
+                        .onChange(of: matchedPaths) { _, matched in
+                            // If the active tab has no matches but another
+                            // does, move there. Otherwise a filter silently
+                            // appears to match nothing.
+                            guard tabbed, let matched, !matched.isEmpty else { return }
+                            if Self.tabHitCount(group: page.groups[selectedTab], matchedPaths: matched) == 0,
+                               let firstHit = page.groups.firstIndex(where: {
+                                   Self.tabHitCount(group: $0, matchedPaths: matched) > 0
+                               }) {
+                                if reduceMotion {
+                                    selectedTab = firstHit
+                                } else {
+                                    withAnimation(.easeOut(duration: AinkradMotion.durationBase)) {
+                                        selectedTab = firstHit
+                                    }
+                                }
                             }
                         }
-                        .padding(18)
-                    }
-                    .scrollContentBackground(.hidden)
-                    .onChange(of: highlightedPath) { _, path in
-                        guard let path else { return }
-                        if reduceMotion {
-                            proxy.scrollTo(path, anchor: .center)
-                        } else {
-                            withAnimation(.easeOut(duration: 0.2)) {
+                        .onChange(of: highlightedPath) { _, path in
+                            guard let path else { return }
+                            if reduceMotion {
                                 proxy.scrollTo(path, anchor: .center)
+                            } else {
+                                withAnimation(.easeOut(duration: 0.2)) {
+                                    proxy.scrollTo(path, anchor: .center)
+                                }
                             }
                         }
                     }
                 }
 
-                if Self.showsMiniMap(page: page, width: geo.size.width) {
+                if !tabbed, Self.showsMiniMap(page: page, width: geo.size.width) {
                     miniMap
                 }
             }
         }
+    }
+
+    /// Tab strip for tall pages, one tab per group, badged with its hit count
+    /// while filtering so a search can never hide a match behind an
+    /// unselected tab.
+    private var tabBar: some View {
+        AinkradTabs(tabs: Array(page.groups.indices), selection: $selectedTab) { index in
+            let group = page.groups[index]
+            let hits = Self.tabHitCount(group: group, matchedPaths: matchedPaths)
+            return hits > 0 ? "\(group.title) (\(hits))" : group.title
+        }
+        .padding(.horizontal, AinkradSpacing.lg)
+        .padding(.top, AinkradSpacing.lg)
     }
 
     /// Page-level reset control. Shown only when `resettableFields` is
