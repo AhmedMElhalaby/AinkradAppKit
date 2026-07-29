@@ -134,6 +134,21 @@ public struct SettingsPage: Identifiable {
     public nonisolated var id: SettingsPath { path }
     public var allFields: [SettingsField] { groups.flatMap(\.fields) }
 
+    /// Fields that are both currently modified from their default AND have a
+    /// reset closure — the exact set the page-level "Reset this page"
+    /// affordance is allowed to touch.
+    public var resettableFields: [SettingsField] {
+        allFields.filter { $0.reset != nil && $0.isModified() }
+    }
+
+    /// Restores every resettable, modified field on this page. Fields without
+    /// a `reset` closure, or that are already at their default, are untouched.
+    public func resetAll() {
+        for field in resettableFields {
+            field.reset?()
+        }
+    }
+
     public init(
         path: SettingsPath,
         title: String,

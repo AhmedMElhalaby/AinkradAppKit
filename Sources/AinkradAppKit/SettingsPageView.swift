@@ -60,6 +60,9 @@ public struct SettingsPageView: View {
                         // the `Section` returned by `SettingsGroupView.body`
                         // counts exactly as if it were written here directly.
                         LazyVStack(alignment: .leading, spacing: 24, pinnedViews: [.sectionHeaders]) {
+                            if !page.resettableFields.isEmpty {
+                                pageHeader
+                            }
                             ForEach(page.groups) { group in
                                 SettingsGroupView(
                                     group: group, layout: layout,
@@ -86,6 +89,26 @@ public struct SettingsPageView: View {
                     miniMap
                 }
             }
+        }
+    }
+
+    /// Page-level reset control. Shown only when `resettableFields` is
+    /// non-empty — i.e. at least one field on this page is both resettable
+    /// and currently modified from its default.
+    private var pageHeader: some View {
+        HStack {
+            Spacer(minLength: 0)
+            Button(action: { page.resetAll() }) {
+                HStack(spacing: 6) {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.system(size: 10))
+                    Text("Reset this page")
+                        .font(AinkradFontResolver.font(.caption, weight: .medium, typography: typo))
+                }
+                .foregroundStyle(tokens.accentSecondary.opacity(0.9))
+            }
+            .buttonStyle(.plain)
+            .help("Restore all modified fields on this page to their defaults")
         }
     }
 
