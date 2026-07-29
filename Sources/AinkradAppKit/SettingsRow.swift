@@ -114,7 +114,13 @@ public struct SettingsRow: View {
             help: field.help,
             badges: Self.badges(for: field).map { $0.uppercased() },
             controlWidth: layout == .sideBySide ? SettingsMetrics.controlColumnWidth : nil,
-            accessory: Self.showsRevert(for: field) && isHovered ? { AnyView(revertButton) } : nil
+            // Handed to FormRow whenever the affordance is *meaningful*
+            // (modified + resettable), not only while hovered. Passing it
+            // conditionally on `isHovered` would add/remove the button from
+            // the layout on hover, changing the row's height. Reserving the
+            // space and fading the button's opacity on hover instead keeps
+            // geometry constant — only the paint changes.
+            accessory: Self.showsRevert(for: field) ? { AnyView(revertButton) } : nil
         ) {
             control
         }
@@ -128,7 +134,9 @@ public struct SettingsRow: View {
 
     /// Restores this field's default. Lives here rather than in FormRow
     /// because "modified vs default" is a settings concept the kit has no
-    /// opinion about.
+    /// opinion about. Always occupies its layout space when the affordance
+    /// is meaningful (see `rowBody`); only its opacity — not its presence —
+    /// responds to hover, so hovering never changes the row's height.
     @ViewBuilder
     private var revertButton: some View {
         if let reset = field.reset {
@@ -140,6 +148,8 @@ public struct SettingsRow: View {
                     .foregroundStyle(tokens.accentSecondary.opacity(0.9))
             }
             .buttonStyle(.plain)
+            .opacity(isHovered ? 1 : 0)
+            .allowsHitTesting(isHovered)
             .help(field.defaultDescription.map { "Reset to \($0)" } ?? "Reset to default")
         }
     }

@@ -508,7 +508,14 @@ public struct AinkradFormRow<Control: View>: View {
     }
 
     public var body: some View {
-        HStack(alignment: .firstTextBaseline) {
+        // `.center`, not `.firstTextBaseline`: with a two-line label (title +
+        // help) baseline alignment pins the control to the title's line,
+        // floating it at the top of the row instead of the middle of the
+        // label block. `.center` centres the control against the whole
+        // label block regardless of how many lines it has, and degrades to
+        // the same visual result as baseline alignment for a single-line
+        // label (title only) since there's only one line to center against.
+        HStack(alignment: .center) {
             VStack(alignment: .leading, spacing: AinkradSpacing.xs / 2) {
                 HStack(spacing: AinkradSpacing.xs) {
                     Rectangle()
