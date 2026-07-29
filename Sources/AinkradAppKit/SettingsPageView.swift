@@ -28,9 +28,25 @@ public struct SettingsPageView: View {
         page.groups.count >= 4 && width >= SettingsMetrics.miniMapBreakpoint
     }
 
+    /// The mini-map's own occupied width: its fixed content width plus the
+    /// trailing padding `miniMap` applies around itself. Kept as the single
+    /// source of truth so `rowAreaWidth` and the `miniMap` view can't drift
+    /// apart into two different numbers for the same column.
+    public static let miniMapOccupiedWidth: CGFloat = 150 + 18
+
+    /// The width actually available to rows: the page's total width minus
+    /// whatever the mini-map is occupying, if it's showing at all. Pure and
+    /// static so layout-breakpoint decisions near `wideBreakpoint` stay
+    /// testable without rendering — the mini-map silently stealing ~168pt
+    /// from the row column was previously ignored when picking
+    /// `.sideBySide` vs. `.stacked`.
+    public static func rowAreaWidth(page: SettingsPage, totalWidth: CGFloat) -> CGFloat {
+        showsMiniMap(page: page, width: totalWidth) ? totalWidth - miniMapOccupiedWidth : totalWidth
+    }
+
     public var body: some View {
         GeometryReader { geo in
-            let layout = SettingsRowLayout(detailWidth: geo.size.width)
+            let layout = SettingsRowLayout(detailWidth: Self.rowAreaWidth(page: page, totalWidth: geo.size.width))
             HStack(alignment: .top, spacing: 0) {
                 ScrollViewReader { proxy in
                     ScrollView {
@@ -86,7 +102,7 @@ public struct SettingsPageView: View {
             }
             Spacer(minLength: 0)
         }
-        .frame(width: 150, alignment: .topLeading)
+        .frame(width: Self.miniMapOccupiedWidth - 18, alignment: .topLeading)
         .padding(.top, 18)
         .padding(.trailing, 18)
     }

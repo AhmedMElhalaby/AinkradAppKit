@@ -23,6 +23,7 @@ public struct SettingsGroupView: View {
     private let matchedPaths: Set<SettingsPath>?
     private let highlightedPath: SettingsPath?
     @State private var isExpanded: Bool
+    @State private var isHeaderHovered = false
 
     public init(
         group: SettingsGroup,
@@ -86,8 +87,13 @@ public struct SettingsGroupView: View {
                     isExpanded.toggle()
                 } label: {
                     headerContent(showsChevron: true)
+                        .background(
+                            ChamferShape(cut: AinkradRadius.md)
+                                .fill(tokens.surfaceElevated.opacity(isHeaderHovered ? 0.5 : 0)))
                 }
                 .buttonStyle(.plain)
+                .onHover { isHeaderHovered = $0 }
+                .animation(reduceMotion ? nil : .easeOut(duration: 0.12), value: isHeaderHovered)
             } else {
                 // `.always` groups are never interactive — a header that
                 // looks clickable but does nothing is worse than one that
