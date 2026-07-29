@@ -81,6 +81,58 @@ public struct SettingsPageView: View {
         return group.fields.filter { matchedPaths.contains($0.path) }.count
     }
 
+    /// The `.id` carried by the single `SettingsGroupView` the tabbed branch
+    /// renders. It is a function, not a literal at the call site, so
+    /// `deepLinkTarget` below reasons about the SAME value the view applies:
+    /// if this ever stops varying per group, both the view and the test that
+    /// pins it change together.
+    public static func groupViewIdentity(page: SettingsPage, index: Int) -> SettingsPath {
+        page.groups[index].path
+    }
+
+    /// Where a deep-link actually LANDS, as one value: which tab must be
+    /// active, which group owns the field, and whether that group will really
+    /// be expanded once rendered.
+    ///
+    /// This exists because "the group's `mustExpand` returns true" is not the
+    /// same claim as "the field is on screen". On a tabbed page the seeding
+    /// that consumes `mustExpand` only runs when the rendered group view has
+    /// its own identity; with identity collapsed across tabs the seeding is
+    /// skipped and the group shows whatever the previously-visible tab left
+    /// behind. Pure, so the composition is testable without rendering.
+    public static func deepLinkTarget(
+        page: SettingsPage,
+        highlightedPath: SettingsPath
+    ) -> DeepLinkTarget? {
+        guard let index = tabIndex(containing: highlightedPath, page: page) else { return nil }
+        let group = page.groups[index]
+        let tabbed = usesTabs(page: page)
+        // Untabbed pages render every group in a `ForEach` keyed by the
+        // group's own id, so seeding always runs. Tabbed pages only honour it
+        // when the one rendered slot is identified per group.
+        let identities = page.groups.indices.map { groupViewIdentity(page: page, index: $0) }
+        let seedingRuns = !tabbed || Set(identities).count == identities.count
+        let expanded = group.disclosure == .always
+            || (seedingRuns && SettingsGroupView.mustExpand(
+                group: group, highlightedPath: highlightedPath, matchedPaths: nil))
+        return DeepLinkTarget(
+            tabIndex: tabbed ? index : nil, groupPath: group.path, groupIsExpanded: expanded)
+    }
+
+    public struct DeepLinkTarget: Equatable, Sendable {
+        /// The tab that must be selected, or `nil` on an untabbed page.
+        public let tabIndex: Int?
+        public let groupPath: SettingsPath
+        /// Whether the owning group is actually open when it renders.
+        public let groupIsExpanded: Bool
+
+        public init(tabIndex: Int?, groupPath: SettingsPath, groupIsExpanded: Bool) {
+            self.tabIndex = tabIndex
+            self.groupPath = groupPath
+            self.groupIsExpanded = groupIsExpanded
+        }
+    }
+
     /// The tab holding `path`, so a deep-link can switch tabs before scrolling.
     public static func tabIndex(containing path: SettingsPath, page: SettingsPage) -> Int? {
         page.groups.firstIndex { group in
@@ -118,6 +170,24 @@ public struct SettingsPageView: View {
                                         group: page.groups[index], layout: layout,
                                         matchedPaths: matchedPaths,
                                         highlightedPath: highlightedPath)
+                                        // MUST stay: the tabbed branch renders
+                                        // exactly one group at a fixed
+                                        // structural slot, so without a
+                                        // per-group identity SwiftUI treats
+                                        // every tab's group as the SAME view.
+                                        // `SettingsGroupView`'s `@State
+                                        // isExpanded` would then persist across
+                                        // tab switches and its `State(initial
+                                        // Value: … mustExpand(…))` seeding
+                                        // would never re-run — a collapsed
+                                        // group inherited from the previous tab
+                                        // renders as a bare header, and a
+                                        // deep-link into it scrolls to an id
+                                        // that isn't in the hierarchy.
+                                        // `groupViewIdentity` is the value
+                                        // `deepLinkTarget` reasons about, so
+                                        // the test and the view cannot drift.
+                                        .id(Self.groupViewIdentity(page: page, index: index))
                                 } else {
                                     ForEach(page.groups) { group in
                                         SettingsGroupView(
