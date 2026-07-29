@@ -478,12 +478,35 @@ public struct AinkradSlider: View {
 public struct AinkradFormRow<Control: View>: View {
     public let title: String
     public let help: String?
+    /// Short uppercase tags rendered beside the title — e.g. ADVANCED,
+    /// RESTART REQUIRED. Empty by default so existing call sites are unchanged.
+    public let badges: [String]
+    /// Fixed width for the control, so every control in a form shares one
+    /// vertical rail. `nil` keeps the previous behaviour: the control sizes
+    /// itself and right-aligns after a Spacer.
+    public let controlWidth: CGFloat?
     private let control: Control
+    private let accessory: AnyView?
+
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
-    public init(title: String, help: String? = nil, @ViewBuilder control: () -> Control) {
-        self.title = title; self.help = help; self.control = control()
+
+    public init(
+        title: String,
+        help: String? = nil,
+        badges: [String] = [],
+        controlWidth: CGFloat? = nil,
+        accessory: (() -> AnyView)? = nil,
+        @ViewBuilder control: () -> Control
+    ) {
+        self.title = title
+        self.help = help
+        self.badges = badges
+        self.controlWidth = controlWidth
+        self.accessory = accessory?()
+        self.control = control()
     }
+
     public var body: some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: AinkradSpacing.xs / 2) {
@@ -491,7 +514,13 @@ public struct AinkradFormRow<Control: View>: View {
                     Rectangle()
                         .fill(theme.accentSecondary.opacity(0.55))
                         .frame(width: 2, height: 12)
-                    Text(title).font(AinkradFontResolver.font(.body, typography: typo)).foregroundStyle(theme.foreground)
+                    Text(title)
+                        .font(AinkradFontResolver.font(.body, typography: typo))
+                        .foregroundStyle(theme.foreground)
+                    ForEach(badges, id: \.self) { badge in
+                        AinkradBadge(text: badge, tint: theme.accentSecondary)
+                    }
+                    if let accessory { accessory }
                 }
                 if let help {
                     Text(help)
@@ -501,7 +530,11 @@ public struct AinkradFormRow<Control: View>: View {
                 }
             }
             Spacer(minLength: AinkradSpacing.lg)
-            control
+            if let controlWidth {
+                control.frame(width: controlWidth, alignment: .trailing)
+            } else {
+                control
+            }
         }
     }
 }
