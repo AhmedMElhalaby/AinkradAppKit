@@ -42,6 +42,21 @@ public struct SettingsRow: View {
         field.reset != nil && field.isModified()
     }
 
+    /// Quantizes `value` to the nearest multiple of `step` relative to
+    /// `range.lowerBound`, then clamps to `range`. `AinkradSlider` has no
+    /// native step; this is the glue that gives `.slider(step:)` teeth
+    /// without touching the shared `AinkradAppKitUI` component. A
+    /// non-positive `step` (0 or negative) disables quantization — the value
+    /// passes through unchanged aside from the clamp, avoiding a
+    /// divide-by-zero. Pure — unit-testable without a rendered view.
+    public static func quantize(_ value: Double, step: Double, range: ClosedRange<Double>) -> Double {
+        let clamped = min(max(value, range.lowerBound), range.upperBound)
+        guard step > 0 else { return clamped }
+        let steps = ((clamped - range.lowerBound) / step).rounded()
+        let quantized = range.lowerBound + steps * step
+        return min(max(quantized, range.lowerBound), range.upperBound)
+    }
+
     public var body: some View {
         Group {
             switch layout {
@@ -77,6 +92,10 @@ public struct SettingsRow: View {
                 }
                 if isHovered, Self.showsRevert(for: field), let reset = field.reset {
                     Button(action: reset) {
+                        // `.system(size:)` here sizes an SF Symbol *glyph*,
+                        // not text — the AinkradFont-only rule governs text
+                        // typography, not icon point size, so this isn't a
+                        // violation of it.
                         Image(systemName: "arrow.uturn.backward")
                             .font(.system(size: 10))
                             .foregroundStyle(tokens.accentSecondary.opacity(0.9))
@@ -111,10 +130,16 @@ public struct SettingsRow: View {
             )
             .fixedSize()
         case .slider(let range, let step, let value):
-            // `step` isn't modeled by `AinkradSlider` yet; the underlying
-            // binding still only ever receives values the slider produces
-            // continuously within `range`. Tracked as a follow-up (see report).
-            AinkradSlider(value: value, in: range)
+            // `AinkradSlider` has no native step, so it's wrapped in a
+            // shim binding that quantizes writes via `Self.quantize`
+            // before they reach the underlying `value` binding.
+            AinkradSlider(
+                value: Binding(
+                    get: { value.wrappedValue },
+                    set: { value.wrappedValue = Self.quantize($0, step: step, range: range) }
+                ),
+                in: range
+            )
         case .text(let binding):
             AinkradTextField(text: binding, placeholder: "")
         case .secure(let binding):
