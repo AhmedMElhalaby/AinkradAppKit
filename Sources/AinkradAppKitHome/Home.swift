@@ -15,7 +15,13 @@ public enum SharedDomain: String, CaseIterable, Sendable {
     var relativePath: String {
         switch self {
         case .config:   return "Config"
-        case .agents:   return "Assistant/agents"
+        // `Assistant/`, not `Assistant/agents/`: the published layout puts
+        // `agents.json` and `connections.json` as FILES directly under
+        // `Assistant/`, alongside the `memory/`, `skills/`, `commands/` and
+        // `sessions/` subdirectories. This domain is therefore the assistant's
+        // document root, and `Assistant/agents` was never a location the layout
+        // contained.
+        case .agents:   return "Assistant"
         case .memory:   return "Assistant/memory"
         case .skills:   return "Assistant/skills"
         case .commands: return "Assistant/commands"

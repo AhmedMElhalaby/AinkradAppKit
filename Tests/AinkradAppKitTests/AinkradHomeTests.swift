@@ -20,9 +20,32 @@ struct HomeURLTests {
     @Test func sharedDomainsResolveUnderTheVault() {
         let home = makeHome()
         #expect(home.shared(.config).path == "/tmp/vault/Config")
-        #expect(home.shared(.agents).path == "/tmp/vault/Assistant/agents")
+        // `.agents` is the assistant DOCUMENT ROOT — the published layout has
+        // `Assistant/agents.json`, a file, not an `Assistant/agents/` directory.
+        #expect(home.shared(.agents).path == "/tmp/vault/Assistant")
         #expect(home.shared(.sessions).path == "/tmp/vault/Assistant/sessions")
         #expect(home.shared(.media).path == "/tmp/vault/Media")
+    }
+
+    /// The vault layout is user-visible and other apps in the family build
+    /// against it, so it is pinned here against the published design rather than
+    /// left to whatever the enum happens to say.
+    @Test func sharedDomainsMatchThePublishedLayout() {
+        let home = makeHome()
+        let expected: [SharedDomain: String] = [
+            .config:   "/tmp/vault/Config",
+            .agents:   "/tmp/vault/Assistant",
+            .memory:   "/tmp/vault/Assistant/memory",
+            .skills:   "/tmp/vault/Assistant/skills",
+            .commands: "/tmp/vault/Assistant/commands",
+            .sessions: "/tmp/vault/Assistant/sessions",
+            .media:    "/tmp/vault/Media",
+            .sounds:   "/tmp/vault/Sounds",
+        ]
+        #expect(expected.count == SharedDomain.allCases.count)
+        for domain in SharedDomain.allCases {
+            #expect(home.shared(domain).path == expected[domain])
+        }
     }
 
     @Test func everySharedDomainHasADistinctPath() {
