@@ -84,7 +84,13 @@ public enum AinkradHome {
         return Home(vaultRoot: url, cacheRoot: cacheRoot)
     }
 
-    static func validate(_ url: URL) throws {
+    /// Whether `url` may be claimed as a Home, without claiming it.
+    ///
+    /// Public because a folder picker has to be able to reject a choice BEFORE
+    /// anything is written into it: the alternative is discovering the folder is
+    /// unusable only from a failing `adopt`, after a migration has already copied
+    /// data in. `adopt` calls this itself, so the check is never merely advisory.
+    public static func validate(_ url: URL) throws {
         let fm = FileManager.default
         var isDirectory: ObjCBool = false
         guard fm.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue else {
