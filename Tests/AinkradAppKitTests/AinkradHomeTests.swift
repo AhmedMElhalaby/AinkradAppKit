@@ -121,6 +121,82 @@ struct HomeResolutionTests {
         }
     }
 
+    // MARK: - Emptiness
+
+    @Test func anEmptyDirectoryAdopts() throws {
+        let s = sandbox()
+        defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(at: s.vault, withIntermediateDirectories: true)
+
+        let home = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        #expect(home.vaultRoot.standardizedFileURL == s.vault.standardizedFileURL)
+    }
+
+    /// Reinstall-and-restore: an existing Home is still adoptable however full it
+    /// is, and keeps its identity.
+    @Test func aDirectoryThatIsAlreadyAHomeAdoptsAndKeepsItsIdentity() throws {
+        let s = sandbox()
+        defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(at: s.vault, withIntermediateDirectories: true)
+        _ = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        let firstID = try HomeMarker.read(in: s.vault)?.homeID
+
+        // Now it is populated — as a real vault in use would be.
+        try FileManager.default.createDirectory(at: s.vault.appendingPathComponent("Config"),
+                                                withIntermediateDirectories: true)
+        try Data("{}".utf8).write(to: s.vault.appendingPathComponent("Config/agents.json"))
+
+        _ = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        #expect(firstID != nil)
+        #expect(try HomeMarker.read(in: s.vault)?.homeID == firstID)
+    }
+
+    /// The incident this guards: a populated folder is somebody else's — an
+    /// Obsidian vault, a git checkout, a Downloads directory. No allowlist of
+    /// "owned by another tool" markers can ever be complete, so emptiness is the
+    /// only property that is actually decidable here.
+    @Test func aPopulatedDirectoryIsRefused() throws {
+        let s = sandbox()
+        defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(at: s.vault, withIntermediateDirectories: true)
+        try Data("# notes".utf8).write(to: s.vault.appendingPathComponent("README.md"))
+
+        #expect(throws: HomeError.notEmpty(s.vault)) {
+            _ = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        }
+        // And it must leave nothing behind in a folder it refused.
+        #expect(!FileManager.default.fileExists(
+            atPath: s.vault.appendingPathComponent(".ainkrad-home").path))
+        guard case .unset = AinkradHome.resolve(pointerDirectory: s.pointer, cacheRoot: s.cache) else {
+            Issue.record("a refused adoption must leave no pointer"); return
+        }
+    }
+
+    /// Finder litters `.DS_Store` into any folder the user merely LOOKED at, so
+    /// treating it as content would refuse most freshly created directories.
+    @Test func aDirectoryContainingOnlyDSStoreCountsAsEmpty() throws {
+        let s = sandbox()
+        defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(at: s.vault, withIntermediateDirectories: true)
+        try Data().write(to: s.vault.appendingPathComponent(".DS_Store"))
+
+        let home = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        #expect(home.vaultRoot.standardizedFileURL == s.vault.standardizedFileURL)
+    }
+
+    /// A hidden entry is still content — `.git`/`.obsidian` reach this path, and
+    /// they must be refused by the general rule rather than by being named.
+    @Test func aHiddenEntryOtherThanDSStoreCountsAsContent() throws {
+        let s = sandbox()
+        defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }
+        try FileManager.default.createDirectory(
+            at: s.vault.appendingPathComponent(".obsidian"), withIntermediateDirectories: true)
+
+        #expect(throws: HomeError.notEmpty(s.vault)) {
+            _ = try AinkradHome.adopt(s.vault, pointerDirectory: s.pointer, cacheRoot: s.cache)
+        }
+    }
+
     @Test func failedAdoptionWritesNoPointer() throws {
         let s = sandbox()
         defer { try? FileManager.default.removeItem(at: s.pointer.deletingLastPathComponent()) }

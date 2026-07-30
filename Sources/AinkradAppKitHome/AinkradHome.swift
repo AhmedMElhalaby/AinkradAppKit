@@ -5,6 +5,9 @@ public enum HomeError: Error, Sendable, Equatable {
     case nestedHome(URL)
     case systemLocation(URL)
     case doesNotExist(URL)
+    /// The directory already holds someone else's files. Claiming it would put
+    /// the vault on top of a folder another tool owns.
+    case notEmpty(URL)
 }
 
 /// Outcome of looking for a configured Ainkrad Home.
@@ -95,6 +98,26 @@ public enum AinkradHome {
             || url.standardizedFileURL.path == forbidden {
             throw HomeError.systemLocation(url)
         }
+        // A directory may be claimed only when it is EMPTY, or when it is already
+        // an Ainkrad Home (reinstall-and-restore, which must keep working however
+        // full the vault is).
+        //
+        // Deliberately NOT a check for `.obsidian`/`.git`/`package.json`/…: an
+        // allowlist of "markers that mean another tool owns this" can never be
+        // complete, and the one time it is incomplete the app plants itself in
+        // the middle of the user's data. Emptiness is the only property that is
+        // decidable without enumerating every tool that could ever own a folder.
+        //
+        // `.DS_Store` is ignored: Finder writes it into any directory the user
+        // merely opened, so counting it as content would refuse folders the user
+        // just created for this purpose. Nothing else is ignored.
+        if !fm.fileExists(atPath: HomeMarker.url(in: url).path) {
+            let entries = (try? fm.contentsOfDirectory(atPath: url.path)) ?? []
+            guard entries.allSatisfy({ $0 == ".DS_Store" }) else {
+                throw HomeError.notEmpty(url)
+            }
+        }
+
         // Nested homes are never valid: two markers on one path make identity ambiguous.
         var parent = url.standardizedFileURL.deletingLastPathComponent()
         while parent.path != "/" && parent.path != parent.deletingLastPathComponent().path {
