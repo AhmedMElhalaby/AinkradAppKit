@@ -37,11 +37,16 @@ let package = Package(
             swiftSettings: resilient
         ),
 
+        // Storage-root contract: the single place any app in the family may
+        // compute a path. Deliberately NOT in AinkradAppKitContract — it is not
+        // part of the ABI-frozen plugin surface.
+        .target(name: "AinkradAppKitHome", swiftSettings: resilient),
+
         // Umbrella: re-exports both, so `import AinkradAppKit` is unchanged for
         // the host and all five plugins.
         .target(
             name: "AinkradAppKit",
-            dependencies: ["AinkradAppKitContract", "AinkradAppKitUI"],
+            dependencies: ["AinkradAppKitContract", "AinkradAppKitUI", "AinkradAppKitHome"],
             swiftSettings: resilient
         ),
 
@@ -50,7 +55,7 @@ let package = Package(
             // Depends on the sub-targets directly: `@testable` reaches internal
             // symbols per MODULE, and after the split those live in
             // Contract/UI rather than in the umbrella.
-            dependencies: ["AinkradAppKit", "AinkradAppKitContract", "AinkradAppKitUI"]
+            dependencies: ["AinkradAppKit", "AinkradAppKitContract", "AinkradAppKitUI", "AinkradAppKitHome"]
         ),
     ]
 )
