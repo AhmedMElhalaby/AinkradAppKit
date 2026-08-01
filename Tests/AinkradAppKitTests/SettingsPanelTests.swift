@@ -51,3 +51,32 @@ struct SettingsPanelTests {
         #expect(source.contains("AinkradFontResolver.font(.caption"))
     }
 }
+
+@Suite("AinkradCaptionedRow")
+@MainActor
+struct CaptionedRowTests {
+    private var source: String {
+        let path = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .appendingPathComponent("Sources/AinkradAppKitUI/Components/AinkradCaptionedRow.swift")
+        return (try? String(contentsOf: path, encoding: .utf8)) ?? ""
+    }
+
+    /// The fixed column is the entire reason this type exists: it is what makes
+    /// stacked controls align into a form instead of reading as one flat list
+    /// of loose pills.
+    @Test("caption sits in a fixed column")
+    func fixedColumn() {
+        #expect(AinkradCaptionedRow<EmptyView>.captionColumnWidth == 86)
+        #expect(source.contains("width: Self.captionColumnWidth"))
+    }
+
+    /// The control carries its own accessibility label; a visible caption
+    /// repeated to VoiceOver is noise.
+    @Test("caption is hidden from accessibility")
+    func captionHidden() {
+        #expect(source.contains(".accessibilityHidden(true)"))
+    }
+}
