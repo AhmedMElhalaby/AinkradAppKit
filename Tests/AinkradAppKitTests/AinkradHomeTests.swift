@@ -22,8 +22,8 @@ struct HomeURLTests {
         #expect(home.shared(.config).path == "/tmp/vault/Config")
         // `.agents` is the assistant DOCUMENT ROOT — the published layout has
         // `Assistant/agents.json`, a file, not an `Assistant/agents/` directory.
-        #expect(home.shared(.agents).path == "/tmp/vault/Assistant")
-        #expect(home.shared(.sessions).path == "/tmp/vault/Assistant/sessions")
+        #expect(home.shared(.agents).path == "/tmp/vault/Sage")
+        #expect(home.shared(.sessions).path == "/tmp/vault/Sage/sessions")
         #expect(home.shared(.media).path == "/tmp/vault/Media")
     }
 
@@ -34,11 +34,11 @@ struct HomeURLTests {
         let home = makeHome()
         let expected: [SharedDomain: String] = [
             .config:   "/tmp/vault/Config",
-            .agents:   "/tmp/vault/Assistant",
-            .memory:   "/tmp/vault/Assistant/memory",
-            .skills:   "/tmp/vault/Assistant/skills",
-            .commands: "/tmp/vault/Assistant/commands",
-            .sessions: "/tmp/vault/Assistant/sessions",
+            .agents:   "/tmp/vault/Sage",
+            .memory:   "/tmp/vault/Sage/memory",
+            .skills:   "/tmp/vault/Sage/skills",
+            .commands: "/tmp/vault/Sage/commands",
+            .sessions: "/tmp/vault/Sage/sessions",
             .media:    "/tmp/vault/Media",
             .sounds:   "/tmp/vault/Sounds",
         ]
