@@ -116,7 +116,11 @@ private struct AinkradContextMenuList: View {
             }
         }
         .padding(AinkradSpacing.xs)
-        .ainkradPanel()
+        // `.behindWindow`, not the default: this list is ALWAYS presented in a
+        // floating panel, which is its own window. A `.withinWindow` blur has
+        // nothing to sample there, so the menu rendered as a flat opaque slab
+        // instead of the glass every other surface in the language uses.
+        .ainkradPanel(blending: .behindWindow)
     }
 }
 

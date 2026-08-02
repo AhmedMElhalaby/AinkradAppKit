@@ -1,4 +1,5 @@
 import SwiftUI
+import AppKit
 import AinkradAppKitContract
 
 /// The shared HUD panel finish: blur backing + translucent theme background +
@@ -7,20 +8,33 @@ import AinkradAppKitContract
 /// from `@Environment(\.ainkradTheme)`.
 public struct AinkradPanel<Content: View>: View {
     private let blur: AinkradBlurLevel
+    private let blending: NSVisualEffectView.BlendingMode
     private let backgroundOpacity: Double
     private let showsBrackets: Bool
     private let content: Content
     @Environment(\.ainkradTheme) private var theme
 
-    public init(blur: AinkradBlurLevel = .panel, backgroundOpacity: Double = 0.94,
+    /// - Parameter blending: how the blur samples what it sits over.
+    ///   `.withinWindow` — the default, and right for a panel drawn INSIDE the
+    ///   app window — blurs the content behind it in that same window. A panel
+    ///   hosted in its own `NSPanel` (anything presented through
+    ///   `View.ainkradFloatingPanel(...)`) has nothing behind it within that
+    ///   window, so a `.withinWindow` blur has nothing to sample and renders as
+    ///   a flat fill: the panel reads as an opaque slab rather than glass.
+    ///   Those need `.behindWindow`.
+    public init(blur: AinkradBlurLevel = .panel,
+                blending: NSVisualEffectView.BlendingMode = .withinWindow,
+                backgroundOpacity: Double = 0.94,
                 showsBrackets: Bool = false,
                 @ViewBuilder content: () -> Content) {
-        self.blur = blur; self.backgroundOpacity = backgroundOpacity
+        self.blur = blur; self.blending = blending
+        self.backgroundOpacity = backgroundOpacity
         self.showsBrackets = showsBrackets; self.content = content()
     }
     public var body: some View {
         content
-            .background { ZStack { VisualEffectBlur(level: blur); theme.background.opacity(backgroundOpacity) } }
+            .background { ZStack { VisualEffectBlur(level: blur, blendingMode: blending)
+                                   theme.background.opacity(backgroundOpacity) } }
             .clipShape(ChamferShape(cut: AinkradRadius.panel))
             .overlay(
                 ChamferShape(cut: AinkradRadius.panel)
@@ -35,8 +49,11 @@ public struct AinkradPanel<Content: View>: View {
 }
 
 public extension View {
-    func ainkradPanel(blur: AinkradBlurLevel = .panel, backgroundOpacity: Double = 0.94,
+    func ainkradPanel(blur: AinkradBlurLevel = .panel,
+                       blending: NSVisualEffectView.BlendingMode = .withinWindow,
+                       backgroundOpacity: Double = 0.94,
                        showsBrackets: Bool = false) -> some View {
-        AinkradPanel(blur: blur, backgroundOpacity: backgroundOpacity, showsBrackets: showsBrackets) { self }
+        AinkradPanel(blur: blur, blending: blending, backgroundOpacity: backgroundOpacity,
+                     showsBrackets: showsBrackets) { self }
     }
 }
