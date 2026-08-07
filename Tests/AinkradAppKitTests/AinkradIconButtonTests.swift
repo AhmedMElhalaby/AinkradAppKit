@@ -30,4 +30,14 @@ struct AinkradIconButtonTests {
         // New sized init with explicit tooltip.
         _ = AinkradIconButton(systemName: "gear", size: 44, tooltip: "Settings") {}
     }
+
+    /// Before this, a tooltip at the default size meant passing `size: 30` as a
+    /// literal — restating the default just to ask for a hover hint, and
+    /// pinning the frame against any later change to it. Icon-only buttons are
+    /// exactly the ones that need a label, so the missing overload is why
+    /// callers went without one.
+    @Test("a tooltip can be set without also restating the default size")
+    func tooltipWithoutSize() {
+        _ = AinkradIconButton(systemName: "trash", tooltip: "Trash") {}
+    }
 }

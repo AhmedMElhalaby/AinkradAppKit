@@ -22,3 +22,4 @@
 // exactly what it did — every plugin and the host compile unchanged.
 @_exported import AinkradAppKitContract
 @_exported import AinkradAppKitUI
+@_exported import AinkradAppKitHome

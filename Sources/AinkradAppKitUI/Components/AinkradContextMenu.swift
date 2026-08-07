@@ -3,17 +3,27 @@ import AppKit
 import AinkradAppKitContract
 
 /// One row of a `.ainkradContextMenu(_:)` — a title, optional leading SF
-/// Symbol, an optional destructive style, and the action to run on selection.
+/// Symbol, an optional keyboard shortcut, an optional destructive style, and
+/// the action to run on selection.
 public struct AinkradMenuItem: Identifiable {
     public let id = UUID()
     public let title: String
     public let systemName: String?
+    /// The chord that does the same thing, rendered as an `AinkradKbd` keycap
+    /// in a right-aligned column. `nil` where no chord does exactly this — do
+    /// NOT show an approximate one, since a menu that teaches the wrong key is
+    /// worse than one that teaches none.
+    ///
+    /// Pass the glyphs, not words: `"\u{2318}R"`, not `"Cmd+R"`.
+    public let shortcut: String?
     public let isDestructive: Bool
     public let action: () -> Void
 
-    public init(title: String, systemName: String? = nil, isDestructive: Bool = false, action: @escaping () -> Void) {
+    public init(title: String, systemName: String? = nil, shortcut: String? = nil,
+                isDestructive: Bool = false, action: @escaping () -> Void) {
         self.title = title
         self.systemName = systemName
+        self.shortcut = shortcut
         self.isDestructive = isDestructive
         self.action = action
     }
@@ -26,12 +36,47 @@ public struct AinkradMenuItem: Identifiable {
 /// This — deliberately not any AppKit/SwiftUI native context-menu API — is
 /// how `.ainkradContextMenu(_:)` detects a right-click; the menu itself is
 /// drawn entirely by `AinkradContextMenuList` inside a floating panel.
+///
+/// It lives in an OVERLAY, above the modified content. In the background —
+/// where it used to be — it never receives the event at all if the content
+/// draws anything opaque and interactive on top of it (a `contentShape` plus a
+/// tap gesture is enough), so right-click silently did nothing on exactly the
+/// rows most likely to want a menu. That cost three broken builds in the host's
+/// file manager before the cause was found.
+///
+/// Overlaying an `NSView` normally breaks everything underneath it, because it
+/// would swallow every left click. `hitTest` is what makes the overlay safe:
+/// the view is invisible to hit-testing for any event that is not a
+/// right-click, so selection, drags and double-clicks reach the content
+/// untouched.
 private final class AinkradRightClickCatcherView: NSView {
     var onRightClick: ((CGPoint) -> Void)?
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard let event = NSApp.currentEvent else { return nil }
+        switch event.type {
+        case .rightMouseDown, .rightMouseUp, .rightMouseDragged:
+            return super.hitTest(point)
+        // ctrl-click IS a right-click on macOS, and it is how a trackpad user
+        // without a configured secondary click opens a menu at all.
+        case .leftMouseDown where event.modifierFlags.contains(.control):
+            return super.hitTest(point)
+        default:
+            return nil
+        }
+    }
 
     override func rightMouseDown(with event: NSEvent) {
         onRightClick?(NSEvent.mouseLocation)
         super.rightMouseDown(with: event)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        if event.modifierFlags.contains(.control) {
+            onRightClick?(NSEvent.mouseLocation)
+        } else {
+            super.mouseDown(with: event)
+        }
     }
 }
 
@@ -71,7 +116,11 @@ private struct AinkradContextMenuList: View {
             }
         }
         .padding(AinkradSpacing.xs)
-        .ainkradPanel()
+        // `.behindWindow`, not the default: this list is ALWAYS presented in a
+        // floating panel, which is its own window. A `.withinWindow` blur has
+        // nothing to sample there, so the menu rendered as a flat opaque slab
+        // instead of the glass every other surface in the language uses.
+        .ainkradPanel(blending: .behindWindow)
     }
 }
 
@@ -95,6 +144,11 @@ private struct AinkradContextMenuRow: View {
                 Text(item.title)
                     .font(AinkradFontResolver.font(.body, typography: typo))
                 Spacer(minLength: AinkradSpacing.md)
+                // The chord as a real keycap, in its own right-aligned column:
+                // the menu teaches the keyboard rather than replacing it.
+                if let shortcut = item.shortcut {
+                    AinkradKbd(shortcut)
+                }
             }
             .foregroundStyle(tint)
             .padding(.horizontal, AinkradSpacing.sm)
@@ -103,6 +157,10 @@ private struct AinkradContextMenuRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        // The panel gives its first button keyboard focus, and SwiftUI's
+        // default focus ring is a heavy system rectangle with nothing to do
+        // with this design language. Hover is the only highlight here.
+        .focusEffectDisabled()
         .onHover { hovering = $0 }
     }
 }
@@ -116,7 +174,10 @@ private struct AinkradContextMenuModifier: ViewModifier {
     @State private var controller = AinkradFloatingPanelController()
 
     func body(content: Content) -> some View {
-        content.background(
+        // OVERLAY, not background — see `AinkradRightClickCatcherView`. The
+        // catcher is hit-test-transparent to everything but a right-click, so
+        // being on top costs the content nothing.
+        content.overlay(
             AinkradContextMenuCatcher(controller: controller, onRightClick: present)
         )
     }

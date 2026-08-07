@@ -21,6 +21,21 @@ public struct AinkradIconButton: View {
         self.size = 30; self.tooltip = nil
     }
 
+    /// Tooltipped variant at the default 30×30. `tooltip` is non-defaulted, so
+    /// this is a distinct mangled symbol from `init(systemName:action:)` and
+    /// that existing symbol is untouched.
+    ///
+    /// Exists because the plain initializer takes no `tooltip:`, and the only
+    /// way to get one was to also pass a `size:` — so a caller who wanted a
+    /// hover hint at the default size had to restate 30 as a literal, pinning
+    /// the frame against any future change to the default. Every icon-only
+    /// button wants a tooltip; needing a magic number to ask for one is why
+    /// callers quietly went without.
+    public init(systemName: String, tooltip: String, action: @escaping () -> Void) {
+        self.systemName = systemName; self.action = action
+        self.size = 30; self.tooltip = tooltip
+    }
+
     /// Sized (and optionally tooltipped) variant. `size` is non-defaulted, so
     /// this is a distinct mangled symbol from `init(systemName:action:)` — the
     /// existing symbol is untouched. The chamfer cut and glyph scale with `size`.

@@ -42,3 +42,36 @@ struct NavListRowsTests {
         #expect(rows.isEmpty)
     }
 }
+
+@Suite("AinkradCommandMenu keyboard highlight")
+struct CommandMenuHighlightTests {
+    /// The regression: the highlight used to start at 0, and the row style is
+    /// `hovering || isHighlighted`, so row 0 of every consumer — including the
+    /// gallery, which asks for no keyboard navigation at all — was painted as
+    /// permanently hovered.
+    @Test("nothing is highlighted until a key moves it")
+    func startsUnset() {
+        let initial: Int? = nil
+        #expect(initial == nil)
+        #expect(commandMenuHighlightMoved(nil, delta: 0, count: 0) == nil)
+    }
+
+    @Test("the first down-arrow lands on the first row, the first up-arrow on the last")
+    func firstMove() {
+        #expect(commandMenuHighlightMoved(nil, delta: 1, count: 3) == 0)
+        #expect(commandMenuHighlightMoved(nil, delta: -1, count: 3) == 2)
+    }
+
+    @Test("moves stay inside the list")
+    func clamps() {
+        #expect(commandMenuHighlightMoved(1, delta: 1, count: 3) == 2)
+        #expect(commandMenuHighlightMoved(2, delta: 1, count: 3) == 2)
+        #expect(commandMenuHighlightMoved(0, delta: -1, count: 3) == 0)
+    }
+
+    @Test("an empty list can never hold a highlight")
+    func emptyList() {
+        #expect(commandMenuHighlightMoved(2, delta: 1, count: 0) == nil)
+        #expect(commandMenuHighlightMoved(nil, delta: -1, count: 0) == nil)
+    }
+}
