@@ -8,9 +8,16 @@ public enum SignalLimits {
 }
 
 public enum SignalKind {
-    /// Lowercase, dot-separated, 1...64 of `[a-z0-9.]`. Rejected kinds never
+    /// Lowercase, dot-separated, 1...64 of `[a-z0-9._-]`. Rejected kinds never
     /// reach the store: the feed's filters and the user's routing rules both
     /// key on `kind`, so an unconstrained value makes rules unwritable.
+    ///
+    /// `-` and `_` are allowed because the first realistic vocabulary written
+    /// against this rule broke it: `session.needsInput` is the natural name for
+    /// "the agent is waiting for you", and camelCase made it invalid, so the
+    /// single most valuable notification in the product was silently dropped at
+    /// ingest. Uppercase stays out - one spelling per kind is what keeps a
+    /// user's routing rules writable - but a word separator is not a luxury.
     public static func isValid(_ kind: String) -> Bool {
         guard !kind.isEmpty, kind.count <= SignalLimits.maxKind else { return false }
         return kind.allSatisfy { character in
@@ -18,6 +25,8 @@ public enum SignalKind {
             return (character.isLetter && character.isLowercase)
                 || character.isNumber
                 || character == "."
+                || character == "-"
+                || character == "_"
         }
     }
 }
