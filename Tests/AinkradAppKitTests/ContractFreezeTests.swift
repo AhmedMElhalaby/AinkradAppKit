@@ -49,8 +49,14 @@ struct ContractFreezeTests {
         #expect(FrozenEntryPoint.app() is FrozenApp.Type)
     }
 
-    /// The host is the only conformer of `HostServices`, so this stub failing
-    /// to compile means a requirement was added there too.
+    /// This stub failing to compile means a requirement was added to
+    /// `HostServices`.
+    ///
+    /// It used to say the host is the only conformer. That is true in
+    /// production, but NOT in the plugin repos: Raven, Rune and GitMage each
+    /// fake a conformance in their test support, so a new requirement breaks
+    /// their builds too. Verified at generation 9, when `signals` was added and
+    /// all three needed updating. Do not restate the old claim.
     @MainActor
     private struct StubHost: HostServices {
         var documents: PluginDocumentStore { StubDocs() }
@@ -64,6 +70,7 @@ struct ContractFreezeTests {
         var actions: AgentActionProvider { StubActions() }
         var apps: PluginAppLauncher { StubLauncher() }
         var presentation: PluginPresentationControl { StubPresentation() }
+        var signals: PluginSignalEmitter { NoopSignalEmitter() }
     }
 
     // MARK: - New capability must be opt-in, never required
