@@ -13,7 +13,7 @@ public final class SignalToastModel {
 
     public static let maxVisible = 3
 
-    private(set) var visible: [SignalEvent] = []
+    public private(set) var visible: [SignalEvent] = []
     private var queued: [SignalEvent] = []
     public var overflowCount: Int { queued.count }
 
@@ -52,7 +52,7 @@ public final class SignalToastModel {
     /// comparison is `>` and not `>=`, a `.failure` can never be displaced by
     /// another failure, so the toast that never auto-dismisses is never the one
     /// that silently disappears.
-    func present(_ event: SignalEvent) {
+    public func present(_ event: SignalEvent) {
         guard !visible.contains(where: { $0.id == event.id }),
               !queued.contains(where: { $0.id == event.id }) else { return }
 
@@ -75,7 +75,7 @@ public final class SignalToastModel {
         }
     }
 
-    func dismiss(id: UUID) {
+    public func dismiss(id: UUID) {
         visible.removeAll { $0.id == id }
         // Promote the NEWEST queued event, and to the top - the same ordering
         // the visible stack already uses, so a promotion does not shuffle the
