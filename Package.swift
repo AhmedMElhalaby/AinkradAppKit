@@ -35,7 +35,9 @@ let package = Package(
 
         // The ABI-frozen plugin contract. Held to a strict standard by
         // `make abi-check`; see Sources/AinkradAppKit/AinkradAppKit.swift.
-        .target(name: "AinkradAppKitContract", swiftSettings: resilient),
+        .target(name: "AinkradAppKitContract",
+                dependencies: ["AinkradSignal"],
+                swiftSettings: resilient),
 
         // The Cardinal HUD component kit. Depends on the contract (for
         // `HostThemeTokens`); the contract must never depend on this.

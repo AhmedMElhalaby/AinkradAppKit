@@ -49,8 +49,14 @@ struct ContractFreezeTests {
         #expect(FrozenEntryPoint.app() is FrozenApp.Type)
     }
 
-    /// The host is the only conformer of `HostServices`, so this stub failing
-    /// to compile means a requirement was added there too.
+    /// This stub failing to compile means a requirement was added to
+    /// `HostServices`.
+    ///
+    /// It used to say the host is the only conformer. That is true in
+    /// production, but NOT in the plugin repos: Raven, Rune and GitMage each
+    /// fake a conformance in their test support, so a new requirement breaks
+    /// their builds too. Verified at generation 9, when `signals` was added and
+    /// all three needed updating. Do not restate the old claim.
     @MainActor
     private struct StubHost: HostServices {
         var documents: PluginDocumentStore { StubDocs() }
@@ -64,6 +70,7 @@ struct ContractFreezeTests {
         var actions: AgentActionProvider { StubActions() }
         var apps: PluginAppLauncher { StubLauncher() }
         var presentation: PluginPresentationControl { StubPresentation() }
+        var signals: PluginSignalEmitter { NoopSignalEmitter() }
     }
 
     // MARK: - New capability must be opt-in, never required
@@ -102,17 +109,20 @@ struct ContractFreezeTests {
     @Test("The supported range is honest about what can actually load")
     func generationWindowIsHonest() {
         // The POLICY is a one-release window (`current - 1`), so a generation
-        // bump is a migration rather than an outage. It takes effect from
+        // bump is a migration rather than an outage. It took effect at
         // generation 9.
         //
-        // Generation 8 cannot honour it: splitting the module renamed every
+        // Generation 8 could not honour it: splitting the module renamed every
         // symbol (Swift mangles the module name in), so a generation-7 binary
-        // passes the version check and then fails to LINK. Promising support
+        // passed the version check and then failed to LINK. Promising support
         // we cannot deliver turns a clear "update this app" into an opaque
-        // "failed to load", so minSupported equals current for this generation.
-        // See abi/README-module-renames.md.
-        #expect(AinkradAppKit.minSupportedAPIVersion == AinkradAppKit.apiVersion,
-                "generation 8 is a hard break; do not advertise a window")
+        // "failed to load". See abi/README-module-renames.md.
+        //
+        // Generation 9 adds only `HostServices.signals` and
+        // `PluginSignalEmitter`. Nothing moved, nothing was renamed, so the
+        // window is real and a generation-8 bundle loads.
+        #expect(AinkradAppKit.minSupportedAPIVersion == AinkradAppKit.apiVersion - 1,
+                "from generation 9 on, advertise exactly one release of support")
 
         // Whatever the window is, the range must be self-consistent: the
         // current generation loads, the future one does not.
