@@ -15,36 +15,32 @@ public enum AinkradAppKit {
     /// `teardown`, host-owned focus, a typed cross-app launch payload, and
     /// status colors. Every one of those is **additive** — a generation-7
     /// bundle keeps loading, which is what `minSupportedAPIVersion` is for.
-    public static let apiVersion = 8
+    public static let apiVersion = 9
 
     /// The oldest generation a host built on this SDK still loads.
     ///
-    /// **Generation 8 is a HARD break, so this equals `apiVersion`.**
+    /// **Generation 9 opens the one-release deprecation window generation 8
+    /// documented and could not honor**, so this is `apiVersion - 1` (8).
     ///
-    /// The intent was `apiVersion - 1` — a one-release deprecation window, so
-    /// a generation bump is a migration rather than an outage. That is the
-    /// right long-term policy and it takes effect from generation 9.
+    /// Generation 8 had to set this equal to `apiVersion`: splitting the module
+    /// into `AinkradAppKitContract` + `AinkradAppKitUI` renamed every symbol,
+    /// because Swift mangles the module name into its mangled names, so a
+    /// generation-7 bundle referenced 71 symbols that no longer existed. It
+    /// passed the version check and then failed to link.
     ///
-    /// It cannot apply to generation 8, because splitting the module into
-    /// `AinkradAppKitContract` + `AinkradAppKitUI` **renamed every symbol**:
-    /// Swift mangles the module name into its mangled names, so a plugin
-    /// compiled against generation 7 references 71 `AinkradAppKit…` symbols
-    /// that no longer exist. It passes the version check and then fails to
-    /// link — `Bundle.load()` returns false.
+    /// Generation 9 adds the Signal capability — `HostServices.signals` and the
+    /// `PluginSignalEmitter` protocol — and adds nothing else. No symbol moved,
+    /// no module was renamed, so a generation-8 bundle keeps loading. That is
+    /// verified against a real signed fixture, not reasoned about: see M2 Task 8.
     ///
-    /// Claiming to support generation 7 here would be a promise the loader
-    /// cannot keep: the user would see "plugin failed to load" instead of the
-    /// honest "built against generation 7; this host supports 8 — update the
-    /// app". Verified empirically by signing a real hardened-runtime build and
-    /// loading both a stale and a freshly-built plugin.
-    ///
-    /// Neither guardrail caught this, which is worth remembering:
-    /// `swift-api-digester` compared the new contract module against a baseline
-    /// regenerated *from that same module*, so the move was invisible to it;
-    /// and `ContractFreezeTests` checks source-level conformance, not symbol
-    /// mangling. A module rename is an ABI break that looks like a no-op to
-    /// both. See `abi/README-module-renames.md`.
-    public static let minSupportedAPIVersion = apiVersion
+    /// One distinction this value does NOT cover, and which cost real work to
+    /// discover: `HostServices` gaining a requirement is a **source** break for
+    /// anything that conforms to it. Nothing outside the host does so in
+    /// production, but Raven, Rune and GitMage each fake a conformance in their
+    /// test support, and those had to be updated. A compiled bundle keeps
+    /// loading; a plugin's test suite does not keep compiling. Both are true,
+    /// and only the first is what this promises.
+    public static let minSupportedAPIVersion = apiVersion - 1
 
     /// A bundle built against `bundleAPIVersion` is loadable exactly when it
     /// falls within the host's inclusive supported range.
