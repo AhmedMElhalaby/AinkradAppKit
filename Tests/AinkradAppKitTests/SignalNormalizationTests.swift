@@ -20,7 +20,10 @@ struct SignalNormalizationTests {
         #expect(SignalKind.isValid("a"))
         #expect(!SignalKind.isValid("Run.Finished"))   // uppercase
         #expect(!SignalKind.isValid("run finished"))   // space
-        #expect(!SignalKind.isValid("run-finished"))   // hyphen
+        #expect(SignalKind.isValid("session.needs-input"))
+        #expect(SignalKind.isValid("session.needs_input"))
+        #expect(!SignalKind.isValid("session.needsInput"), "camelCase is still out")
+        #expect(!SignalKind.isValid("run/finished"))   // slash
         #expect(!SignalKind.isValid(""))
         #expect(!SignalKind.isValid(String(repeating: "a", count: 65)))
     }
