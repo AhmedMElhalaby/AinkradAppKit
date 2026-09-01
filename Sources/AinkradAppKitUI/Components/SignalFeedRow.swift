@@ -91,6 +91,23 @@ public struct SignalFeedRow: View {
     public var onActivate: (SignalEvent) -> Void = { _ in }
     public var onAction: (SignalEvent, SignalAction) -> Void = { _, _ in }
 
+    /// Explicit, because a public struct's implicit memberwise
+    /// initialiser is INTERNAL — the components were public and
+    /// unconstructible outside the module until this existed.
+    public init(event: SignalEvent,
+                repeatCount: Int = 1,
+                isUnread: Bool = true,
+                now: Date = Date(),
+                onActivate: @escaping (SignalEvent) -> Void = { _ in },
+                onAction: @escaping (SignalEvent, SignalAction) -> Void = { _, _ in }) {
+        self.event = event
+        self.repeatCount = repeatCount
+        self.isUnread = isUnread
+        self.now = now
+        self.onActivate = onActivate
+        self.onAction = onAction
+    }
+
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @Environment(\.ainkradStatusColors) private var statusColors

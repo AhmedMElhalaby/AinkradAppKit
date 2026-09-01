@@ -9,6 +9,8 @@ import AinkradSignal
 /// retroactively — `present(_:)` already matches — so a plugin gets the same
 /// model without inheriting the host's dispatch protocol.
 public final class SignalToastModel {
+    public init() {}
+
     public static let maxVisible = 3
 
     private(set) var visible: [SignalEvent] = []
@@ -102,6 +104,17 @@ public struct SignalToastStack: View {
     public let model: SignalToastModel
     public var now: Date = Date()
     public var onActivate: (SignalEvent) -> Void = { _ in }
+
+    /// Explicit, because a public struct's implicit memberwise
+    /// initialiser is INTERNAL — the components were public and
+    /// unconstructible outside the module until this existed.
+    public init(model: SignalToastModel,
+                now: Date = Date(),
+                onActivate: @escaping (SignalEvent) -> Void = { _ in }) {
+        self.model = model
+        self.now = now
+        self.onActivate = onActivate
+    }
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
