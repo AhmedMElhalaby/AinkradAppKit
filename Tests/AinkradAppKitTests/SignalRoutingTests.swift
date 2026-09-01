@@ -70,19 +70,15 @@ struct SignalRoutingTests {
         #expect(route(event(.info, kind: "quiet.thing"), rules: rules, context: frontmost) == [.feed])
     }
 
-    @Test("M1 exemption: host run.* never routes to a banner")
-    func m1RunBannerExemption() {
-        var rules = RoutingRules.default
-        rules.suppressBannerForHostRuns = true
-        let finished = route(event(.success, kind: "run.finished"), rules: rules, context: away)
-        #expect(!finished.contains(.banner), "RunNotifier still owns this banner in M1")
-        #expect(finished.contains(.feed))
-        // The exemption is narrow: another host event of the same severity is unaffected.
-        #expect(route(event(.success, kind: "install.completed"), rules: rules, context: away)
-                    .contains(.banner))
-        // And it lifts cleanly in M2.
-        rules.suppressBannerForHostRuns = false
-        #expect(route(event(.success, kind: "run.finished"), rules: rules, context: away)
-                    .contains(.banner))
+    @Test("host run events route like any other event now that RunNotifier is gone")
+    func runEventsAreOrdinary() {
+        // The M1 exemption lived here: `run.*` from `.host` never reached
+        // `.banner`, because the legacy notifier posted it. With that notifier
+        // deleted, a run must route exactly like anything else — if it did not,
+        // a finished run would produce no banner at all.
+        let run = route(event(.success, kind: "run.finished"), rules: .default, context: away)
+        let other = route(event(.success, kind: "install.completed"), rules: .default, context: away)
+        #expect(run == other)
+        #expect(run.contains(.banner))
     }
 }

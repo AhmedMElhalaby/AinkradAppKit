@@ -41,19 +41,13 @@ public struct RoutingRules: Codable, Sendable, Equatable {
     public var mutedSources: Set<SignalSource>
     public var sourceOverrides: [SignalSource: Set<DeliveryChannel>]
     public var sourceKindOverrides: [SourceKind: Set<DeliveryChannel>]
-    /// **M1 only.** `RunNotifier` still posts the banner for completed agent
-    /// runs, so routing must not post a second one. M2 deletes `RunNotifier`
-    /// and removes this flag entirely.
-    public var suppressBannerForHostRuns: Bool
 
     public init(mutedSources: Set<SignalSource> = [],
                 sourceOverrides: [SignalSource: Set<DeliveryChannel>] = [:],
-                sourceKindOverrides: [SourceKind: Set<DeliveryChannel>] = [:],
-                suppressBannerForHostRuns: Bool = true) {
+                sourceKindOverrides: [SourceKind: Set<DeliveryChannel>] = [:]) {
         self.mutedSources = mutedSources
         self.sourceOverrides = sourceOverrides
         self.sourceKindOverrides = sourceKindOverrides
-        self.suppressBannerForHostRuns = suppressBannerForHostRuns
     }
 
     public static let `default` = RoutingRules()
@@ -79,9 +73,6 @@ public func route(_ event: SignalEvent,
         channels.formUnion(defaultChannels(for: event, context: context))
     }
 
-    if rules.suppressBannerForHostRuns, event.source == .host, event.kind.hasPrefix("run.") {
-        channels.remove(.banner)
-    }
     if context.systemDoNotDisturb || context.hostFocusMode {
         channels.remove(.banner)
         channels.remove(.sound)
