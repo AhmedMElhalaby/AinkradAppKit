@@ -356,6 +356,41 @@ public final class SignalStore {
         try? exec("UPDATE events SET pinned = \(pinned ? 1 : 0) WHERE id = '\(Self.escape(id.uuidString))';")
     }
 
+    /// Per-row presentation state that is NOT part of the event envelope.
+    ///
+    /// `read_at` and `dedupe_count` are host bookkeeping: `SignalEvent` is the
+    /// plugin-facing type and must not grow fields an app has no business
+    /// seeing. Returned as a side table keyed by event id so the feed can
+    /// render unread dots and `xN` badges without either concern leaking into
+    /// the envelope.
+    public struct SignalRowState: Sendable, Equatable {
+        public let isRead: Bool
+        public let repeatCount: Int
+        public init(isRead: Bool, repeatCount: Int) {
+            self.isRead = isRead
+            self.repeatCount = repeatCount
+        }
+    }
+
+    public func rowStates(limit: Int) -> [UUID: SignalRowState] {
+        let sql = """
+        SELECT id, read_at, dedupe_count FROM events
+        ORDER BY timestamp DESC LIMIT ?;
+        """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [:] }
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_int(stmt, 1, Int32(max(0, min(limit, Int(Int32.max)))))
+        var out: [UUID: SignalRowState] = [:]
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            guard let idText = Self.text(stmt, 0), let id = UUID(uuidString: idText) else { continue }
+            let isRead = sqlite3_column_type(stmt, 1) != SQLITE_NULL
+            out[id] = SignalRowState(isRead: isRead,
+                                     repeatCount: Int(sqlite3_column_int(stmt, 2)))
+        }
+        return out
+    }
+
     // MARK: - search
 
     public func search(_ query: String, filter: SignalFilter, limit: Int) -> [SignalEvent] {

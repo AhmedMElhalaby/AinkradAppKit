@@ -99,3 +99,35 @@ struct SignalStoreRetentionTests {
         #expect(store.search("staying", filter: .all, limit: 10).count == 1)
     }
 }
+
+@Suite("SignalStore row state")
+struct SignalStoreRowStateTests {
+    private func makeStore() throws -> (SignalStore, URL) {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("signal-\(UUID().uuidString).sqlite")
+        return (try SignalStore(url: url), url)
+    }
+
+    @Test("row state reports read flags and coalesce counts")
+    func rowStates() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let now = Date()
+        let repeated = SignalEvent(timestamp: now, source: .host, kind: "build.failed",
+                                   severity: .failure, title: "repeated", dedupeKey: "k")
+        let plain = SignalEvent(timestamp: now.addingTimeInterval(1), source: .host,
+                                kind: "test.event", severity: .info, title: "plain")
+        _ = try store.insert(repeated)
+        _ = try store.insert(SignalEvent(timestamp: now.addingTimeInterval(2), source: .host,
+                                         kind: "build.failed", severity: .failure,
+                                         title: "repeated", dedupeKey: "k"))
+        _ = try store.insert(plain)
+        store.markRead(ids: [plain.id])
+
+        let states = store.rowStates(limit: 50)
+        #expect(states[repeated.id]?.repeatCount == 2)
+        #expect(states[repeated.id]?.isRead == false)
+        #expect(states[plain.id]?.isRead == true)
+        #expect(states[plain.id]?.repeatCount == 1)
+    }
+}
