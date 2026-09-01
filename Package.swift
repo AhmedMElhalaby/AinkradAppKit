@@ -54,7 +54,8 @@ let package = Package(
         // the host and all five plugins.
         .target(
             name: "AinkradAppKit",
-            dependencies: ["AinkradAppKitContract", "AinkradAppKitUI", "AinkradAppKitHome"],
+            dependencies: ["AinkradAppKitContract", "AinkradAppKitUI", "AinkradAppKitHome",
+                           "AinkradSignal"],
             swiftSettings: resilient
         ),
 
