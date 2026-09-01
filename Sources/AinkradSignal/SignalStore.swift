@@ -320,9 +320,54 @@ public final class SignalStore {
         return try? JSONDecoder().decode(T.self, from: Data(bytes: bytes, count: count))
     }
 
-    // MARK: - dedupe (real implementation lands in Task 5)
+    // MARK: - dedupe
 
     struct CoalesceTarget { let rowID: Int64; let id: UUID }
-    func coalescibleRow(source: SignalSource, key: String, at date: Date) -> CoalesceTarget? { nil }
-    func bumpCoalesced(rowID: Int64, id: UUID, to date: Date) throws {}
+
+    /// The most recent row with this `(source, dedupeKey)` whose timestamp is
+    /// inside the window. Windowed, not global — see the non-unique index.
+    func coalescibleRow(source: SignalSource, key: String, at date: Date) -> CoalesceTarget? {
+        let (kindText, appID) = Self.decompose(source)
+        let sql = """
+        SELECT rowid, id FROM events
+        WHERE source_kind = ? AND (? IS NULL OR source_app_id = ?)
+          AND dedupe_key = ? AND timestamp > ?
+        ORDER BY timestamp DESC LIMIT 1;
+        """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_finalize(stmt) }
+        bind(stmt, 1, kindText)
+        if let appID { bind(stmt, 2, appID); bind(stmt, 3, appID) }
+        else { sqlite3_bind_null(stmt, 2); sqlite3_bind_null(stmt, 3) }
+        bind(stmt, 4, key)
+        sqlite3_bind_double(stmt, 5, Self.sqlTime(date) - Self.dedupeWindow)
+        guard sqlite3_step(stmt) == SQLITE_ROW,
+              let idText = Self.text(stmt, 1), let id = UUID(uuidString: idText) else { return nil }
+        return CoalesceTarget(rowID: sqlite3_column_int64(stmt, 0), id: id)
+    }
+
+    /// Advances the row to the newest occurrence and increments its count. The
+    /// row is also re-marked unread: a repeat is new information.
+    func bumpCoalesced(rowID: Int64, id: UUID, to date: Date) throws {
+        let sql = """
+        UPDATE events SET timestamp = ?, dedupe_count = dedupe_count + 1, read_at = NULL
+        WHERE rowid = ?;
+        """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { throw SignalStoreError.exec(lastError) }
+        defer { sqlite3_finalize(stmt) }
+        sqlite3_bind_double(stmt, 1, Self.sqlTime(date))
+        sqlite3_bind_int64(stmt, 2, rowID)
+        guard sqlite3_step(stmt) == SQLITE_DONE else { throw SignalStoreError.exec(lastError) }
+    }
+
+    public func dedupeCount(id: UUID) -> Int {
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, "SELECT dedupe_count FROM events WHERE id = ?;", -1, &stmt, nil) == SQLITE_OK
+        else { return 1 }
+        defer { sqlite3_finalize(stmt) }
+        bind(stmt, 1, id.uuidString)
+        return sqlite3_step(stmt) == SQLITE_ROW ? Int(sqlite3_column_int(stmt, 0)) : 1
+    }
 }
