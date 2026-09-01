@@ -320,6 +320,115 @@ public final class SignalStore {
         return try? JSONDecoder().decode(T.self, from: Data(bytes: bytes, count: count))
     }
 
+    // MARK: - read state
+
+    public func markRead(ids: [UUID]) {
+        guard !ids.isEmpty else { return }
+        let list = ids.map { "'\(Self.escape($0.uuidString))'" }.joined(separator: ",")
+        try? exec("UPDATE events SET read_at = \(Self.sqlTime(Date())) WHERE id IN (\(list));")
+    }
+
+    public func markAllRead(filter: SignalFilter) {
+        var clauses: [String] = ["read_at IS NULL"]
+        var binder: [(OpaquePointer?, Int32) -> Void] = []
+        appendFilterClauses(filter, into: &clauses, binder: &binder)
+        try? exec("UPDATE events SET read_at = \(Self.sqlTime(Date())) WHERE "
+                  + clauses.joined(separator: " AND ") + ";")
+    }
+
+    public func unreadCounts() -> [SignalSource: Int] {
+        let sql = """
+        SELECT source_kind, source_app_id, COUNT(*) FROM events
+        WHERE read_at IS NULL GROUP BY source_kind, source_app_id;
+        """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [:] }
+        defer { sqlite3_finalize(stmt) }
+        var out: [SignalSource: Int] = [:]
+        while sqlite3_step(stmt) == SQLITE_ROW {
+            let source = Self.compose(kind: Self.text(stmt, 0) ?? "host", appID: Self.text(stmt, 1))
+            out[source] = Int(sqlite3_column_int(stmt, 2))
+        }
+        return out
+    }
+
+    public func setPinned(_ pinned: Bool, id: UUID) {
+        try? exec("UPDATE events SET pinned = \(pinned ? 1 : 0) WHERE id = '\(Self.escape(id.uuidString))';")
+    }
+
+    // MARK: - search
+
+    public func search(_ query: String, filter: SignalFilter, limit: Int) -> [SignalEvent] {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return [] }
+        var clauses: [String] = ["events.rowid IN (SELECT rowid FROM events_fts WHERE events_fts MATCH ?)"]
+        var binder: [(OpaquePointer?, Int32) -> Void] = []
+        appendFilterClauses(filter, into: &clauses, binder: &binder)
+        let sql = """
+        SELECT \(Self.columns) FROM events
+        WHERE \(clauses.joined(separator: " AND "))
+        ORDER BY timestamp DESC LIMIT ?;
+        """
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return [] }
+        defer { sqlite3_finalize(stmt) }
+        bind(stmt, 1, Self.ftsQuery(trimmed))
+        var index: Int32 = 2
+        for bindOne in binder { bindOne(stmt, index); index += 1 }
+        sqlite3_bind_int(stmt, index, Int32(max(0, min(limit, Int(Int32.max)))))
+        var out: [SignalEvent] = []
+        while sqlite3_step(stmt) == SQLITE_ROW { if let e = Self.event(from: stmt) { out.append(e) } }
+        return out
+    }
+
+    /// Prefix-match each token, quoted so FTS5 operators in user input are inert.
+    /// Same treatment as `MemoryIndex.ftsQuery`.
+    static func ftsQuery(_ raw: String) -> String {
+        raw.split(separator: " ")
+            .map { "\"\($0.replacingOccurrences(of: "\"", with: ""))\"*" }
+            .joined(separator: " ")
+    }
+
+    // MARK: - retention
+
+    /// Evicts oldest-first past either cap. Returns the number of rows removed.
+    /// Pinned rows are never evicted and are excluded from the count cap.
+    @discardableResult
+    public func enforceRetention(_ policy: RetentionPolicy) -> Int {
+        guard !isReadOnly else { return 0 }
+        let cutoff = Self.sqlTime(Date()) - Double(policy.maxAgeDays) * 86400
+        let before = rowCount()
+        try? exec("BEGIN IMMEDIATE;")
+        // FTS first, in both passes: external-content FTS needs its rows
+        // deleted while the source rows still exist to supply the values.
+        try? exec("""
+        INSERT INTO events_fts (events_fts, rowid, title, body)
+        SELECT 'delete', rowid, title, body FROM events
+        WHERE pinned = 0 AND timestamp < \(cutoff);
+        """)
+        try? exec("DELETE FROM events WHERE pinned = 0 AND timestamp < \(cutoff);")
+        try? exec("""
+        INSERT INTO events_fts (events_fts, rowid, title, body)
+        SELECT 'delete', rowid, title, body FROM events WHERE pinned = 0 AND rowid NOT IN (
+          SELECT rowid FROM events WHERE pinned = 0 ORDER BY timestamp DESC LIMIT \(policy.maxEvents)
+        );
+        """)
+        try? exec("""
+        DELETE FROM events WHERE pinned = 0 AND rowid NOT IN (
+          SELECT rowid FROM events WHERE pinned = 0 ORDER BY timestamp DESC LIMIT \(policy.maxEvents)
+        );
+        """)
+        try? exec("COMMIT;")
+        return before - rowCount()
+    }
+
+    private func rowCount() -> Int {
+        var stmt: OpaquePointer?
+        guard sqlite3_prepare_v2(db, "SELECT COUNT(*) FROM events;", -1, &stmt, nil) == SQLITE_OK else { return 0 }
+        defer { sqlite3_finalize(stmt) }
+        return sqlite3_step(stmt) == SQLITE_ROW ? Int(sqlite3_column_int(stmt, 0)) : 0
+    }
+
     // MARK: - dedupe
 
     struct CoalesceTarget { let rowID: Int64; let id: UUID }
