@@ -1977,6 +1977,31 @@
             "init_kind": "Designated"
           },
           {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignalAction",
+                "printedName": "AinkradSignal.SignalAction",
+                "usr": "s:13AinkradSignal0B6ActionV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:13AinkradSignal0B6ActionV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s13AinkradSignal0B6ActionV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "AinkradSignal",
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
             "kind": "Function",
             "name": "==",
             "printedName": "==(_:_:)",
@@ -2032,32 +2057,6 @@
             "implicit": true,
             "throwing": true,
             "funcSelfKind": "NonMutating"
-          },
-          {
-            "kind": "Constructor",
-            "name": "init",
-            "printedName": "init(from:)",
-            "children": [
-              {
-                "kind": "TypeNominal",
-                "name": "SignalAction",
-                "printedName": "AinkradSignal.SignalAction",
-                "usr": "s:13AinkradSignal0B6ActionV"
-              },
-              {
-                "kind": "TypeNominal",
-                "name": "Decoder",
-                "printedName": "any Swift.Decoder",
-                "usr": "s:s7DecoderP"
-              }
-            ],
-            "declKind": "Constructor",
-            "usr": "s:13AinkradSignal0B6ActionV4fromACs7Decoder_p_tKcfc",
-            "mangledName": "$s13AinkradSignal0B6ActionV4fromACs7Decoder_p_tKcfc",
-            "moduleName": "AinkradSignal",
-            "implicit": true,
-            "throwing": true,
-            "init_kind": "Designated"
           }
         ],
         "declKind": "Struct",
@@ -5056,6 +5055,471 @@
       },
       {
         "kind": "TypeDecl",
+        "name": "SignalSocketPath",
+        "printedName": "SignalSocketPath",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "default",
+            "printedName": "default(bundleID:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "hasDefaultArg": true,
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B10SocketPathO7default8bundleID10Foundation3URLVSS_tFZ",
+            "mangledName": "$s13AinkradSignal0B10SocketPathO7default8bundleID10Foundation3URLVSS_tFZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Var",
+            "name": "maxPathBytes",
+            "printedName": "maxPathBytes",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B10SocketPathO03maxD5BytesSivpZ",
+            "mangledName": "$s13AinkradSignal0B10SocketPathO03maxD5BytesSivpZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B10SocketPathO03maxD5BytesSivgZ",
+                "mangledName": "$s13AinkradSignal0B10SocketPathO03maxD5BytesSivgZ",
+                "moduleName": "AinkradSignal",
+                "static": true,
+                "accessorKind": "get"
+              }
+            ]
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:13AinkradSignal0B10SocketPathO",
+        "mangledName": "$s13AinkradSignal0B10SocketPathO",
+        "moduleName": "AinkradSignal",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SignalSocketClient",
+        "printedName": "SignalSocketClient",
+        "children": [
+          {
+            "kind": "TypeDecl",
+            "name": "SendFailure",
+            "printedName": "SendFailure",
+            "children": [
+              {
+                "kind": "Var",
+                "name": "socketUnavailable",
+                "printedName": "socketUnavailable",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradSignal.SignalSocketClient.SendFailure.Type) -> (Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(errno: Swift.Int32)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Int32",
+                                "printedName": "Swift.Int32",
+                                "usr": "s:s5Int32V"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradSignal.SignalSocketClient.SendFailure.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO17socketUnavailableyAEs5Int32V_tcAEmF",
+                "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO17socketUnavailableyAEs5Int32V_tcAEmF",
+                "moduleName": "AinkradSignal"
+              },
+              {
+                "kind": "Var",
+                "name": "notListening",
+                "printedName": "notListening",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradSignal.SignalSocketClient.SendFailure.Type) -> (Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(errno: Swift.Int32)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Int32",
+                                "printedName": "Swift.Int32",
+                                "usr": "s:s5Int32V"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradSignal.SignalSocketClient.SendFailure.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO12notListeningyAEs5Int32V_tcAEmF",
+                "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO12notListeningyAEs5Int32V_tcAEmF",
+                "moduleName": "AinkradSignal"
+              },
+              {
+                "kind": "Var",
+                "name": "writeFailed",
+                "printedName": "writeFailed",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradSignal.SignalSocketClient.SendFailure.Type) -> (Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int32) -> AinkradSignal.SignalSocketClient.SendFailure",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(errno: Swift.Int32)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Int32",
+                                "printedName": "Swift.Int32",
+                                "usr": "s:s5Int32V"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradSignal.SignalSocketClient.SendFailure.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO11writeFailedyAEs5Int32V_tcAEmF",
+                "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO11writeFailedyAEs5Int32V_tcAEmF",
+                "moduleName": "AinkradSignal"
+              },
+              {
+                "kind": "Var",
+                "name": "pathTooLong",
+                "printedName": "pathTooLong",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(AinkradSignal.SignalSocketClient.SendFailure.Type) -> (Swift.Int) -> AinkradSignal.SignalSocketClient.SendFailure",
+                    "children": [
+                      {
+                        "kind": "TypeFunc",
+                        "name": "Function",
+                        "printedName": "(Swift.Int) -> AinkradSignal.SignalSocketClient.SendFailure",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          },
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Tuple",
+                            "printedName": "(length: Swift.Int)",
+                            "children": [
+                              {
+                                "kind": "TypeNominal",
+                                "name": "Int",
+                                "printedName": "Swift.Int",
+                                "usr": "s:Si"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Metatype",
+                        "printedName": "AinkradSignal.SignalSocketClient.SendFailure.Type",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "SendFailure",
+                            "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ],
+                "declKind": "EnumElement",
+                "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO11pathTooLongyAESi_tcAEmF",
+                "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO11pathTooLongyAESi_tcAEmF",
+                "moduleName": "AinkradSignal"
+              },
+              {
+                "kind": "Function",
+                "name": "==",
+                "printedName": "==(_:_:)",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Bool",
+                    "printedName": "Swift.Bool",
+                    "usr": "s:Sb"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SendFailure",
+                    "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                    "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SendFailure",
+                    "printedName": "AinkradSignal.SignalSocketClient.SendFailure",
+                    "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO"
+                  }
+                ],
+                "declKind": "Func",
+                "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO2eeoiySbAE_AEtFZ",
+                "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO2eeoiySbAE_AEtFZ",
+                "moduleName": "AinkradSignal",
+                "static": true,
+                "implicit": true,
+                "funcSelfKind": "NonMutating"
+              }
+            ],
+            "declKind": "Enum",
+            "usr": "s:13AinkradSignal0B12SocketClientO11SendFailureO",
+            "mangledName": "$s13AinkradSignal0B12SocketClientO11SendFailureO",
+            "moduleName": "AinkradSignal",
+            "conformances": [
+              {
+                "kind": "Conformance",
+                "name": "Copyable",
+                "printedName": "Copyable",
+                "usr": "s:s8CopyableP",
+                "mangledName": "$ss8CopyableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Equatable",
+                "printedName": "Equatable",
+                "usr": "s:SQ",
+                "mangledName": "$sSQ"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Error",
+                "printedName": "Error",
+                "usr": "s:s5ErrorP",
+                "mangledName": "$ss5ErrorP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Escapable",
+                "printedName": "Escapable",
+                "usr": "s:s9EscapableP",
+                "mangledName": "$ss9EscapableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "Sendable",
+                "printedName": "Sendable",
+                "usr": "s:s8SendableP",
+                "mangledName": "$ss8SendableP"
+              },
+              {
+                "kind": "Conformance",
+                "name": "SendableMetatype",
+                "printedName": "SendableMetatype",
+                "usr": "s:s16SendableMetatypeP",
+                "mangledName": "$ss16SendableMetatypeP"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "send",
+            "printedName": "send(_:to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Data",
+                "printedName": "Foundation.Data",
+                "usr": "s:10Foundation4DataV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "URL",
+                "printedName": "Foundation.URL",
+                "usr": "s:10Foundation3URLV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B12SocketClientO4send_2toy10Foundation4DataV_AF3URLVtKFZ",
+            "mangledName": "$s13AinkradSignal0B12SocketClientO4send_2toy10Foundation4DataV_AF3URLVtKFZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:13AinkradSignal0B12SocketClientO",
+        "mangledName": "$s13AinkradSignal0B12SocketClientO",
+        "moduleName": "AinkradSignal",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
         "name": "SignalStoreError",
         "printedName": "SignalStoreError",
         "children": [
@@ -6885,6 +7349,1201 @@
         "declAttributes": [
           "Final"
         ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SignalWireRejection",
+        "printedName": "SignalWireRejection",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "tooLarge",
+            "printedName": "tooLarge",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> (Swift.Int) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.Int) -> AinkradSignal.SignalWireRejection",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "Tuple",
+                        "printedName": "(bytes: Swift.Int)",
+                        "children": [
+                          {
+                            "kind": "TypeNominal",
+                            "name": "Int",
+                            "printedName": "Swift.Int",
+                            "usr": "s:Si"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO8tooLargeyACSi_tcACmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO8tooLargeyACSi_tcACmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "malformed",
+            "printedName": "malformed",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO9malformedyA2CmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO9malformedyA2CmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "missingToken",
+            "printedName": "missingToken",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO12missingTokenyA2CmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO12missingTokenyA2CmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "invalidKind",
+            "printedName": "invalidKind",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> (Swift.String) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeFunc",
+                    "name": "Function",
+                    "printedName": "(Swift.String) -> AinkradSignal.SignalWireRejection",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      },
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO11invalidKindyACSScACmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO11invalidKindyACSScACmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "emptyTitle",
+            "printedName": "emptyTitle",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO10emptyTitleyA2CmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO10emptyTitleyA2CmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "unknownToken",
+            "printedName": "unknownToken",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO12unknownTokenyA2CmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO12unknownTokenyA2CmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Var",
+            "name": "throttled",
+            "printedName": "throttled",
+            "children": [
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "(AinkradSignal.SignalWireRejection.Type) -> AinkradSignal.SignalWireRejection",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Metatype",
+                    "printedName": "AinkradSignal.SignalWireRejection.Type",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalWireRejection",
+                        "printedName": "AinkradSignal.SignalWireRejection",
+                        "usr": "s:13AinkradSignal0B13WireRejectionO"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ],
+            "declKind": "EnumElement",
+            "usr": "s:13AinkradSignal0B13WireRejectionO9throttledyA2CmF",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO9throttledyA2CmF",
+            "moduleName": "AinkradSignal"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWireRejection",
+                "printedName": "AinkradSignal.SignalWireRejection",
+                "usr": "s:13AinkradSignal0B13WireRejectionO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWireRejection",
+                "printedName": "AinkradSignal.SignalWireRejection",
+                "usr": "s:13AinkradSignal0B13WireRejectionO"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B13WireRejectionO2eeoiySbAC_ACtFZ",
+            "mangledName": "$s13AinkradSignal0B13WireRejectionO2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:13AinkradSignal0B13WireRejectionO",
+        "mangledName": "$s13AinkradSignal0B13WireRejectionO",
+        "moduleName": "AinkradSignal",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Error",
+            "printedName": "Error",
+            "usr": "s:s5ErrorP",
+            "mangledName": "$ss5ErrorP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SignalWirePayload",
+        "printedName": "SignalWirePayload",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "token",
+            "printedName": "token",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV5tokenSSvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV5tokenSSvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV5tokenSSvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV5tokenSSvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "kind",
+            "printedName": "kind",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV4kindSSvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV4kindSSvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV4kindSSvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV4kindSSvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "severity",
+            "printedName": "severity",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignalSeverity",
+                "printedName": "AinkradSignal.SignalSeverity",
+                "usr": "s:13AinkradSignal0B8SeverityO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV8severityAA0B8SeverityOvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV8severityAA0B8SeverityOvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalSeverity",
+                    "printedName": "AinkradSignal.SignalSeverity",
+                    "usr": "s:13AinkradSignal0B8SeverityO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV8severityAA0B8SeverityOvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV8severityAA0B8SeverityOvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "title",
+            "printedName": "title",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV5titleSSvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV5titleSSvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV5titleSSvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV5titleSSvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "body",
+            "printedName": "body",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV4bodySSSgvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV4bodySSSgvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV4bodySSSgvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV4bodySSSgvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "importance",
+            "printedName": "importance",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignalImportance",
+                "printedName": "AinkradSignal.SignalImportance",
+                "usr": "s:13AinkradSignal0B10ImportanceO"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV10importanceAA0B10ImportanceOvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV10importanceAA0B10ImportanceOvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalImportance",
+                    "printedName": "AinkradSignal.SignalImportance",
+                    "usr": "s:13AinkradSignal0B10ImportanceO"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV10importanceAA0B10ImportanceOvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV10importanceAA0B10ImportanceOvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "deepLink",
+            "printedName": "deepLink",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradSignal.SignalDeepLink?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalDeepLink",
+                    "printedName": "AinkradSignal.SignalDeepLink",
+                    "usr": "s:13AinkradSignal0B8DeepLinkV"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV8deepLinkAA0b4DeepF0VSgvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV8deepLinkAA0b4DeepF0VSgvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "AinkradSignal.SignalDeepLink?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalDeepLink",
+                        "printedName": "AinkradSignal.SignalDeepLink",
+                        "usr": "s:13AinkradSignal0B8DeepLinkV"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV8deepLinkAA0b4DeepF0VSgvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV8deepLinkAA0b4DeepF0VSgvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "actions",
+            "printedName": "actions",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalAction]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalAction",
+                    "printedName": "AinkradSignal.SignalAction",
+                    "usr": "s:13AinkradSignal0B6ActionV"
+                  }
+                ],
+                "usr": "s:Sa"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV7actionsSayAA0B6ActionVGvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV7actionsSayAA0B6ActionVGvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Array",
+                    "printedName": "[AinkradSignal.SignalAction]",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "SignalAction",
+                        "printedName": "AinkradSignal.SignalAction",
+                        "usr": "s:13AinkradSignal0B6ActionV"
+                      }
+                    ],
+                    "usr": "s:Sa"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV7actionsSayAA0B6ActionVGvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV7actionsSayAA0B6ActionVGvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "dedupeKey",
+            "printedName": "dedupeKey",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B11WirePayloadV9dedupeKeySSSgvp",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV9dedupeKeySSSgvp",
+            "moduleName": "AinkradSignal",
+            "declAttributes": [
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Optional",
+                    "printedName": "Swift.String?",
+                    "children": [
+                      {
+                        "kind": "TypeNominal",
+                        "name": "String",
+                        "printedName": "Swift.String",
+                        "usr": "s:SS"
+                      }
+                    ],
+                    "usr": "s:Sq"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B11WirePayloadV9dedupeKeySSSgvg",
+                "mangledName": "$s13AinkradSignal0B11WirePayloadV9dedupeKeySSSgvg",
+                "moduleName": "AinkradSignal",
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(from:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWirePayload",
+                "printedName": "AinkradSignal.SignalWirePayload",
+                "usr": "s:13AinkradSignal0B11WirePayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Decoder",
+                "printedName": "any Swift.Decoder",
+                "usr": "s:s7DecoderP"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:13AinkradSignal0B11WirePayloadV4fromACs7Decoder_p_tKcfc",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV4fromACs7Decoder_p_tKcfc",
+            "moduleName": "AinkradSignal",
+            "throwing": true,
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init(token:kind:severity:title:body:importance:deepLink:actions:dedupeKey:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWirePayload",
+                "printedName": "AinkradSignal.SignalWirePayload",
+                "usr": "s:13AinkradSignal0B11WirePayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalSeverity",
+                "printedName": "AinkradSignal.SignalSeverity",
+                "usr": "s:13AinkradSignal0B8SeverityO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalImportance",
+                "printedName": "AinkradSignal.SignalImportance",
+                "hasDefaultArg": true,
+                "usr": "s:13AinkradSignal0B10ImportanceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradSignal.SignalDeepLink?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalDeepLink",
+                    "printedName": "AinkradSignal.SignalDeepLink",
+                    "usr": "s:13AinkradSignal0B8DeepLinkV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalAction]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalAction",
+                    "printedName": "AinkradSignal.SignalAction",
+                    "usr": "s:13AinkradSignal0B6ActionV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:13AinkradSignal0B11WirePayloadV5token4kind8severity5title4body10importance8deepLink7actions9dedupeKeyACSS_SSAA0B8SeverityOS2SSgAA0B10ImportanceOAA0b4DeepL0VSgSayAA0B6ActionVGAOtcfc",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV5token4kind8severity5title4body10importance8deepLink7actions9dedupeKeyACSS_SSAA0B8SeverityOS2SSgAA0B10ImportanceOAA0b4DeepL0VSgSayAA0B6ActionVGAOtcfc",
+            "moduleName": "AinkradSignal",
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "==",
+            "printedName": "==(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Bool",
+                "printedName": "Swift.Bool",
+                "usr": "s:Sb"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWirePayload",
+                "printedName": "AinkradSignal.SignalWirePayload",
+                "usr": "s:13AinkradSignal0B11WirePayloadV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalWirePayload",
+                "printedName": "AinkradSignal.SignalWirePayload",
+                "usr": "s:13AinkradSignal0B11WirePayloadV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B11WirePayloadV2eeoiySbAC_ACtFZ",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV2eeoiySbAC_ACtFZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "implicit": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "encode",
+            "printedName": "encode(to:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Encoder",
+                "printedName": "any Swift.Encoder",
+                "usr": "s:s7EncoderP"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B11WirePayloadV6encode2toys7Encoder_p_tKF",
+            "mangledName": "$s13AinkradSignal0B11WirePayloadV6encode2toys7Encoder_p_tKF",
+            "moduleName": "AinkradSignal",
+            "implicit": true,
+            "throwing": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Struct",
+        "usr": "s:13AinkradSignal0B11WirePayloadV",
+        "mangledName": "$s13AinkradSignal0B11WirePayloadV",
+        "moduleName": "AinkradSignal",
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Decodable",
+            "printedName": "Decodable",
+            "usr": "s:Se",
+            "mangledName": "$sSe"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Encodable",
+            "printedName": "Encodable",
+            "usr": "s:SE",
+            "mangledName": "$sSE"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Equatable",
+            "printedName": "Equatable",
+            "usr": "s:SQ",
+            "mangledName": "$sSQ"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "SignalWire",
+        "printedName": "SignalWire",
+        "children": [
+          {
+            "kind": "Var",
+            "name": "maxPayloadBytes",
+            "printedName": "maxPayloadBytes",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:13AinkradSignal0B4WireO15maxPayloadBytesSivpZ",
+            "mangledName": "$s13AinkradSignal0B4WireO15maxPayloadBytesSivpZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "declAttributes": [
+              "HasInitialValue",
+              "HasStorage"
+            ],
+            "isLet": true,
+            "hasStorage": true,
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Int",
+                    "printedName": "Swift.Int",
+                    "usr": "s:Si"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:13AinkradSignal0B4WireO15maxPayloadBytesSivgZ",
+                "mangledName": "$s13AinkradSignal0B4WireO15maxPayloadBytesSivgZ",
+                "moduleName": "AinkradSignal",
+                "static": true,
+                "implicit": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Function",
+            "name": "decode",
+            "printedName": "decode(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Result",
+                "printedName": "Swift.Result<AinkradSignal.SignalWirePayload, AinkradSignal.SignalWireRejection>",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWirePayload",
+                    "printedName": "AinkradSignal.SignalWirePayload",
+                    "usr": "s:13AinkradSignal0B11WirePayloadV"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalWireRejection",
+                    "printedName": "AinkradSignal.SignalWireRejection",
+                    "usr": "s:13AinkradSignal0B13WireRejectionO"
+                  }
+                ],
+                "usr": "s:s6ResultO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Data",
+                "printedName": "Foundation.Data",
+                "usr": "s:10Foundation4DataV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:13AinkradSignal0B4WireO6decodeys6ResultOyAA0bC7PayloadVAA0bC9RejectionOG10Foundation4DataVFZ",
+            "mangledName": "$s13AinkradSignal0B4WireO6decodeys6ResultOyAA0bC7PayloadVAA0bC9RejectionOG10Foundation4DataVFZ",
+            "moduleName": "AinkradSignal",
+            "static": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Enum",
+        "usr": "s:13AinkradSignal0B4WireO",
+        "mangledName": "$s13AinkradSignal0B4WireO",
+        "moduleName": "AinkradSignal",
         "conformances": [
           {
             "kind": "Conformance",
