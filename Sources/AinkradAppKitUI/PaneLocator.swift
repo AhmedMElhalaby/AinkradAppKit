@@ -27,11 +27,36 @@ import SwiftUI
 ///
 /// Then emit deep links carrying the same string as
 /// `SignalDeepLink(appID:payload:locator:)`.
-public struct SignalPaneLocatorSink: Sendable {
-    private let report: @MainActor @Sendable (String?) -> Void
+///
+/// ## Why this is `Equatable` by identity
+///
+/// It is handed to a plugin's pane through the environment, and the host's
+/// pane content view deliberately excludes inputs that would rebuild the
+/// hosted app — rebuilding re-invokes `updateNSView`, which for a terminal
+/// reapplies font, palette, cursor and transparency on a tab switch that
+/// changed none of them. A closure can never be compared, so a freshly
+/// constructed sink on every render would look like a change every time and
+/// reintroduce exactly that cost.
+///
+/// Comparing the underlying box by identity lets the host hand out ONE sink
+/// per pane and have SwiftUI recognise it as unchanged.
+public struct SignalPaneLocatorSink: Sendable, Equatable {
+    /// Holds the closure so the struct can have identity. `@unchecked` because
+    /// the closure is `@MainActor`-isolated and the box is never mutated.
+    private final class Box: @unchecked Sendable {
+        let report: @MainActor @Sendable (String?) -> Void
+        init(_ report: @escaping @MainActor @Sendable (String?) -> Void) {
+            self.report = report
+        }
+    }
+    private let box: Box
 
     public init(report: @escaping @MainActor @Sendable (String?) -> Void) {
-        self.report = report
+        self.box = Box(report)
+    }
+
+    public static func == (lhs: SignalPaneLocatorSink, rhs: SignalPaneLocatorSink) -> Bool {
+        lhs.box === rhs.box
     }
 
     /// Reports the locator this pane is currently showing. Pass nil when the
@@ -41,7 +66,7 @@ public struct SignalPaneLocatorSink: Sendable {
     /// value per pane. An app SHOULD call it again when the pane's content
     /// changes, or a notification will focus the pane that used to hold the
     /// session rather than the one that does.
-    @MainActor public func callAsFunction(_ locator: String?) { report(locator) }
+    @MainActor public func callAsFunction(_ locator: String?) { box.report(locator) }
 }
 
 private struct SignalPaneLocatorKey: EnvironmentKey {
