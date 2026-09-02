@@ -15,7 +15,21 @@ public enum AinkradAppKit {
     /// `teardown`, host-owned focus, a typed cross-app launch payload, and
     /// status colors. Every one of those is **additive** — a generation-7
     /// bundle keeps loading, which is what `minSupportedAPIVersion` is for.
-    public static let apiVersion = 9
+    /// Generation 10 adds cross-app READ, which is the first capability in
+    /// this contract that lets one app see another's data — so it is the first
+    /// one gated on the user rather than on the manifest alone. An app declares
+    /// `AinkradSignalSubscriptions`, the user approves the named list at
+    /// install, and only then does `PluginSignalObserver` receive anything.
+    ///
+    /// Also adds the pane locator, so a notification can focus the pane that
+    /// produced it rather than the first pane of that app.
+    ///
+    /// Additive, so a generation-9 bundle keeps loading: the observer is a
+    /// SEPARATE protocol discovered by cast (never a requirement added to
+    /// `HostServices`), the manifest key is read outside the frozen
+    /// `PluginBundleMetadata.parse`, and the locator travels through the
+    /// SwiftUI environment rather than through `AinkradApp`.
+    public static let apiVersion = 10
 
     /// The oldest generation a host built on this SDK still loads.
     ///
