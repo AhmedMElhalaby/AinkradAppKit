@@ -1,5 +1,7 @@
 # Reviewed, non-breaking digester findings. Extended regexes, one per line.
 #
+# Shared by BOTH checks: AinkradAppKitContract and AinkradSignal.
+#
 # Everything NOT matched here fails `make abi-check`. Keep this list short and
 # justify every entry — it is the only thing standing between an added protocol
 # requirement and every installed plugin failing to load.

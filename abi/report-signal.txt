@@ -1,0 +1,24 @@
+
+/* Generic Signature Changes */
+
+/* RawRepresentable Changes */
+
+/* Removed Decls */
+
+/* Moved Decls */
+
+/* Renamed Decls */
+
+/* Type Changes */
+
+/* Decl Attribute changes */
+
+/* Fixed-layout Type Changes */
+
+/* Protocol Conformance Change */
+
+/* Protocol Requirement Change */
+
+/* Class Inheritance Change */
+
+/* Others */
