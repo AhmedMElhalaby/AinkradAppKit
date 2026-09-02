@@ -98,6 +98,27 @@ public extension PluginSignalEmitter {
 /// return: an observer must not assume it sees an event before the user does,
 /// and must never emit from inside `signalDidArrive` without a dedupe key — the
 /// host does not break that loop for you.
+/// How an app declares that it observes. Discovered by CAST on the app type,
+/// exactly like `AinkradAppTeardown` and `AinkradAppMCP`.
+///
+/// **This exists because `PluginSignalObserver` alone was unreachable.** It
+/// shipped as an `AnyObject` protocol, and the host has no instance to cast:
+/// `AinkradApp` is an all-static contract, so what the loader holds is the app
+/// TYPE plus its scoped `HostServices`. A capability the host cannot discover
+/// is not a capability, and nothing would ever have been delivered.
+///
+/// A factory rather than a static `signalDidArrive` for the same reason
+/// `makeMCPServer` is one: an observer usually needs state — a cache, a badge
+/// count, a window to nudge — and a static function has nowhere to keep it.
+///
+/// Called once per host and the result held WEAKLY by the subscription
+/// registry, so returning a fresh object the app does not retain means
+/// observation silently stops. Return something the app owns, the same way
+/// `makeMCPServer` is expected to share the app's live state.
+@MainActor public protocol AinkradAppSignalObserving {
+    static func makeSignalObserver(host: HostServices) -> any PluginSignalObserver
+}
+
 @MainActor public protocol PluginSignalObserver: AnyObject {
     /// One approved event, already stamped with its real source. An app cannot
     /// tell from this whether the event also went to a toast or a banner; that
