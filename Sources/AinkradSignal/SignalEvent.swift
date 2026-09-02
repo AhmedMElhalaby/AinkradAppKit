@@ -38,6 +38,29 @@ public struct SignalAction: Codable, Sendable, Equatable {
         self.label = label
         self.isDestructive = isDestructive
     }
+
+    /// Hand-written so `isDestructive` defaults the same way it does in the
+    /// memberwise init above. The synthesised decoder REQUIRED the key, which
+    /// only surfaced once actions could arrive over the wire (M3): a payload
+    /// carrying `{"id":"rerun","label":"Re-run"}` — valid JSON, and exactly
+    /// what a first attempt looks like — failed to decode, and because a
+    /// payload is rejected whole the entire notification was reported as
+    /// `malformed`. Two initialisers disagreeing about a default is the kind
+    /// of thing nobody finds by reading.
+    ///
+    /// Defaulting to `false` is the safe direction: an action is non-destructive
+    /// unless it says so, so a missing key can never silently skip the
+    /// confirmation step a destructive action requires.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(String.self, forKey: .id)
+        label = try c.decode(String.self, forKey: .label)
+        isDestructive = try c.decodeIfPresent(Bool.self, forKey: .isDestructive) ?? false
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case id, label, isDestructive
+    }
 }
 
 public struct SignalEvent: Codable, Sendable, Equatable, Identifiable {
