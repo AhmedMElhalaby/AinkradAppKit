@@ -23,9 +23,55 @@ public enum SignalImportance: String, Codable, Sendable, CaseIterable, Hashable 
 public struct SignalDeepLink: Codable, Sendable, Equatable {
     public let appID: String
     public let payload: Data
+
+    /// Which of the app's own panes produced this, if the app can say
+    /// (generation 10).
+    ///
+    /// **Why the host needs this when `payload` already carries it.** `payload`
+    /// is opaque by design — the host hands it over without reading it, which
+    /// is what lets apps agree on their own encodings. But to focus the RIGHT
+    /// pane the host has to match, and matching means reading. So the app
+    /// states the one field the host is allowed to compare, and the payload
+    /// stays opaque.
+    ///
+    /// The value means nothing to the host: it compares it to what a pane
+    /// reported through `ainkradPaneLocator` and does nothing else with it. A
+    /// session id, a document path, a tab id — whatever the app already uses
+    /// to tell its own panes apart.
+    ///
+    /// Nil is the ordinary case and always valid: the host then focuses any
+    /// pane of that app, which is the generation-9 behaviour.
+    public let locator: String?
+
     public init(appID: String, payload: Data) {
         self.appID = appID
         self.payload = payload
+        self.locator = nil
+    }
+
+    /// Kept as a separate initialiser rather than adding a defaulted parameter
+    /// to the one above: a defaulted parameter would be ambiguous at every
+    /// existing call site, and the two-argument form is already compiled into
+    /// shipped plugin bundles.
+    public init(appID: String, payload: Data, locator: String?) {
+        self.appID = appID
+        self.payload = payload
+        self.locator = locator
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case appID, payload, locator
+    }
+
+    /// Hand-written so `locator` is optional on the wire. Events stored before
+    /// generation 10 have no such key, and a synthesised decoder would make
+    /// every one of them fail to load — a feature addition silently emptying
+    /// the user's history.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        appID = try c.decode(String.self, forKey: .appID)
+        payload = try c.decode(Data.self, forKey: .payload)
+        locator = try c.decodeIfPresent(String.self, forKey: .locator)
     }
 }
 

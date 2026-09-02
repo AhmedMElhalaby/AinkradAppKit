@@ -81,3 +81,26 @@ public extension PluginSignalEmitter {
     }
     public func removeActionHandler(_ token: AgentActionToken) {}
 }
+
+/// Lets an app observe events from sources it declared in
+/// `AinkradSignalSubscriptions` and the user approved at install. Added in
+/// generation 10.
+///
+/// **Separate from `PluginSignalEmitter` on purpose.** The overwhelming
+/// majority of apps only ever write, and a read capability nobody asked for is
+/// a hole in the isolation guarantee for no benefit. It is also a separate
+/// PROTOCOL rather than a requirement added to `HostServices`: an added
+/// protocol requirement is the one change library evolution does not cover, and
+/// generation 9 bundles must keep loading. The host discovers it by cast, the
+/// same way `PluginAppLauncherResult` was added in generation 8.
+///
+/// Delivery is best-effort and unordered with respect to the emitter's own
+/// return: an observer must not assume it sees an event before the user does,
+/// and must never emit from inside `signalDidArrive` without a dedupe key — the
+/// host does not break that loop for you.
+@MainActor public protocol PluginSignalObserver: AnyObject {
+    /// One approved event, already stamped with its real source. An app cannot
+    /// tell from this whether the event also went to a toast or a banner; that
+    /// is the user's routing and deliberately not an app's business.
+    func signalDidArrive(_ event: SignalEvent)
+}
