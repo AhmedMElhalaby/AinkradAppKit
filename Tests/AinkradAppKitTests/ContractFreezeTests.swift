@@ -121,8 +121,23 @@ struct ContractFreezeTests {
         // Generation 9 adds only `HostServices.signals` and
         // `PluginSignalEmitter`. Nothing moved, nothing was renamed, so the
         // window is real and a generation-8 bundle loads.
-        #expect(AinkradAppKit.minSupportedAPIVersion == AinkradAppKit.apiVersion - 1,
-                "from generation 9 on, advertise exactly one release of support")
+        //
+        // Generation 10 WIDENED it to two releases. The floor is asserted as a
+        // range rather than an exact offset because the honest invariant is
+        // "at least one release, and never a floor above the generations still
+        // in the field" — not a particular number. Generation 10's arithmetic
+        // floor would have been 9, at which point every installed bundle (all
+        // still generation 8) stopped loading; a host that launches with none
+        // of the user's apps is the outage this window exists to prevent, not
+        // the window working.
+        //
+        // The bound below still forbids the failure that motivated the policy:
+        // generation 8 set the floor EQUAL to `apiVersion` and de-registered
+        // every installed plugin the moment it shipped.
+        #expect(AinkradAppKit.minSupportedAPIVersion <= AinkradAppKit.apiVersion - 1,
+                "always advertise at least one release of support")
+        #expect(AinkradAppKit.minSupportedAPIVersion >= AinkradAppKit.apiVersion - 2,
+                "and not so many that every addition must stay optional forever")
 
         // Whatever the window is, the range must be self-consistent: the
         // current generation loads, the future one does not.
