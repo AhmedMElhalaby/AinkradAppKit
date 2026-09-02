@@ -6,6 +6,16 @@
     "children": [
       {
         "kind": "Import",
+        "name": "AinkradSignal",
+        "printedName": "AinkradSignal",
+        "declKind": "Import",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Exported"
+        ]
+      },
+      {
+        "kind": "Import",
         "name": "AppKit",
         "printedName": "AppKit",
         "declKind": "Import",
@@ -2359,6 +2369,51 @@
                 "declKind": "Accessor",
                 "usr": "s:21AinkradAppKitContract12HostServicesP12presentationAA25PluginPresentationControl_pvg",
                 "mangledName": "$s21AinkradAppKitContract12HostServicesP12presentationAA25PluginPresentationControl_pvg",
+                "moduleName": "AinkradAppKitContract",
+                "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.HostServices>",
+                "sugared_genericSig": "<Self where Self : AinkradAppKitContract.HostServices>",
+                "protocolReq": true,
+                "reqNewWitnessTableEntry": true,
+                "accessorKind": "get"
+              }
+            ]
+          },
+          {
+            "kind": "Var",
+            "name": "signals",
+            "printedName": "signals",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "PluginSignalEmitter",
+                "printedName": "any AinkradAppKitContract.PluginSignalEmitter",
+                "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP"
+              }
+            ],
+            "declKind": "Var",
+            "usr": "s:21AinkradAppKitContract12HostServicesP7signalsAA19PluginSignalEmitter_pvp",
+            "mangledName": "$s21AinkradAppKitContract12HostServicesP7signalsAA19PluginSignalEmitter_pvp",
+            "moduleName": "AinkradAppKitContract",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "accessors": [
+              {
+                "kind": "Accessor",
+                "name": "Get",
+                "printedName": "Get()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "PluginSignalEmitter",
+                    "printedName": "any AinkradAppKitContract.PluginSignalEmitter",
+                    "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP"
+                  }
+                ],
+                "declKind": "Accessor",
+                "usr": "s:21AinkradAppKitContract12HostServicesP7signalsAA19PluginSignalEmitter_pvg",
+                "mangledName": "$s21AinkradAppKitContract12HostServicesP7signalsAA19PluginSignalEmitter_pvg",
                 "moduleName": "AinkradAppKitContract",
                 "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.HostServices>",
                 "sugared_genericSig": "<Self where Self : AinkradAppKitContract.HostServices>",
@@ -6975,6 +7030,647 @@
           "Custom"
         ],
         "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Sendable",
+            "printedName": "Sendable",
+            "usr": "s:s8SendableP",
+            "mangledName": "$ss8SendableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "SendableMetatype",
+            "printedName": "SendableMetatype",
+            "usr": "s:s16SendableMetatypeP",
+            "mangledName": "$ss16SendableMetatypeP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "PluginSignalEmitter",
+        "printedName": "PluginSignalEmitter",
+        "children": [
+          {
+            "kind": "Function",
+            "name": "emit",
+            "printedName": "emit(kind:severity:title:body:importance:deepLink:actions:dedupeKey:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalSeverity",
+                "printedName": "AinkradSignal.SignalSeverity",
+                "usr": "s:13AinkradSignal0B8SeverityO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalImportance",
+                "printedName": "AinkradSignal.SignalImportance",
+                "usr": "s:13AinkradSignal0B10ImportanceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradSignal.SignalDeepLink?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalDeepLink",
+                    "printedName": "AinkradSignal.SignalDeepLink",
+                    "usr": "s:13AinkradSignal0B8DeepLinkV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalAction]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalAction",
+                    "printedName": "AinkradSignal.SignalAction",
+                    "usr": "s:13AinkradSignal0B6ActionV"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginSignalEmitter>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginSignalEmitter>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "own",
+            "printedName": "own(limit:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalEvent]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalEvent",
+                    "printedName": "AinkradSignal.SignalEvent",
+                    "usr": "s:13AinkradSignal0B5EventV"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP3own5limitSay0aF00F5EventVGSi_tF",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP3own5limitSay0aF00F5EventVGSi_tF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginSignalEmitter>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginSignalEmitter>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "handleAction",
+            "printedName": "handleAction(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "AgentActionToken",
+                "printedName": "AinkradAppKitContract.AgentActionToken",
+                "usr": "s:21AinkradAppKitContract16AgentActionTokenV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() async -> ()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP12handleActionyAA05AgentI5TokenVSS_yyYaYbScMYcctF",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP12handleActionyAA05AgentI5TokenVSS_yyYaYbScMYcctF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginSignalEmitter>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginSignalEmitter>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeActionHandler",
+            "printedName": "removeActionHandler(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "AgentActionToken",
+                "printedName": "AinkradAppKitContract.AgentActionToken",
+                "usr": "s:21AinkradAppKitContract16AgentActionTokenV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP19removeActionHandleryyAA05AgentI5TokenVF",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP19removeActionHandleryyAA05AgentI5TokenVF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginSignalEmitter>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginSignalEmitter>",
+            "protocolReq": true,
+            "declAttributes": [
+              "Custom"
+            ],
+            "reqNewWitnessTableEntry": true,
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "emit",
+            "printedName": "emit(kind:severity:title:body:importance:deepLink:actions:dedupeKey:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalSeverity",
+                "printedName": "AinkradSignal.SignalSeverity",
+                "usr": "s:13AinkradSignal0B8SeverityO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalImportance",
+                "printedName": "AinkradSignal.SignalImportance",
+                "hasDefaultArg": true,
+                "usr": "s:13AinkradSignal0B10ImportanceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradSignal.SignalDeepLink?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalDeepLink",
+                    "printedName": "AinkradSignal.SignalDeepLink",
+                    "usr": "s:13AinkradSignal0B8DeepLinkV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalAction]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalAction",
+                    "printedName": "AinkradSignal.SignalAction",
+                    "usr": "s:13AinkradSignal0B6ActionV"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "hasDefaultArg": true,
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterPAAE4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterPAAE4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "moduleName": "AinkradAppKitContract",
+            "genericSig": "<τ_0_0 where τ_0_0 : AinkradAppKitContract.PluginSignalEmitter>",
+            "sugared_genericSig": "<Self where Self : AinkradAppKitContract.PluginSignalEmitter>",
+            "declAttributes": [
+              "Custom"
+            ],
+            "isFromExtension": true,
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Protocol",
+        "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP",
+        "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "Escapable",
+            "printedName": "Escapable",
+            "usr": "s:s9EscapableP",
+            "mangledName": "$ss9EscapableP"
+          },
+          {
+            "kind": "Conformance",
+            "name": "Copyable",
+            "printedName": "Copyable",
+            "usr": "s:s8CopyableP",
+            "mangledName": "$ss8CopyableP"
+          }
+        ]
+      },
+      {
+        "kind": "TypeDecl",
+        "name": "NoopSignalEmitter",
+        "printedName": "NoopSignalEmitter",
+        "children": [
+          {
+            "kind": "Constructor",
+            "name": "init",
+            "printedName": "init()",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "NoopSignalEmitter",
+                "printedName": "AinkradAppKitContract.NoopSignalEmitter",
+                "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC"
+              }
+            ],
+            "declKind": "Constructor",
+            "usr": "s:21AinkradAppKitContract17NoopSignalEmitterCACycfc",
+            "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterCACycfc",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Custom"
+            ],
+            "init_kind": "Designated"
+          },
+          {
+            "kind": "Function",
+            "name": "emit",
+            "printedName": "emit(kind:severity:title:body:importance:deepLink:actions:dedupeKey:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalSeverity",
+                "printedName": "AinkradSignal.SignalSeverity",
+                "usr": "s:13AinkradSignal0B8SeverityO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "SignalImportance",
+                "printedName": "AinkradSignal.SignalImportance",
+                "usr": "s:13AinkradSignal0B10ImportanceO"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "AinkradSignal.SignalDeepLink?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalDeepLink",
+                    "printedName": "AinkradSignal.SignalDeepLink",
+                    "usr": "s:13AinkradSignal0B8DeepLinkV"
+                  }
+                ],
+                "usr": "s:Sq"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalAction]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalAction",
+                    "printedName": "AinkradSignal.SignalAction",
+                    "usr": "s:13AinkradSignal0B6ActionV"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Optional",
+                "printedName": "Swift.String?",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "String",
+                    "printedName": "Swift.String",
+                    "usr": "s:SS"
+                  }
+                ],
+                "usr": "s:Sq"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterC4emit4kind8severity5title4body10importance8deepLink7actions9dedupeKeyySS_0aF00F8SeverityOS2SSgAM0F10ImportanceOAM0f4DeepO0VSgSayAM0F6ActionVGAPtF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "own",
+            "printedName": "own(limit:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Array",
+                "printedName": "[AinkradSignal.SignalEvent]",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "SignalEvent",
+                    "printedName": "AinkradSignal.SignalEvent",
+                    "usr": "s:13AinkradSignal0B5EventV"
+                  }
+                ],
+                "usr": "s:Sa"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "Int",
+                "printedName": "Swift.Int",
+                "usr": "s:Si"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC3own5limitSay0aF00F5EventVGSi_tF",
+            "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterC3own5limitSay0aF00F5EventVGSi_tF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "handleAction",
+            "printedName": "handleAction(_:_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "AgentActionToken",
+                "printedName": "AinkradAppKitContract.AgentActionToken",
+                "usr": "s:21AinkradAppKitContract16AgentActionTokenV"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "String",
+                "printedName": "Swift.String",
+                "usr": "s:SS"
+              },
+              {
+                "kind": "TypeFunc",
+                "name": "Function",
+                "printedName": "() async -> ()",
+                "children": [
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  },
+                  {
+                    "kind": "TypeNominal",
+                    "name": "Void",
+                    "printedName": "()"
+                  }
+                ]
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC12handleActionyAA05AgentI5TokenVSS_yyYaYbScMYcctF",
+            "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterC12handleActionyAA05AgentI5TokenVSS_yyYaYbScMYcctF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          },
+          {
+            "kind": "Function",
+            "name": "removeActionHandler",
+            "printedName": "removeActionHandler(_:)",
+            "children": [
+              {
+                "kind": "TypeNominal",
+                "name": "Void",
+                "printedName": "()"
+              },
+              {
+                "kind": "TypeNominal",
+                "name": "AgentActionToken",
+                "printedName": "AinkradAppKitContract.AgentActionToken",
+                "usr": "s:21AinkradAppKitContract16AgentActionTokenV"
+              }
+            ],
+            "declKind": "Func",
+            "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC19removeActionHandleryyAA05AgentI5TokenVF",
+            "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterC19removeActionHandleryyAA05AgentI5TokenVF",
+            "moduleName": "AinkradAppKitContract",
+            "declAttributes": [
+              "Final",
+              "Custom"
+            ],
+            "funcSelfKind": "NonMutating"
+          }
+        ],
+        "declKind": "Class",
+        "usr": "s:21AinkradAppKitContract17NoopSignalEmitterC",
+        "mangledName": "$s21AinkradAppKitContract17NoopSignalEmitterC",
+        "moduleName": "AinkradAppKitContract",
+        "declAttributes": [
+          "Final",
+          "Custom"
+        ],
+        "conformances": [
+          {
+            "kind": "Conformance",
+            "name": "PluginSignalEmitter",
+            "printedName": "PluginSignalEmitter",
+            "usr": "s:21AinkradAppKitContract19PluginSignalEmitterP",
+            "mangledName": "$s21AinkradAppKitContract19PluginSignalEmitterP"
+          },
           {
             "kind": "Conformance",
             "name": "Copyable",
