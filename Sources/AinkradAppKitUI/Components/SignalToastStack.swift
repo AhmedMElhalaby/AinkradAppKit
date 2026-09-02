@@ -122,16 +122,19 @@ public struct SignalToastStack: View {
 
     public var body: some View {
         VStack(alignment: .trailing, spacing: 8) {
-            if model.overflowCount > 0 {
-                AinkradBadge(text: "+\(model.overflowCount) more",
-                             tint: theme.accentSecondary)
-                    .transition(.opacity)
-            }
             ForEach(model.visible) { event in
                 toast(event)
                     .transition(.asymmetric(
                         insertion: .move(edge: .trailing).combined(with: .opacity),
                         removal: .opacity.combined(with: .scale(scale: 0.96))))
+            }
+            // Below the stack, not above it: the chip counts what is WAITING,
+            // so it belongs after the toasts it is queued behind. Above them it
+            // read as a badge hanging off whatever sits over the stack.
+            if model.overflowCount > 0 {
+                AinkradBadge(text: "+\(model.overflowCount) more",
+                             tint: theme.accentSecondary)
+                    .transition(.opacity)
             }
         }
         .padding(16)
