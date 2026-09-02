@@ -46,6 +46,33 @@ public struct SignalSubscription: Sendable, Equatable, Hashable {
     /// notifications, so the sentence names both the source and the shape of
     /// what will be read — never the raw pattern on its own, which reads as
     /// configuration rather than as a permission.
+    /// Just the kind half — "build.* notifications", "all notifications".
+    ///
+    /// Exists so the HOST can compose the sentence with a real display name.
+    /// `approvalDescription` can only name an app by its id, because nothing
+    /// in this module knows that "raven" is called "Raven" — and a consent
+    /// prompt reading "raven: build.* notifications" next to "Sage: all
+    /// notifications" tells the user that one of these is a program and the
+    /// other is a product, which is not a distinction they should have to
+    /// decode while deciding.
+    public var kindDescription: String {
+        if isWildcard {
+            return kindPattern.isEmpty ? "all notifications" : "\(kindPattern).* notifications"
+        }
+        return "\(kindPattern) notifications"
+    }
+
+    /// The source's own name, when it is not an app: nil for `.app`, whose
+    /// display name only the host can resolve.
+    public var builtInSourceName: String? {
+        switch source {
+        case .host: return "Ainkrad"
+        case .sage: return "Sage"
+        case .app: return nil
+        @unknown default: return nil
+        }
+    }
+
     public var approvalDescription: String {
         let name: String
         switch source {

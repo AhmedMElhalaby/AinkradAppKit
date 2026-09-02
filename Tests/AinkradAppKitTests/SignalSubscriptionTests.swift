@@ -79,3 +79,27 @@ struct SignalSubscriptionTests {
         #expect(result.invalid.sorted() == ["*/everything", "nonsense"])
     }
 }
+
+@Suite("Subscription descriptions")
+struct SignalSubscriptionDescriptionTests {
+    @Test("kindDescription carries only the kind half, for the host to compose")
+    func kindDescriptions() throws {
+        func kind(_ pattern: String) throws -> String {
+            try #require(SignalSubscription.parse([pattern]).first).kindDescription
+        }
+        #expect(try kind("app:raven/build.*") == "build.* notifications")
+        #expect(try kind("app:raven/build.failed") == "build.failed notifications")
+        #expect(try kind("sage/*") == "all notifications")
+    }
+
+    @Test("only an app source needs the host to name it")
+    func builtInNames() throws {
+        func name(_ pattern: String) throws -> String? {
+            try #require(SignalSubscription.parse([pattern]).first).builtInSourceName
+        }
+        #expect(try name("host/run.*") == "Ainkrad")
+        #expect(try name("sage/*") == "Sage")
+        #expect(try name("app:raven/build.*") == nil,
+                "nothing here knows raven is called Raven")
+    }
+}
