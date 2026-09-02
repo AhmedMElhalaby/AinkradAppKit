@@ -82,6 +82,37 @@ public func route(_ event: SignalEvent,
 
 private func defaultChannels(for event: SignalEvent,
                              context: DeliveryContext) -> Set<DeliveryChannel> {
+    var channels = severityChannels(for: event, context: context)
+
+    // Importance adjusts the severity table. This is what makes
+    // `proposedImportance` an actual input rather than a documented one: it was
+    // declared as "an input to routing" and then never read, so an agent
+    // blocked on the user — `.info` severity, `.urgent` importance — produced
+    // NO channel at all while the user was looking. The only sign was a silent
+    // bell count.
+    //
+    // Applied only on the default path: a user's explicit rule replaces these
+    // channels wholesale, and an emitter must not talk over that.
+    switch event.proposedImportance {
+    case .urgent:
+        // Never silent. Interrupt where the user is: on screen if they are
+        // here, on the system if they are not.
+        channels.insert(context.hostIsFrontmost ? .toast : .banner)
+        channels.insert(.badge)
+    case .background:
+        // Recorded, never interrupting — for the chatter an app wants kept but
+        // does not want the user pulled away for.
+        channels.remove(.toast)
+        channels.remove(.banner)
+        channels.remove(.sound)
+    case .normal:
+        break
+    }
+    return channels
+}
+
+private func severityChannels(for event: SignalEvent,
+                              context: DeliveryContext) -> Set<DeliveryChannel> {
     let appIsVisible: Bool = {
         guard case .app(let id) = event.source else { return context.hostIsFrontmost }
         return context.hostIsFrontmost && context.visibleAppIDs.contains(id)

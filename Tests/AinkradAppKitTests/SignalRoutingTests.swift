@@ -70,6 +70,49 @@ struct SignalRoutingTests {
         #expect(route(event(.info, kind: "quiet.thing"), rules: rules, context: frontmost) == [.feed])
     }
 
+    @Test("an urgent event interrupts even when it is only informational")
+    func urgentInfoStillInterrupts() {
+        // The case this was found by: an agent asking for input is `.info`
+        // severity — nothing is wrong — but the user must know NOW. Under the
+        // severity-only table it produced no channel at all while the user was
+        // looking, so the only sign was a silent bell count.
+        let event = event(.info, importance: .urgent)
+        #expect(route(event, rules: .default, context: frontmost).contains(.toast))
+        #expect(route(event, rules: .default, context: away).contains(.banner))
+    }
+
+    @Test("a background event never interrupts, whatever its severity")
+    func backgroundNeverInterrupts() {
+        let noisy = event(.failure, importance: .background)
+        let channels = route(noisy, rules: .default, context: frontmost)
+        #expect(!channels.contains(.toast))
+        #expect(!channels.contains(.banner))
+        #expect(!channels.contains(.sound))
+        #expect(channels.contains(.feed), "but it is still recorded")
+    }
+
+    @Test("importance does not override a user's explicit rule")
+    func userRulesStillWin() {
+        var rules = RoutingRules.default
+        rules.sourceOverrides[.host] = [.feed]
+        let channels = route(event(.info, importance: .urgent), rules: rules, context: frontmost)
+        #expect(channels == [.feed],
+                "the emitter proposes; the user decides — that is the whole design")
+    }
+
+    @Test("a muted source stays muted however urgent the emitter claims to be")
+    func mutedBeatsUrgent() {
+        var rules = RoutingRules.default
+        rules.mutedSources.insert(.host)
+        #expect(route(event(.info, importance: .urgent), rules: rules, context: away) == [.feed])
+    }
+
+    @Test("normal importance leaves the severity table untouched")
+    func normalIsUnchanged() {
+        #expect(route(event(.info), rules: .default, context: frontmost) == [.feed])
+        #expect(route(event(.success), rules: .default, context: frontmost).contains(.toast))
+    }
+
     @Test("host run events route like any other event now that RunNotifier is gone")
     func runEventsAreOrdinary() {
         // The M1 exemption lived here: `run.*` from `.host` never reached
