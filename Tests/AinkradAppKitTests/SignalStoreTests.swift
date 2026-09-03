@@ -23,6 +23,21 @@ struct SignalStoreTests {
                     kind: kind, severity: severity, title: title, dedupeKey: dedupeKey)
     }
 
+    @Test("event(id:) returns a stored event, and nil for an unknown id")
+    func eventByID() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let e = event("Build failed", source: .app(appID: "raven"),
+                      kind: "build.failed", severity: .failure)
+        _ = try store.insert(e)
+
+        let found = try #require(store.event(id: e.id))
+        #expect(found.title == "Build failed")
+        #expect(found.source == .app(appID: "raven"))
+        #expect(found.severity == .failure)
+        #expect(store.event(id: UUID()) == nil)
+    }
+
     @Test("inserts an event and reads it back whole")
     func insertAndRead() throws {
         let (store, url) = try makeStore()
