@@ -42,12 +42,50 @@ public struct RoutingRules: Codable, Sendable, Equatable {
     public var sourceOverrides: [SignalSource: Set<DeliveryChannel>]
     public var sourceKindOverrides: [SourceKind: Set<DeliveryChannel>]
 
+    /// Sources allowed to interrupt through Focus, and ONLY for `.urgent`
+    /// events. An agent blocked on the user is the one case where silence costs
+    /// the whole wait; everything else the user silenced stays silent.
+    public var urgentBypass: Set<SignalSource> = []
+
     public init(mutedSources: Set<SignalSource> = [],
                 sourceOverrides: [SignalSource: Set<DeliveryChannel>] = [:],
                 sourceKindOverrides: [SourceKind: Set<DeliveryChannel>] = [:]) {
         self.mutedSources = mutedSources
         self.sourceOverrides = sourceOverrides
         self.sourceKindOverrides = sourceKindOverrides
+    }
+
+    /// A SEPARATE initialiser rather than a fourth defaulted parameter on the
+    /// one above. This module builds with `-enable-library-evolution`: adding a
+    /// default changes the existing init's mangled symbol, so anything already
+    /// linked against it fails at `Bundle.load()` rather than at compile time.
+    /// That is the `AinkradFormRow` failure recorded in AinkradQuest's
+    /// project.yml, and the pattern `SignalDeepLink.init(appID:payload:locator:)`
+    /// established.
+    public init(mutedSources: Set<SignalSource>,
+                sourceOverrides: [SignalSource: Set<DeliveryChannel>],
+                sourceKindOverrides: [SourceKind: Set<DeliveryChannel>],
+                urgentBypass: Set<SignalSource>) {
+        self.mutedSources = mutedSources
+        self.sourceOverrides = sourceOverrides
+        self.sourceKindOverrides = sourceKindOverrides
+        self.urgentBypass = urgentBypass
+    }
+
+    /// Hand-written, because the synthesized decoder REQUIRES every key. A
+    /// `signal.json` written before `urgentBypass` existed has no such key, so
+    /// a synthesized decoder would reject the file and silently reset every
+    /// notification preference the user had set.
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        mutedSources = try container.decodeIfPresent(
+            Set<SignalSource>.self, forKey: .mutedSources) ?? []
+        sourceOverrides = try container.decodeIfPresent(
+            [SignalSource: Set<DeliveryChannel>].self, forKey: .sourceOverrides) ?? [:]
+        sourceKindOverrides = try container.decodeIfPresent(
+            [SourceKind: Set<DeliveryChannel>].self, forKey: .sourceKindOverrides) ?? [:]
+        urgentBypass = try container.decodeIfPresent(
+            Set<SignalSource>.self, forKey: .urgentBypass) ?? []
     }
 
     public static let `default` = RoutingRules()
@@ -73,8 +111,16 @@ public func route(_ event: SignalEvent,
         channels.formUnion(defaultChannels(for: event, context: context))
     }
 
-    if context.systemDoNotDisturb || context.hostFocusMode {
+    // Toast and sound are played by the HOST, not by the system, so nothing
+    // else suppresses them. The earlier version removed only `.banner` on the
+    // grounds that `UNUserNotificationCenter` enforces Focus itself — true for
+    // banners, and true for nothing else, which left Ainkrad chiming and
+    // throwing toasts at a user who had explicitly asked for quiet.
+    let bypasses = event.proposedImportance == .urgent
+        && rules.urgentBypass.contains(event.source)
+    if (context.systemDoNotDisturb || context.hostFocusMode) && !bypasses {
         channels.remove(.banner)
+        channels.remove(.toast)
         channels.remove(.sound)
     }
     return channels

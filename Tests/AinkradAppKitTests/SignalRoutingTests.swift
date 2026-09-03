@@ -55,6 +55,80 @@ struct SignalRoutingTests {
         #expect(channels.contains(.badge))
     }
 
+    @Test("rules written before urgentBypass existed still decode")
+    func decodesPreBypassJSON() throws {
+        // Built by encoding today's rules and DELETING the new key, rather than
+        // by hand-writing JSON: `sourceOverrides` is keyed by a non-String
+        // enum, so Swift encodes it as a flat array and not an object. A
+        // hand-written fixture guessed that wrong and tested nothing.
+        var object = try #require(try JSONSerialization.jsonObject(
+            with: JSONEncoder().encode(RoutingRules.default)) as? [String: Any])
+        #expect(object.removeValue(forKey: "urgentBypass") != nil,
+                "the field must be present today, or this test proves nothing")
+
+        let legacy = try JSONSerialization.data(withJSONObject: object)
+        let rules = try JSONDecoder().decode(RoutingRules.self, from: legacy)
+        #expect(rules.urgentBypass.isEmpty)
+        #expect(rules == .default)
+    }
+
+    @Test("rules round-trip through Codable with the new field")
+    func roundTripsWithBypass() throws {
+        var rules = RoutingRules.default
+        rules.urgentBypass = [.app(appID: "rune"), .host]
+        let decoded = try JSONDecoder().decode(
+            RoutingRules.self, from: try JSONEncoder().encode(rules))
+        #expect(decoded == rules)
+    }
+
+    @Test("focus mode silences the toast and the chime, not only the banner")
+    func focusSilencesEveryInterruptingChannel() {
+        let focused = DeliveryContext(hostIsFrontmost: true, visibleAppIDs: ["raven"],
+                                      systemDoNotDisturb: false, hostFocusMode: true)
+        let channels = route(event(.failure, source: .app(appID: "raven")),
+                             rules: .default, context: focused)
+        #expect(!channels.contains(.toast))
+        #expect(!channels.contains(.sound))
+        #expect(!channels.contains(.banner))
+        #expect(channels.contains(.feed))
+    }
+
+    @Test("an urgent event from a bypassing source still interrupts in focus")
+    func urgentBypassesFocus() {
+        var rules = RoutingRules.default
+        rules.urgentBypass = [.app(appID: "rune")]
+        let focused = DeliveryContext(hostIsFrontmost: true, visibleAppIDs: [],
+                                      systemDoNotDisturb: false, hostFocusMode: true)
+        let channels = route(event(.info, source: .app(appID: "rune"), importance: .urgent),
+                             rules: rules, context: focused)
+        #expect(channels.contains(.toast))
+        #expect(channels.contains(.feed))
+    }
+
+    @Test("the bypass applies only to urgent events, not to everything from that source")
+    func bypassIsUrgentOnly() {
+        var rules = RoutingRules.default
+        rules.urgentBypass = [.app(appID: "rune")]
+        let focused = DeliveryContext(hostIsFrontmost: true, visibleAppIDs: [],
+                                      systemDoNotDisturb: false, hostFocusMode: true)
+        let channels = route(event(.warning, source: .app(appID: "rune")),
+                             rules: rules, context: focused)
+        #expect(!channels.contains(.toast))
+        #expect(!channels.contains(.sound))
+    }
+
+    @Test("a bypass for one source does not let another source through")
+    func bypassIsPerSource() {
+        var rules = RoutingRules.default
+        rules.urgentBypass = [.app(appID: "rune")]
+        let focused = DeliveryContext(hostIsFrontmost: true, visibleAppIDs: [],
+                                      systemDoNotDisturb: false, hostFocusMode: true)
+        let channels = route(event(.info, source: .app(appID: "raven"), importance: .urgent),
+                             rules: rules, context: focused)
+        #expect(!channels.contains(.toast))
+        #expect(channels.contains(.feed))
+    }
+
     @Test("failures make a sound when the user is present")
     func failureSounds() {
         #expect(route(event(.failure), rules: .default, context: frontmost).contains(.sound))
