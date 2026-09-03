@@ -206,6 +206,22 @@ public final class SignalStore {
         return out
     }
 
+    /// Single-row lookup by primary key.
+    ///
+    /// Separate from `page` because a banner response arrives with an id and
+    /// nothing else — no filter, no cursor, no ordering. Uses `Self.columns`
+    /// rather than `SELECT *`: `event(from:)` reads its columns positionally,
+    /// so the column list IS the contract between the query and the decoder.
+    public func event(id: UUID) -> SignalEvent? {
+        var stmt: OpaquePointer?
+        let sql = "SELECT \(Self.columns) FROM events WHERE id = ? LIMIT 1;"
+        guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { return nil }
+        defer { sqlite3_finalize(stmt) }
+        bind(stmt, 1, id.uuidString)
+        guard sqlite3_step(stmt) == SQLITE_ROW else { return nil }
+        return Self.event(from: stmt)
+    }
+
     static let columns = """
     id, timestamp, source_kind, source_app_id, kind, severity, title, body,
     importance, deep_link, actions, dedupe_key, dedupe_count, read_at, pinned
