@@ -55,6 +55,123 @@ struct SignalRoutingTests {
         #expect(channels.contains(.badge))
     }
 
+    @Test("an event below the source's interrupt floor reaches the feed only")
+    func belowInterruptFloor() {
+        var rules = RoutingRules.default
+        rules.interruptFloor[.app(appID: "raven")] = .failure
+        let warning = event(.warning, source: .app(appID: "raven"))
+        #expect(route(warning, rules: rules, context: away, now: .now) == [.feed])
+    }
+
+    @Test("an event at the floor is untouched by it")
+    func atInterruptFloor() {
+        var rules = RoutingRules.default
+        rules.interruptFloor[.app(appID: "raven")] = .warning
+        let warning = event(.warning, source: .app(appID: "raven"))
+        #expect(route(warning, rules: rules, context: away, now: .now).contains(.banner))
+    }
+
+    @Test("the floor is per source, not global")
+    func floorIsPerSource() {
+        var rules = RoutingRules.default
+        rules.interruptFloor[.app(appID: "raven")] = .failure
+        #expect(route(event(.warning, source: .host), rules: rules,
+                      context: away, now: .now).contains(.banner))
+    }
+
+    @Test("an urgent event from a bypassing source clears the floor")
+    func urgentClearsTheFloor() {
+        var rules = RoutingRules.default
+        rules.interruptFloor[.app(appID: "rune")] = .failure
+        rules.urgentBypass = [.app(appID: "rune")]
+        let channels = route(event(.info, source: .app(appID: "rune"), importance: .urgent),
+                             rules: rules, context: away, now: .now)
+        #expect(channels.contains(.banner))
+    }
+
+    @Test("the floor beats an override the user set earlier")
+    func floorBeatsOverride() {
+        var rules = RoutingRules.default
+        rules.sourceOverrides[.app(appID: "raven")] = [.banner, .sound]
+        rules.interruptFloor[.app(appID: "raven")] = .failure
+        // A floor is the user saying "not below this". An override they set
+        // before must not resurrect what the floor just excluded.
+        #expect(route(event(.info, source: .app(appID: "raven")),
+                      rules: rules, context: away, now: .now) == [.feed])
+    }
+
+    @Test("inside a suppression window nothing interrupts, but the count still moves")
+    func suppressionWindowSilencesEveryInterruption() {
+        var rules = RoutingRules.default
+        rules.suppression.snoozedUntil = Date().addingTimeInterval(600)
+        let channels = route(event(.failure), rules: rules, context: away, now: .now)
+        #expect(!channels.contains(.banner))
+        #expect(!channels.contains(.toast))
+        #expect(!channels.contains(.sound))
+        #expect(channels.contains(.feed))
+        // The badge survives, exactly as it does under Do Not Disturb. A count
+        // is not an interruption — it is what the user looks at when they come
+        // back, and hiding it would make quiet hours lose information rather
+        // than defer it.
+        #expect(channels.contains(.badge))
+    }
+
+    @Test("sound-only suppression keeps the banner and drops the chime")
+    func soundOnlySuppression() {
+        var rules = RoutingRules.default
+        rules.suppression.snoozedUntil = Date().addingTimeInterval(600)
+        rules.suppression.mode = .soundOnly
+        let channels = route(event(.failure), rules: rules, context: away, now: .now)
+        #expect(channels.contains(.banner))
+        #expect(!channels.contains(.sound))
+    }
+
+    @Test("an urgent event from a bypassing source survives suppression")
+    func urgentSurvivesSuppression() {
+        var rules = RoutingRules.default
+        rules.suppression.snoozedUntil = Date().addingTimeInterval(600)
+        rules.urgentBypass = [.app(appID: "rune")]
+        let channels = route(event(.info, source: .app(appID: "rune"), importance: .urgent),
+                             rules: rules, context: away, now: .now)
+        #expect(channels.contains(.banner))
+    }
+
+    @Test("a suppression window that has expired suppresses nothing")
+    func expiredSuppressionIsInert() {
+        var rules = RoutingRules.default
+        rules.suppression.snoozedUntil = Date().addingTimeInterval(-60)
+        #expect(route(event(.failure), rules: rules, context: away, now: .now).contains(.banner))
+    }
+
+    @Test("the three-argument route still exists and reads the clock itself")
+    func legacyRouteOverloadSurvives() {
+        // Public API in a library-evolution module: the old symbol must keep
+        // working, or anything already linked against it breaks at load time.
+        #expect(route(event(.failure), rules: .default, context: away).contains(.banner))
+    }
+
+    @Test("a per-source sound choice is carried through, not decided by route")
+    func soundChoiceIsData() {
+        var rules = RoutingRules.default
+        rules.soundOverride[.app(appID: "raven")] = .silent
+        #expect(rules.soundOverride[.app(appID: "raven")] == .silent)
+    }
+
+    @Test("rules written before the new fields existed still decode")
+    func decodesPreControlFields() throws {
+        var object = try #require(try JSONSerialization.jsonObject(
+            with: JSONEncoder().encode(RoutingRules.default)) as? [String: Any])
+        for key in ["interruptFloor", "soundOverride", "suppression"] {
+            #expect(object.removeValue(forKey: key) != nil,
+                    "\(key) must be present today, or this test proves nothing")
+        }
+        let legacy = try JSONSerialization.data(withJSONObject: object)
+        let rules = try JSONDecoder().decode(RoutingRules.self, from: legacy)
+        #expect(rules.interruptFloor.isEmpty)
+        #expect(rules.soundOverride.isEmpty)
+        #expect(rules.suppression == SuppressionWindow())
+    }
+
     @Test("rules written before urgentBypass existed still decode")
     func decodesPreBypassJSON() throws {
         // Built by encoding today's rules and DELETING the new key, rather than
