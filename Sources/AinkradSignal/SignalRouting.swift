@@ -36,6 +36,21 @@ public struct SourceKind: Codable, Sendable, Hashable {
     }
 }
 
+/// Which cue a source's notifications use.
+///
+/// Deliberately NOT the host's `UISound`: that type lives in the app, names
+/// assets in the app's bundle, and cannot be referenced from the SDK. A string
+/// case keeps the choice storable here while the host stays the only thing that
+/// has to know what a cue name maps to.
+public enum SignalSoundChoice: Codable, Sendable, Equatable, Hashable {
+    /// Follow the severity, as an unconfigured source does.
+    case bySeverity
+    /// This source never makes a sound, though it may still toast and banner.
+    case silent
+    /// A specific cue, by the host's own name for it.
+    case named(String)
+}
+
 public struct RoutingRules: Codable, Sendable, Equatable {
     /// Sources the user silenced. They still reach `.feed`, nothing else.
     public var mutedSources: Set<SignalSource>
@@ -46,6 +61,17 @@ public struct RoutingRules: Codable, Sendable, Equatable {
     /// events. An agent blocked on the user is the one case where silence costs
     /// the whole wait; everything else the user silenced stays silent.
     public var urgentBypass: Set<SignalSource> = []
+
+    /// The least severity a source is allowed to interrupt with. Anything below
+    /// it is recorded and nothing more.
+    public var interruptFloor: [SignalSource: SignalSeverity] = [:]
+
+    /// Per-source cue choice. Carried, never interpreted here — `route` decides
+    /// channels, and the host decides what a cue name plays.
+    public var soundOverride: [SignalSource: SignalSoundChoice] = [:]
+
+    /// Quiet hours and snooze. See `SuppressionWindow`.
+    public var suppression = SuppressionWindow()
 
     public init(mutedSources: Set<SignalSource> = [],
                 sourceOverrides: [SignalSource: Set<DeliveryChannel>] = [:],
@@ -86,6 +112,12 @@ public struct RoutingRules: Codable, Sendable, Equatable {
             [SourceKind: Set<DeliveryChannel>].self, forKey: .sourceKindOverrides) ?? [:]
         urgentBypass = try container.decodeIfPresent(
             Set<SignalSource>.self, forKey: .urgentBypass) ?? []
+        interruptFloor = try container.decodeIfPresent(
+            [SignalSource: SignalSeverity].self, forKey: .interruptFloor) ?? [:]
+        soundOverride = try container.decodeIfPresent(
+            [SignalSource: SignalSoundChoice].self, forKey: .soundOverride) ?? [:]
+        suppression = try container.decodeIfPresent(
+            SuppressionWindow.self, forKey: .suppression) ?? SuppressionWindow()
     }
 
     public static let `default` = RoutingRules()
@@ -94,14 +126,42 @@ public struct RoutingRules: Codable, Sendable, Equatable {
 /// Pure. Given an event, the user's rules and the user's situation, which
 /// channels deliver it. No I/O, no clock, no globals — every branch is a table
 /// row in `SignalRoutingTests`.
+/// The pre-suppression signature, kept because it is public API in a
+/// library-evolution module: changing it would break anything already linked
+/// against the old mangled symbol at load time, not at compile time.
 public func route(_ event: SignalEvent,
                   rules: RoutingRules,
                   context: DeliveryContext) -> Set<DeliveryChannel> {
+    route(event, rules: rules, context: context, now: Date())
+}
+
+/// Pure. Given an event, the user's rules, their situation and the time, which
+/// channels deliver it. The clock is a PARAMETER — a suppression window that
+/// read `Date()` internally could not be tested at 3am.
+public func route(_ event: SignalEvent,
+                  rules: RoutingRules,
+                  context: DeliveryContext,
+                  now: Date,
+                  calendar: Calendar = .current) -> Set<DeliveryChannel> {
     var channels: Set<DeliveryChannel> = [.feed]
+
+    // Urgency from a source the user explicitly exempted. Computed once: it
+    // clears the floor, the suppression window AND Focus, and three separate
+    // computations of the same thing is three places for them to disagree.
+    let bypasses = event.proposedImportance == .urgent
+        && rules.urgentBypass.contains(event.source)
 
     // A muted source logs and stops. Checked before overrides so muting is
     // absolute — including against an `.urgent` proposal.
     if rules.mutedSources.contains(event.source) { return channels }
+
+    // The floor comes BEFORE the overrides on purpose. A floor is the user
+    // saying "never below this"; an override they set earlier must not
+    // resurrect what the floor has just excluded.
+    if let floor = rules.interruptFloor[event.source],
+       severityRank(event.severity) < severityRank(floor), !bypasses {
+        return channels
+    }
 
     if let explicit = rules.sourceKindOverrides[SourceKind(source: event.source, kind: event.kind)] {
         channels = explicit.union([.feed])
@@ -116,12 +176,21 @@ public func route(_ event: SignalEvent,
     // grounds that `UNUserNotificationCenter` enforces Focus itself — true for
     // banners, and true for nothing else, which left Ainkrad chiming and
     // throwing toasts at a user who had explicitly asked for quiet.
-    let bypasses = event.proposedImportance == .urgent
-        && rules.urgentBypass.contains(event.source)
     if (context.systemDoNotDisturb || context.hostFocusMode) && !bypasses {
         channels.remove(.banner)
         channels.remove(.toast)
         channels.remove(.sound)
+    }
+
+    // Quiet hours and snooze. Separate from Focus because the user's own
+    // schedule can mean something narrower than the system's: `.soundOnly`
+    // keeps things visible while dropping the chime.
+    if rules.suppression.isSuppressing(at: now, calendar: calendar), !bypasses {
+        channels.remove(.sound)
+        if rules.suppression.mode == .everything {
+            channels.remove(.banner)
+            channels.remove(.toast)
+        }
     }
     return channels
 }
@@ -177,5 +246,18 @@ private func severityChannels(for event: SignalEvent,
     case (.failure, true, true):      return [.toast, .sound]
     case (.failure, true, false):     return [.badge, .toast, .sound]
     case (.failure, false, _):        return [.badge, .banner, .sound]
+    }
+}
+
+/// Severity as an order. Not `CaseIterable`'s index: that is a declaration
+/// detail, and letting it become behaviour means reordering the enum silently
+/// changes what every interrupt floor means.
+private func severityRank(_ severity: SignalSeverity) -> Int {
+    switch severity {
+    case .info: return 0
+    case .success: return 1
+    case .warning: return 2
+    case .failure: return 3
+    @unknown default: return 0
     }
 }
