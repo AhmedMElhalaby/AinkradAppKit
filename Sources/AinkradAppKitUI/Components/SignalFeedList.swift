@@ -14,6 +14,8 @@ public struct SignalFeedList: View {
     public var onAction: (SignalEvent, SignalAction) -> Void = { _, _ in }
     /// Per-row right-click menu, passed straight through to `SignalFeedRow`.
     public var menuItems: (SignalEvent) -> [AinkradMenuItem] = { _ in [] }
+    public var pinnedIDs: Set<UUID> = []
+    public var expandedIDs: Binding<Set<UUID>> = .constant([])
 
     /// Explicit, because a public struct's implicit memberwise
     /// initialiser is INTERNAL — the components were public and
@@ -54,6 +56,29 @@ public struct SignalFeedList: View {
         self.menuItems = menuItems
     }
 
+    /// Separate again, same reason.
+    public init(events: [SignalEvent],
+                repeatCounts: [UUID: Int],
+                readIDs: Set<UUID>,
+                now: Date,
+                calendar: Calendar,
+                onActivate: @escaping (SignalEvent) -> Void,
+                onAction: @escaping (SignalEvent, SignalAction) -> Void,
+                menuItems: @escaping (SignalEvent) -> [AinkradMenuItem],
+                pinnedIDs: Set<UUID>,
+                expandedIDs: Binding<Set<UUID>>) {
+        self.events = events
+        self.repeatCounts = repeatCounts
+        self.readIDs = readIDs
+        self.now = now
+        self.calendar = calendar
+        self.onActivate = onActivate
+        self.onAction = onAction
+        self.menuItems = menuItems
+        self.pinnedIDs = pinnedIDs
+        self.expandedIDs = expandedIDs
+    }
+
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
 
@@ -71,13 +96,23 @@ public struct SignalFeedList: View {
                     ForEach(groups) { group in
                         Section {
                             ForEach(group.events) { event in
-                                SignalFeedRow(event: event,
-                                              repeatCount: repeatCounts[event.id] ?? 1,
-                                              isUnread: !readIDs.contains(event.id),
-                                              now: now,
-                                              onActivate: onActivate,
-                                              onAction: onAction,
-                                              menuItems: menuItems)
+                                SignalFeedRow(
+                                    event: event,
+                                    repeatCount: repeatCounts[event.id] ?? 1,
+                                    isUnread: !readIDs.contains(event.id),
+                                    now: now,
+                                    onActivate: onActivate,
+                                    onAction: onAction,
+                                    menuItems: menuItems,
+                                    isPinned: pinnedIDs.contains(event.id),
+                                    isExpanded: expandedIDs.wrappedValue.contains(event.id),
+                                    onToggleExpanded: {
+                                        if expandedIDs.wrappedValue.contains(event.id) {
+                                            expandedIDs.wrappedValue.remove(event.id)
+                                        } else {
+                                            expandedIDs.wrappedValue.insert(event.id)
+                                        }
+                                    })
                             }
                         } header: {
                             dayHeader(group.id)
