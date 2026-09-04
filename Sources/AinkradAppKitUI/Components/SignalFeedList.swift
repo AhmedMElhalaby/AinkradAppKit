@@ -12,6 +12,8 @@ public struct SignalFeedList: View {
     public var calendar: Calendar = .current
     public var onActivate: (SignalEvent) -> Void = { _ in }
     public var onAction: (SignalEvent, SignalAction) -> Void = { _, _ in }
+    /// Per-row right-click menu, passed straight through to `SignalFeedRow`.
+    public var menuItems: (SignalEvent) -> [AinkradMenuItem] = { _ in [] }
 
     /// Explicit, because a public struct's implicit memberwise
     /// initialiser is INTERNAL — the components were public and
@@ -30,6 +32,26 @@ public struct SignalFeedList: View {
         self.calendar = calendar
         self.onActivate = onActivate
         self.onAction = onAction
+    }
+
+    /// Separate, not a defaulted parameter — see `SignalFeedRow`'s note on
+    /// library evolution and mangled initialiser symbols.
+    public init(events: [SignalEvent],
+                repeatCounts: [UUID: Int],
+                readIDs: Set<UUID>,
+                now: Date,
+                calendar: Calendar,
+                onActivate: @escaping (SignalEvent) -> Void,
+                onAction: @escaping (SignalEvent, SignalAction) -> Void,
+                menuItems: @escaping (SignalEvent) -> [AinkradMenuItem]) {
+        self.events = events
+        self.repeatCounts = repeatCounts
+        self.readIDs = readIDs
+        self.now = now
+        self.calendar = calendar
+        self.onActivate = onActivate
+        self.onAction = onAction
+        self.menuItems = menuItems
     }
 
     @Environment(\.ainkradTheme) private var theme
@@ -54,7 +76,8 @@ public struct SignalFeedList: View {
                                               isUnread: !readIDs.contains(event.id),
                                               now: now,
                                               onActivate: onActivate,
-                                              onAction: onAction)
+                                              onAction: onAction,
+                                              menuItems: menuItems)
                             }
                         } header: {
                             dayHeader(group.id)
