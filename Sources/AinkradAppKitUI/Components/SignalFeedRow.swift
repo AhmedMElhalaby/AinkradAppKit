@@ -224,6 +224,7 @@ public struct SignalFeedRow: View {
     @Environment(\.ainkradTypography) private var typo
     @Environment(\.ainkradStatusColors) private var statusColors
     @State private var isHovered = false
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
 
     private var status: AinkradStatus { SignalPresentation.status(for: event.severity) }
     private var accent: Color { status.color(in: theme, statusColors: statusColors) }
@@ -236,8 +237,10 @@ public struct SignalFeedRow: View {
                 .font(.system(size: 13, weight: .medium))
                 .foregroundStyle(accent)
                 .frame(width: 16, height: 16)
-                .scaleEffect(isHovered ? 1.12 : 1)
-                .offset(y: isHovered ? -1 : 0)
+                // Gated: the lift is decoration, and someone who has asked
+                // for less motion has asked for exactly this to stop.
+                .scaleEffect(isHovered && !reduceMotion ? 1.12 : 1)
+                .offset(y: isHovered && !reduceMotion ? -1 : 0)
 
             VStack(alignment: .leading, spacing: AinkradSpacing.xs / 2) {
                 HStack(spacing: AinkradSpacing.xs + 2) {
@@ -318,7 +321,9 @@ public struct SignalFeedRow: View {
         .onTapGesture { onActivate(event) }
         .ainkradContextMenu(menuItems(event))
         .onHover { hovering in
-            withAnimation(AinkradMotion.hover) { isHovered = hovering }
+            // The surface still changes on hover under reduce-motion — that is
+            // feedback, not decoration — it simply does so without animating.
+            withAnimation(reduceMotion ? nil : AinkradMotion.hover) { isHovered = hovering }
         }
     }
 
