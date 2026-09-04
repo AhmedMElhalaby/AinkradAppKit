@@ -81,6 +81,10 @@ public struct SignalFeedList: View {
 
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
+    /// The row the arrow keys are on. Owned by the LIST, not the row: only
+    /// something that knows the order can move a selection through it.
+    @State private var keyboardFocus: UUID?
+    @FocusState private var listHasFocus: Bool
 
     private var groups: [SignalDayGroup] {
         SignalPresentation.dayGroups(events, calendar: calendar)
@@ -112,7 +116,8 @@ public struct SignalFeedList: View {
                                         } else {
                                             expandedIDs.wrappedValue.insert(event.id)
                                         }
-                                    })
+                                    },
+                                    isKeyboardFocused: keyboardFocus == event.id)
                             }
                         } header: {
                             dayHeader(group.id)
@@ -122,7 +127,51 @@ public struct SignalFeedList: View {
                 .padding(.vertical, AinkradSpacing.xs + 2)
                 .padding(.horizontal, AinkradSpacing.xs + 2)
             }
+            // Focus on the LIST rather than per row: `.onKeyPress` only fires
+            // for something in the focus chain, and a list that hands focus to
+            // each row would make Tab walk every event in the feed.
+            .focusable()
+            .focused($listHasFocus)
+            .onKeyPress(.downArrow) { move(by: 1); return .handled }
+            .onKeyPress(.upArrow) { move(by: -1); return .handled }
+            .onKeyPress(.return) { activateFocused(); return .handled }
+            .onKeyPress(.space) { activateFocused(); return .handled }
         }
+    }
+
+    /// Moves the selection, clamped rather than wrapping.
+    ///
+    /// Wrapping at the ends would silently jump the user from the newest event
+    /// to the oldest, which in a feed reads as the list having scrolled
+    /// somewhere unexpected rather than as a selection moving.
+    private func move(by delta: Int) {
+        keyboardFocus = Self.nextFocus(in: groups.flatMap(\.events).map(\.id),
+                                       from: keyboardFocus, by: delta)
+    }
+
+    private func activateFocused() {
+        guard let id = keyboardFocus,
+              let event = groups.flatMap(\.events).first(where: { $0.id == id })
+        else { return }
+        onActivate(event)
+    }
+
+    /// The order the arrow keys walk — day groups flattened, exactly as drawn.
+    /// Exposed so the traversal is testable without a window or a key event.
+    public static func keyboardOrder(_ events: [SignalEvent],
+                                     calendar: Calendar = .current) -> [UUID] {
+        SignalPresentation.dayGroups(events, calendar: calendar)
+            .flatMap(\.events).map(\.id)
+    }
+
+    /// Where a move lands. Pure, and clamped at both ends.
+    public static func nextFocus(in order: [UUID], from current: UUID?,
+                                 by delta: Int) -> UUID? {
+        guard !order.isEmpty else { return nil }
+        guard let current, let index = order.firstIndex(of: current) else {
+            return order.first
+        }
+        return order[min(max(0, index + delta), order.count - 1)]
     }
 
     /// A header, not a separator: the design language forbids rules, so the day

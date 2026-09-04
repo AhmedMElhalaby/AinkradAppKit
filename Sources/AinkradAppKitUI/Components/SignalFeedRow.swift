@@ -200,6 +200,10 @@ public struct SignalFeedRow: View {
     /// Nil means the row cannot expand — used where there is no room for it,
     /// like the bell dropdown.
     public var onToggleExpanded: (() -> Void)?
+    /// Focus driven from outside, so a LIST can move a selection with the
+    /// arrow keys. The row's own `@FocusState` still lights the ring when the
+    /// system moves focus by Tab; the two are OR-ed rather than fighting.
+    public var isKeyboardFocused: Bool = false
 
     /// Explicit, because a public struct's implicit memberwise
     /// initialiser is INTERNAL — the components were public and
@@ -261,6 +265,32 @@ public struct SignalFeedRow: View {
         self.isPinned = isPinned
         self.isExpanded = isExpanded
         self.onToggleExpanded = onToggleExpanded
+    }
+
+    /// Separate again — library evolution. See the note on the initialiser
+    /// above.
+    public init(event: SignalEvent,
+                repeatCount: Int,
+                isUnread: Bool,
+                now: Date,
+                onActivate: @escaping (SignalEvent) -> Void,
+                onAction: @escaping (SignalEvent, SignalAction) -> Void,
+                menuItems: @escaping (SignalEvent) -> [AinkradMenuItem],
+                isPinned: Bool,
+                isExpanded: Bool,
+                onToggleExpanded: (() -> Void)?,
+                isKeyboardFocused: Bool) {
+        self.event = event
+        self.repeatCount = repeatCount
+        self.isUnread = isUnread
+        self.now = now
+        self.onActivate = onActivate
+        self.onAction = onAction
+        self.menuItems = menuItems
+        self.isPinned = isPinned
+        self.isExpanded = isExpanded
+        self.onToggleExpanded = onToggleExpanded
+        self.isKeyboardFocused = isKeyboardFocused
     }
 
     @Environment(\.ainkradTheme) private var theme
@@ -366,7 +396,8 @@ public struct SignalFeedRow: View {
         // other surface in the app.
         .overlay(
             ChamferShape(cut: AinkradRadius.sm)
-                .strokeBorder(theme.accentPrimary.opacity(isFocused ? 0.9 : 0), lineWidth: 1.5)
+                .strokeBorder(theme.accentPrimary.opacity(
+                    isFocused || isKeyboardFocused ? 0.9 : 0), lineWidth: 1.5)
         )
         // Focusable rather than wrapped in a `Button`.
         //
