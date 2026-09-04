@@ -23,6 +23,39 @@ struct SignalStoreTests {
                     kind: kind, severity: severity, title: title, dedupeKey: dedupeKey)
     }
 
+    @Test("rowStates reports pinned, so the UI can show what it set")
+    func rowStatesReportPinned() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let e = event("a")
+        _ = try store.insert(e)
+        #expect(store.rowStates(limit: 10)[e.id]?.isPinned == false)
+
+        store.setPinned(true, id: e.id)
+
+        // `setPinned` has been writable since M1 while nothing could read the
+        // flag back, so the UI could set a state it could not then display —
+        // which is why the pin control was never built.
+        #expect(store.rowStates(limit: 10)[e.id]?.isPinned == true)
+    }
+
+    @Test("a pinned row survives clearing the feed")
+    func pinnedSurvivesClear() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let kept = event("kept", at: 10)
+        let dropped = event("dropped", at: 20)
+        _ = try store.insert(kept)
+        _ = try store.insert(dropped)
+        store.setPinned(true, id: kept.id)
+
+        _ = store.enforceRetention(RetentionPolicy(maxAgeDays: 0, maxEvents: 0))
+
+        // The exemption the Settings copy has promised since M1.
+        #expect(store.event(id: kept.id) != nil)
+        #expect(store.event(id: dropped.id) == nil)
+    }
+
     @Test("markUnread clears the read stamp, so a row can be triaged again")
     func markUnread() throws {
         let (store, url) = try makeStore()

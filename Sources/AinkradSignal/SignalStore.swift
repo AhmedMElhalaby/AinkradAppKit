@@ -446,15 +446,30 @@ public final class SignalStore {
     public struct SignalRowState: Sendable, Equatable {
         public let isRead: Bool
         public let repeatCount: Int
+        /// Exempt from retention and from clearing the feed. Reported here
+        /// because `setPinned` has been writable since M1 while nothing could
+        /// READ the flag back — so the UI could set a state it could not then
+        /// show, which is why the control was never built.
+        public let isPinned: Bool
+
         public init(isRead: Bool, repeatCount: Int) {
             self.isRead = isRead
             self.repeatCount = repeatCount
+            self.isPinned = false
+        }
+
+        /// Separate, not a defaulted parameter — library evolution, see
+        /// `SignalDeepLink.init(appID:payload:locator:)`.
+        public init(isRead: Bool, repeatCount: Int, isPinned: Bool) {
+            self.isRead = isRead
+            self.repeatCount = repeatCount
+            self.isPinned = isPinned
         }
     }
 
     public func rowStates(limit: Int) -> [UUID: SignalRowState] {
         let sql = """
-        SELECT id, read_at, dedupe_count FROM events
+        SELECT id, read_at, dedupe_count, pinned FROM events
         ORDER BY timestamp DESC LIMIT ?;
         """
         var stmt: OpaquePointer?
@@ -466,7 +481,8 @@ public final class SignalStore {
             guard let idText = Self.text(stmt, 0), let id = UUID(uuidString: idText) else { continue }
             let isRead = sqlite3_column_type(stmt, 1) != SQLITE_NULL
             out[id] = SignalRowState(isRead: isRead,
-                                     repeatCount: Int(sqlite3_column_int(stmt, 2)))
+                                     repeatCount: Int(sqlite3_column_int(stmt, 2)),
+                                     isPinned: sqlite3_column_int(stmt, 3) != 0)
         }
         return out
     }

@@ -66,4 +66,32 @@ struct SignalFeedFormattingTests {
             })
         #expect(row.menuItems(row.event).map(\.title) == ["Mute build.failed"])
     }
+
+    @Test("a row built the original way neither pins nor expands")
+    func originalRowUnchanged() {
+        let row = SignalFeedRow(event: SignalEvent(source: .host, kind: "k",
+                                                   severity: .info, title: "t"))
+        // The old initialisers are public API in a library-evolution module:
+        // anything already linked resolves their mangled symbols at load time.
+        #expect(row.isPinned == false)
+        #expect(row.isExpanded == false)
+        #expect(row.onToggleExpanded == nil)
+    }
+
+    // `@MainActor`: the closure captures a local, and SignalFeedRow's stored
+    // closure crosses an isolation boundary without it.
+    @MainActor
+    @Test("a row can be built pinned and expanded")
+    func expandedRowCarriesState() {
+        var toggled = false
+        let row = SignalFeedRow(
+            event: SignalEvent(source: .host, kind: "k", severity: .info, title: "t"),
+            repeatCount: 1, isUnread: true, now: Date(),
+            onActivate: { _ in }, onAction: { _, _ in }, menuItems: { _ in [] },
+            isPinned: true, isExpanded: true, onToggleExpanded: { toggled = true })
+        #expect(row.isPinned)
+        #expect(row.isExpanded)
+        row.onToggleExpanded?()
+        #expect(toggled)
+    }
 }
