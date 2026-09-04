@@ -111,6 +111,21 @@ public struct SignalSourceRail: View {
         .frame(width: 168)
     }
 
+    /// The count and the severity are a coloured dot and a small number —
+    /// both invisible to a listener, and both the reason the rail exists.
+    static func label(for item: SignalSourceRailItem) -> String {
+        var parts = [item.name]
+        if item.unread > 0 {
+            parts.append("\(item.unread) unread")
+            if let worst = item.worstUnread {
+                parts.append("worst \(worst.rawValue)")
+            }
+        } else {
+            parts.append("nothing unread")
+        }
+        return parts.joined(separator: ", ")
+    }
+
     private func row(_ item: SignalSourceRailItem) -> some View {
         let isSelected = selection == item.source
         return Button { selection = item.source } label: {
@@ -153,6 +168,9 @@ public struct SignalSourceRail: View {
             .contentShape(ChamferShape(cut: AinkradRadius.sm))
         }
         .buttonStyle(.plain)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Self.label(for: item))
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .ainkradContextMenu(item.source.map { source in
             [AinkradMenuItem(title: "Notification settings…", systemName: "slider.horizontal.3",
                              action: { onConfigure(source) })]
