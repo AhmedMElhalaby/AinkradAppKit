@@ -7,6 +7,21 @@ public struct SignalDayGroup: Identifiable, Equatable {
     public let events: [SignalEvent]
 }
 
+/// A run of events from one source, for the feed's by-app mode.
+public struct SignalSourceGroup: Identifiable, Equatable {
+    public let source: SignalSource
+    public let name: String
+    public let events: [SignalEvent]
+    public let unread: Int
+    public let worstUnread: SignalSeverity?
+
+    public var id: String { "\(source)" }
+
+    /// The newest title, shown on a collapsed group so it says something
+    /// specific rather than only how many.
+    public var preview: String? { events.first?.title }
+}
+
 /// Pure presentation helpers, kept out of the `View` so they are testable
 /// without rendering. Anything that needs a clock takes it as a parameter —
 /// no `Date()` inside a formatter.
@@ -66,6 +81,45 @@ public enum SignalPresentation {
         case .failure: return status.danger
         case .info: return status.success.opacity(0.55)
         @unknown default: return status.success.opacity(0.55)
+        }
+    }
+
+    /// Groups events by source, newest group first.
+    ///
+    /// Ordered by each group's newest event rather than by count: the feed is
+    /// a timeline, and a burst from one app should not permanently outrank an
+    /// app that just said something.
+    public static func sourceGroups(_ events: [SignalEvent],
+                                    readIDs: Set<UUID>,
+                                    name: (SignalSource) -> String) -> [SignalSourceGroup] {
+        let sorted = events.sorted { $0.timestamp > $1.timestamp }
+        var order: [SignalSource] = []
+        var buckets: [SignalSource: [SignalEvent]] = [:]
+        for event in sorted {
+            if buckets[event.source] == nil { order.append(event.source) }
+            buckets[event.source, default: []].append(event)
+        }
+        return order.map { source in
+            let group = buckets[source] ?? []
+            let unread = group.filter { !readIDs.contains($0.id) }
+            return SignalSourceGroup(
+                source: source,
+                name: name(source),
+                events: group,
+                unread: unread.count,
+                worstUnread: unread.map(\.severity)
+                    .max { severityRank($0) < severityRank($1) })
+        }
+    }
+
+    /// Explicit, not `CaseIterable`'s index — see `SignalSourceRailItem.rank`.
+    static func severityRank(_ severity: SignalSeverity) -> Int {
+        switch severity {
+        case .info: return 0
+        case .success: return 1
+        case .warning: return 2
+        case .failure: return 3
+        @unknown default: return 0
         }
     }
 

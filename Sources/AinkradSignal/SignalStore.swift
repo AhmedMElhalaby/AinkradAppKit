@@ -373,6 +373,41 @@ public final class SignalStore {
         try? exec("UPDATE events SET read_at = \(Self.sqlTime(Date())) WHERE id IN (\(list));")
     }
 
+    /// Clears the read stamp, so a row can be put back on the pile.
+    ///
+    /// The counterpart `markRead` never had. Without it the feed can only be
+    /// triaged in one direction: a row read by accident — or read, then found
+    /// to matter — cannot be restored, and the unread count is a number the
+    /// user can only ever push down.
+    public func markUnread(ids: [UUID]) {
+        guard !ids.isEmpty else { return }
+        let list = ids.map { "'\(Self.escape($0.uuidString))'" }.joined(separator: ",")
+        try? exec("UPDATE events SET read_at = NULL WHERE id IN (\(list));")
+    }
+
+    /// Removes rows outright, index included.
+    ///
+    /// Deliberately not soft-deleted: the feed already has retention for
+    /// "old enough to forget" and pinning for "never forget". A third state
+    /// would be a filing system, and the row the user dismissed is one they
+    /// have said they are done with.
+    public func delete(ids: [UUID]) {
+        guard !ids.isEmpty else { return }
+        let list = ids.map { "'\(Self.escape($0.uuidString))'" }.joined(separator: ",")
+        try? exec("BEGIN IMMEDIATE;")
+        // FTS first, while the source rows still exist to supply the values —
+        // and EVERY indexed column, because FTS5 reconstructs the row's terms
+        // from what is given. External content does not cascade: skip this and
+        // a deleted event keeps matching searches, which the user cannot fix
+        // because the thing they would delete is already gone.
+        try? exec("""
+        INSERT INTO events_fts (events_fts, rowid, title, body, kind)
+        SELECT 'delete', rowid, title, body, kind FROM events WHERE id IN (\(list));
+        """)
+        try? exec("DELETE FROM events WHERE id IN (\(list));")
+        try? exec("COMMIT;")
+    }
+
     public func markAllRead(filter: SignalFilter) {
         var clauses: [String] = ["read_at IS NULL"]
         var binder: [(OpaquePointer?, Int32) -> Void] = []
