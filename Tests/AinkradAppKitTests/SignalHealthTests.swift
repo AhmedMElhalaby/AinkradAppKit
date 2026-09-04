@@ -111,4 +111,34 @@ struct SignalHealthTests {
         #expect(median != nil)
         #expect(abs((median ?? 0) - 2.0) < 0.5)
     }
+
+    @Test("a noisiest row names its source, so it can actually be muted")
+    func noisiestCarriesSource() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        _ = try store.insert(event("sync.failed"))
+        _ = try store.insert(event("sync.failed", at: 1))
+
+        let top = try #require(store.health(since: epoch.addingTimeInterval(-10))
+            .noisiest.first)
+
+        // Overrides are keyed by (source, kind). Without the source a mute
+        // control has to guess, and a wrong guess is a button that appears to
+        // work and silently does nothing.
+        #expect(top.source == .app(appID: "raven"))
+    }
+
+    @Test("the same kind from two sources is two rows, not one")
+    func sameKindDifferentSources() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        _ = try store.insert(event("thing.failed"))
+        _ = try store.insert(event("thing.failed", at: 1, source: .host))
+
+        let rows = store.health(since: epoch.addingTimeInterval(-10)).noisiest
+        #expect(rows.count == 2)
+        #expect(Set(rows.compactMap(\.source)) == [.app(appID: "raven"), .host])
+        // Distinct ids, or a ForEach collapses them into one row.
+        #expect(Set(rows.map(\.id)).count == 2)
+    }
 }

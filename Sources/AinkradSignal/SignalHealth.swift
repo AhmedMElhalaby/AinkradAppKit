@@ -85,11 +85,16 @@ extension SignalStore {
     }
 
     private func noisiestKinds(whereSQL: String, limit: Int) -> [SignalKindActivity] {
+        // Grouped by SOURCE and kind, not kind alone. Overrides are keyed by
+        // the pair, so a row carrying only the kind cannot be muted without
+        // guessing whose it is — and a wrong guess is a button that appears to
+        // work and silently does nothing.
         let sql = """
         SELECT kind, COUNT(*) AS n, MAX(timestamp) AS last,
-               CAST(COUNT(read_at) AS REAL) / COUNT(*) AS rate
+               CAST(COUNT(read_at) AS REAL) / COUNT(*) AS rate,
+               source_kind, source_app_id
         FROM events \(whereSQL)
-        GROUP BY kind
+        GROUP BY source_kind, source_app_id, kind
         ORDER BY n DESC, rate ASC
         LIMIT \(limit);
         """
@@ -99,9 +104,12 @@ extension SignalStore {
         var out: [SignalKindActivity] = []
         while sqlite3_step(stmt) == SQLITE_ROW {
             guard let kind = Self.text(stmt, 0) else { continue }
+            let source = Self.compose(kind: Self.text(stmt, 4) ?? "host",
+                                      appID: Self.text(stmt, 5))
             out.append(SignalKindActivity(kind: kind,
                                           count: Int(sqlite3_column_int(stmt, 1)),
-                                          lastSeen: Self.date(sqlite3_column_double(stmt, 2))))
+                                          lastSeen: Self.date(sqlite3_column_double(stmt, 2)),
+                                          source: source))
         }
         return out
     }
