@@ -268,6 +268,7 @@ public struct SignalFeedRow: View {
     @Environment(\.ainkradStatusColors) private var statusColors
     @State private var isHovered = false
     @Environment(\.ainkradReduceMotion) private var reduceMotion
+    @FocusState private var isFocused: Bool
 
     private var status: AinkradStatus { SignalPresentation.status(for: event.severity) }
     private var accent: Color { status.color(in: theme, statusColors: statusColors) }
@@ -360,6 +361,26 @@ public struct SignalFeedRow: View {
             ChamferShape(cut: AinkradRadius.sm)
                 .strokeBorder(theme.accentSecondary.opacity(isHovered ? 0.35 : 0), lineWidth: 1)
         )
+        // The focus ring is a ChamferShape, never the system ring: that is a
+        // continuous rounded rectangle and reads as foreign against every
+        // other surface in the app.
+        .overlay(
+            ChamferShape(cut: AinkradRadius.sm)
+                .strokeBorder(theme.accentPrimary.opacity(isFocused ? 0.9 : 0), lineWidth: 1.5)
+        )
+        // Focusable rather than wrapped in a `Button`.
+        //
+        // A Button would give keyboard activation for free, but the row
+        // CONTAINS buttons — the inline actions — and on macOS an outer button
+        // can swallow them. That is a click-through behaviour that cannot be
+        // verified without a pointer, so this takes the route whose failure
+        // mode is visible instead: focus and key handling explicitly, tap
+        // gesture unchanged, nested actions demonstrably still their own
+        // controls.
+        .focusable()
+        .focused($isFocused)
+        .onKeyPress(.return) { onActivate(event); return .handled }
+        .onKeyPress(.space) { onActivate(event); return .handled }
         .contentShape(ChamferShape(cut: AinkradRadius.sm))
         .onTapGesture { onActivate(event) }
         // One element, one sentence. Without this the row is a pile of
