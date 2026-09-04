@@ -35,7 +35,7 @@ public struct SignalFilter: Sendable, Equatable {
 }
 
 public final class SignalStore {
-    public static let schemaVersion = 1
+    public static let schemaVersion = 2
     /// Coalescing window. Outside it, the same `dedupeKey` inserts a new row.
     public static let dedupeWindow: TimeInterval = 60
 
@@ -68,9 +68,38 @@ public final class SignalStore {
         }
         if found == 0 {
             try createV1()
-            try exec("INSERT INTO schema_meta (version) VALUES (\(Self.schemaVersion));")
+            // The literal 1, NOT `Self.schemaVersion`. Recording the current
+            // version here would mark a brand-new database as fully migrated
+            // while `createV1` had only built the v1 shape — so every later
+            // migration would be skipped on new installs and applied on
+            // upgraded ones. That split shows up months afterwards, on one
+            // machine and not another, and is near-impossible to read back to
+            // this line.
+            try exec("INSERT INTO schema_meta (version) VALUES (1);")
         }
-        // Future versions add `if found < 2 { try migrateToV2() }` here.
+        if currentVersion() < 2 {
+            try migrateToV2()
+            try exec("UPDATE schema_meta SET version = 2;")
+        }
+    }
+
+    /// v2 adds `kind` to the search index.
+    ///
+    /// An FTS5 external-content table cannot gain a column, so the only
+    /// correct move is to DROP and rebuild from `events`. That is why this is
+    /// a numbered schema version rather than a quiet fix-up: it is a
+    /// destructive step on the table the user's search depends on, and it
+    /// belongs in the version history where it can be found.
+    ///
+    /// The rebuild reads from `events`, which is untouched — so no event is at
+    /// risk, only the index over them.
+    private func migrateToV2() throws {
+        try exec("DROP TABLE IF EXISTS events_fts;")
+        try exec("""
+        CREATE VIRTUAL TABLE events_fts
+          USING fts5(title, body, kind, content='events', content_rowid='rowid');
+        """)
+        try exec("INSERT INTO events_fts(events_fts) VALUES('rebuild');")
     }
 
     private func currentVersion() -> Int {
@@ -173,8 +202,8 @@ public final class SignalStore {
 
     private func insertFTS(for e: SignalEvent) throws {
         let sql = """
-        INSERT INTO events_fts (rowid, title, body)
-        SELECT rowid, title, body FROM events WHERE id = ?;
+        INSERT INTO events_fts (rowid, title, body, kind)
+        SELECT rowid, title, body, kind FROM events WHERE id = ?;
         """
         var stmt: OpaquePointer?
         guard sqlite3_prepare_v2(db, sql, -1, &stmt, nil) == SQLITE_OK else { throw SignalStoreError.exec(lastError) }
@@ -452,15 +481,21 @@ public final class SignalStore {
         try? exec("BEGIN IMMEDIATE;")
         // FTS first, in both passes: external-content FTS needs its rows
         // deleted while the source rows still exist to supply the values.
+        //
+        // EVERY indexed column must be listed. FTS5's `'delete'` command
+        // reconstructs the row's terms from the values given, so omitting one
+        // makes the statement wrong — and `try? exec` swallows the failure, so
+        // the only symptom is a search index that quietly stops agreeing with
+        // the table. Adding a column to `events_fts` means editing here too.
         try? exec("""
-        INSERT INTO events_fts (events_fts, rowid, title, body)
-        SELECT 'delete', rowid, title, body FROM events
+        INSERT INTO events_fts (events_fts, rowid, title, body, kind)
+        SELECT 'delete', rowid, title, body, kind FROM events
         WHERE pinned = 0 AND timestamp < \(cutoff);
         """)
         try? exec("DELETE FROM events WHERE pinned = 0 AND timestamp < \(cutoff);")
         try? exec("""
-        INSERT INTO events_fts (events_fts, rowid, title, body)
-        SELECT 'delete', rowid, title, body FROM events WHERE pinned = 0 AND rowid NOT IN (
+        INSERT INTO events_fts (events_fts, rowid, title, body, kind)
+        SELECT 'delete', rowid, title, body, kind FROM events WHERE pinned = 0 AND rowid NOT IN (
           SELECT rowid FROM events WHERE pinned = 0 ORDER BY timestamp DESC LIMIT \(policy.maxEvents)
         );
         """)
