@@ -7,13 +7,32 @@ public struct SignalKindActivity: Sendable, Equatable, Identifiable {
     public let kind: String
     public let count: Int
     public let lastSeen: Date
+    /// Which source emitted it. Nil when the list is already scoped to one
+    /// source and saying so again would be noise.
+    ///
+    /// Not optional decoration: a kind name alone cannot be muted. Overrides
+    /// are keyed by (source, kind), so a control that had only the kind would
+    /// have to guess the source — and a guess that is wrong produces a mute
+    /// button which appears to work and silently does nothing.
+    public let source: SignalSource?
 
-    public var id: String { kind }
+    public var id: String {
+        source.map { "\($0):\(kind)" } ?? kind
+    }
 
     public init(kind: String, count: Int, lastSeen: Date) {
         self.kind = kind
         self.count = count
         self.lastSeen = lastSeen
+        self.source = nil
+    }
+
+    /// Separate, not a defaulted parameter — library evolution.
+    public init(kind: String, count: Int, lastSeen: Date, source: SignalSource?) {
+        self.kind = kind
+        self.count = count
+        self.lastSeen = lastSeen
+        self.source = source
     }
 }
 
