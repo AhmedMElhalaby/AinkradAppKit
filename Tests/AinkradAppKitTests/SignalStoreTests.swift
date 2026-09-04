@@ -23,6 +23,62 @@ struct SignalStoreTests {
                     kind: kind, severity: severity, title: title, dedupeKey: dedupeKey)
     }
 
+    @Test("markUnread clears the read stamp, so a row can be triaged again")
+    func markUnread() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let e = event("a", source: .app(appID: "raven"))
+        _ = try store.insert(e)
+        store.markRead(ids: [e.id])
+        #expect(store.unreadCounts().isEmpty)
+
+        store.markUnread(ids: [e.id])
+
+        #expect(store.unreadCounts()[.app(appID: "raven")] == 1)
+        #expect(store.rowStates(limit: 10)[e.id]?.isRead == false)
+    }
+
+    @Test("delete removes the row and stops it matching a search")
+    func deleteRemovesRowAndIndex() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let keep = event("Keeper", source: .app(appID: "raven"), kind: "build.kept")
+        let drop = event("Dropped", source: .app(appID: "raven"), kind: "build.dropped")
+        _ = try store.insert(keep)
+        _ = try store.insert(drop)
+
+        store.delete(ids: [drop.id])
+
+        #expect(store.event(id: drop.id) == nil)
+        #expect(store.event(id: keep.id) != nil)
+        // The FTS row must go too. External-content FTS does not cascade, so a
+        // stale index row makes a deleted event keep turning up in search —
+        // and the user cannot get rid of it because the thing they would
+        // delete is already gone.
+        #expect(store.search("Dropped", filter: .all, limit: 10).isEmpty)
+        #expect(store.search("build.dropped", filter: .all, limit: 10).isEmpty)
+        #expect(store.search("Keeper", filter: .all, limit: 10).count == 1)
+    }
+
+    @Test("deleting an unread row drops its unread count")
+    func deleteUpdatesUnreadCount() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        let e = event("a", source: .app(appID: "raven"))
+        _ = try store.insert(e)
+        store.delete(ids: [e.id])
+        #expect(store.unreadCounts().isEmpty)
+    }
+
+    @Test("deleting nothing is harmless")
+    func deleteEmpty() throws {
+        let (store, url) = try makeStore()
+        defer { try? FileManager.default.removeItem(at: url) }
+        _ = try store.insert(event("a"))
+        store.delete(ids: [])
+        #expect(store.page(filter: .all, before: nil, limit: 10).count == 1)
+    }
+
     @Test("kindActivity reports each kind a source emits, with counts")
     func kindActivityPerSource() throws {
         let (store, url) = try makeStore()
