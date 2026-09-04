@@ -123,6 +123,49 @@ public enum SignalPresentation {
         }
     }
 
+    /// What a screen reader says for one row.
+    ///
+    /// Severity FIRST, deliberately. Sighted users get it from a coloured
+    /// glyph before they read a word; a listener who hears the title first has
+    /// to wait to the end of the sentence to learn whether it matters. Every
+    /// row previously announced only its title — the severity was carried
+    /// entirely by colour and an unlabelled symbol.
+    public static func accessibilityLabel(for event: SignalEvent,
+                                          repeatCount: Int,
+                                          isUnread: Bool,
+                                          isPinned: Bool = false,
+                                          now: Date) -> String {
+        var parts = [event.severity.rawValue.capitalized,
+                     sourceLabel(event.source),
+                     event.title]
+        if let body = event.body, !body.isEmpty { parts.append(body) }
+        parts.append(relativeTimeSpoken(event.timestamp, now: now))
+        if repeatCount > 1 { parts.append("repeated \(repeatCount) times") }
+        if isPinned { parts.append("pinned") }
+        // Read state last: it is the least important thing about the row and
+        // the thing a listener is most likely to already know.
+        parts.append(isUnread ? "unread" : "read")
+        return parts.joined(separator: ", ")
+    }
+
+    /// Spoken time. `relativeTime` returns "3h", which a screen reader reads
+    /// as the letter h.
+    public static func relativeTimeSpoken(_ date: Date, now: Date) -> String {
+        let elapsed = max(0, now.timeIntervalSince(date))
+        switch elapsed {
+        case ..<60: return "just now"
+        case ..<3600:
+            let m = Int(elapsed / 60)
+            return "\(m) minute\(m == 1 ? "" : "s") ago"
+        case ..<86400:
+            let h = Int(elapsed / 3600)
+            return "\(h) hour\(h == 1 ? "" : "s") ago"
+        default:
+            let d = Int(elapsed / 86400)
+            return "\(d) day\(d == 1 ? "" : "s") ago"
+        }
+    }
+
     public static func sourceLabel(_ source: SignalSource) -> String {
         switch source {
         case .host: return "Ainkrad"
@@ -319,6 +362,26 @@ public struct SignalFeedRow: View {
         )
         .contentShape(ChamferShape(cut: AinkradRadius.sm))
         .onTapGesture { onActivate(event) }
+        // One element, one sentence. Without this the row is a pile of
+        // separate labels — glyph, title, body, source, "now" — read in
+        // layout order, and the severity is never spoken at all.
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(SignalPresentation.accessibilityLabel(
+            for: event, repeatCount: repeatCount, isUnread: isUnread,
+            isPinned: isPinned, now: now))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onActivate(event) }
+        // The row's own actions, reachable without hunting for a button that
+        // is only visible on hover.
+        .accessibilityActions {
+            ForEach(event.actions, id: \.id) { action in
+                Button(action.label) { onAction(event, action) }
+            }
+            if let onToggleExpanded, event.body?.isEmpty == false {
+                Button(isExpanded ? "Collapse" : "Show full message",
+                       action: onToggleExpanded)
+            }
+        }
         .ainkradContextMenu(menuItems(event))
         .onHover { hovering in
             // The surface still changes on hover under reduce-motion — that is

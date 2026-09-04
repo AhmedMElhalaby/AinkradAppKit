@@ -323,5 +323,16 @@ public struct SignalToastStack: View {
         .overlay(alignment: .bottom) { dwellBar(event) }
         .contentShape(ChamferShape(cut: AinkradRadius.md))
         .onTapGesture { onActivate(event) }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(SignalPresentation.accessibilityLabel(
+            for: event, repeatCount: 1, isUnread: true, now: now))
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { onActivate(event) }
+        .accessibilityActions {
+            ForEach(event.actions.prefix(2), id: \.id) { action in
+                Button(action.label) { onAction(event, action) }
+            }
+            Button("Dismiss") { model.dismiss(id: event.id) }
+        }
     }
 }
