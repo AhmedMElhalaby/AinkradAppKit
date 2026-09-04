@@ -1,4 +1,5 @@
 import Testing
+import SwiftUI
 import Foundation
 @testable import AinkradAppKitUI
 @testable import AinkradSignal
@@ -103,5 +104,21 @@ struct SignalAccessibilityTests {
         #expect(SignalSourceRail.label(for: SignalSourceRailItem(
             source: nil, name: "All", unread: 7,
             worstUnread: .warning)) == "All, 7 unread, worst warning")
+    }
+}
+
+@Suite("Colour contrast ratio")
+struct ColorContrastRatioTests {
+    @Test("black on white is the maximum ratio, and a colour on itself is the minimum")
+    func bounds() {
+        #expect(abs(Color.black.contrastRatio(against: .white) - 21) < 0.1)
+        #expect(abs(Color.white.contrastRatio(against: .white) - 1) < 0.01)
+    }
+
+    @Test("the ratio is symmetric, so argument order cannot change a verdict")
+    func symmetric() {
+        let a = Color(red: 0.2, green: 0.7, blue: 0.4)
+        let b = Color(red: 0.1, green: 0.1, blue: 0.15)
+        #expect(abs(a.contrastRatio(against: b) - b.contrastRatio(against: a)) < 0.001)
     }
 }
