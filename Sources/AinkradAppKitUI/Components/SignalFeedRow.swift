@@ -90,6 +90,10 @@ public struct SignalFeedRow: View {
     public var now: Date = Date()
     public var onActivate: (SignalEvent) -> Void = { _ in }
     public var onAction: (SignalEvent, SignalAction) -> Void = { _, _ in }
+    /// Right-click menu for this row, built by the host from the event. A
+    /// closure rather than a list so the host can decide per event — the items
+    /// name the source and kind, and one shared list could not.
+    public var menuItems: (SignalEvent) -> [AinkradMenuItem] = { _ in [] }
 
     /// Explicit, because a public struct's implicit memberwise
     /// initialiser is INTERNAL — the components were public and
@@ -106,6 +110,28 @@ public struct SignalFeedRow: View {
         self.now = now
         self.onActivate = onActivate
         self.onAction = onAction
+    }
+
+    /// A SEPARATE initialiser rather than a seventh defaulted parameter on the
+    /// one above. This module builds with `-enable-library-evolution`, so
+    /// adding a default changes the existing init's mangled symbol and anything
+    /// already linked against it dies at `Bundle.load()` — source compiles
+    /// either way, and only linking tells the truth. That is the
+    /// `AinkradFormRow` failure recorded in AinkradQuest's project.yml.
+    public init(event: SignalEvent,
+                repeatCount: Int,
+                isUnread: Bool,
+                now: Date,
+                onActivate: @escaping (SignalEvent) -> Void,
+                onAction: @escaping (SignalEvent, SignalAction) -> Void,
+                menuItems: @escaping (SignalEvent) -> [AinkradMenuItem]) {
+        self.event = event
+        self.repeatCount = repeatCount
+        self.isUnread = isUnread
+        self.now = now
+        self.onActivate = onActivate
+        self.onAction = onAction
+        self.menuItems = menuItems
     }
 
     @Environment(\.ainkradTheme) private var theme
@@ -184,6 +210,7 @@ public struct SignalFeedRow: View {
         )
         .contentShape(ChamferShape(cut: AinkradRadius.sm))
         .onTapGesture { onActivate(event) }
+        .ainkradContextMenu(menuItems(event))
         .onHover { hovering in
             withAnimation(AinkradMotion.hover) { isHovered = hovering }
         }

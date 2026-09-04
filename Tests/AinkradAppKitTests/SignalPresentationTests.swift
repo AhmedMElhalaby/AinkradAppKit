@@ -43,4 +43,27 @@ struct SignalFeedFormattingTests {
         #expect(Set(symbols).count == SignalSeverity.allCases.count)
         #expect(SignalPresentation.iconSymbol(for: .failure) == "xmark.octagon")
     }
+
+    @Test("a row built with the original initialiser has no menu")
+    func defaultRowHasNoMenu() {
+        let row = SignalFeedRow(event: SignalEvent(source: .host, kind: "k",
+                                                   severity: .info, title: "t"))
+        // The old initialiser must keep working unchanged: it is public API in
+        // a library-evolution module, and anything already linked against it
+        // resolves the mangled symbol at load time, not at compile time.
+        #expect(row.menuItems(row.event).isEmpty)
+    }
+
+    @Test("a row built with the menu initialiser carries its items")
+    func menuRowCarriesItems() {
+        let row = SignalFeedRow(
+            event: SignalEvent(source: .app(appID: "raven"), kind: "build.failed",
+                               severity: .failure, title: "t"),
+            repeatCount: 1, isUnread: true, now: Date(),
+            onActivate: { _ in }, onAction: { _, _ in },
+            menuItems: { event in
+                [AinkradMenuItem(title: "Mute \(event.kind)", action: {})]
+            })
+        #expect(row.menuItems(row.event).map(\.title) == ["Mute build.failed"])
+    }
 }
