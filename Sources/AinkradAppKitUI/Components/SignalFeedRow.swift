@@ -148,6 +148,15 @@ public struct SignalFeedRow: View {
     /// closure rather than a list so the host can decide per event — the items
     /// name the source and kind, and one shared list could not.
     public var menuItems: (SignalEvent) -> [AinkradMenuItem] = { _ in [] }
+    /// Kept through retention and through clearing the feed.
+    public var isPinned: Bool = false
+    /// Shows the body in full rather than clamped to two lines. A build error
+    /// is the thing people most want out of the feed and the thing the clamp
+    /// most reliably cuts in half.
+    public var isExpanded: Bool = false
+    /// Nil means the row cannot expand — used where there is no room for it,
+    /// like the bell dropdown.
+    public var onToggleExpanded: (() -> Void)?
 
     /// Explicit, because a public struct's implicit memberwise
     /// initialiser is INTERNAL — the components were public and
@@ -188,6 +197,29 @@ public struct SignalFeedRow: View {
         self.menuItems = menuItems
     }
 
+    /// Separate again, for the same library-evolution reason as the one above.
+    public init(event: SignalEvent,
+                repeatCount: Int,
+                isUnread: Bool,
+                now: Date,
+                onActivate: @escaping (SignalEvent) -> Void,
+                onAction: @escaping (SignalEvent, SignalAction) -> Void,
+                menuItems: @escaping (SignalEvent) -> [AinkradMenuItem],
+                isPinned: Bool,
+                isExpanded: Bool,
+                onToggleExpanded: (() -> Void)?) {
+        self.event = event
+        self.repeatCount = repeatCount
+        self.isUnread = isUnread
+        self.now = now
+        self.onActivate = onActivate
+        self.onAction = onAction
+        self.menuItems = menuItems
+        self.isPinned = isPinned
+        self.isExpanded = isExpanded
+        self.onToggleExpanded = onToggleExpanded
+    }
+
     @Environment(\.ainkradTheme) private var theme
     @Environment(\.ainkradTypography) private var typo
     @Environment(\.ainkradStatusColors) private var statusColors
@@ -216,6 +248,11 @@ public struct SignalFeedRow: View {
                     if repeatCount > 1 {
                         AinkradBadge(text: "×\(repeatCount)", status: status)
                     }
+                    if isPinned {
+                        Image(systemName: "pin.fill")
+                            .font(.system(size: 8.5))
+                            .foregroundStyle(theme.accentSecondary)
+                    }
                     Spacer(minLength: AinkradSpacing.xs)
                     // A readout, so mono — the same language as the clock and
                     // battery in the top bar.
@@ -228,7 +265,10 @@ public struct SignalFeedRow: View {
                     Text(body)
                         .font(AinkradFontResolver.font(size: 11.5, typography: typo))
                         .foregroundStyle(theme.foreground.opacity(0.62))
-                        .lineLimit(2)
+                        // Expanded shows the whole thing. Two lines is right
+                        // for scanning and wrong for the one case people
+                        // actually need the feed for — reading a build error.
+                        .lineLimit(isExpanded ? nil : 2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -241,6 +281,18 @@ public struct SignalFeedRow: View {
                         rowAction(action)
                     }
                 }
+            }
+
+            if let onToggleExpanded, (event.body?.isEmpty == false) {
+                Button(action: onToggleExpanded) {
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 8, weight: .bold))
+                        .foregroundStyle(theme.foreground.opacity(isHovered ? 0.6 : 0.3))
+                        .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                        .frame(width: 12, height: 12)
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 3)
             }
 
             // The column is always reserved, even when read: letting it
