@@ -19,3 +19,35 @@ struct AinkradCaptionedRowTests {
         #expect(row.caption == "Delivery")
     }
 }
+
+@Suite("Slider spoken value")
+@MainActor
+struct AinkradSliderAccessibilityTests {
+    @Test("it is spoken as a percentage of its range, not as a raw double")
+    func speaksAPercentage() {
+        // "0.62" tells a listener nothing about how far along the control is.
+        #expect(AinkradSlider.spokenValue(0.62, in: 0...1) == "62%")
+        #expect(AinkradSlider.spokenValue(0, in: 0...1) == "0%")
+        #expect(AinkradSlider.spokenValue(1, in: 0...1) == "100%")
+    }
+
+    @Test("a range that does not start at zero still reads as a proportion")
+    func handlesOffsetRanges() {
+        #expect(AinkradSlider.spokenValue(15, in: 10...20) == "50%")
+    }
+
+    @Test("a value outside the bounds is clamped rather than spoken as 140%")
+    func clampsOutOfRange() {
+        #expect(AinkradSlider.spokenValue(1.4, in: 0...1) == "100%")
+        #expect(AinkradSlider.spokenValue(-3, in: 0...1) == "0%")
+    }
+
+    @Test("a degenerate range does not divide by zero")
+    func survivesAnEmptyRange() {
+        // `bounds` comes from a caller; a zero-width one must not crash or
+        // produce NaN in a spoken string.
+        let spoken = AinkradSlider.spokenValue(5, in: 5...5)
+        #expect(spoken.hasSuffix("%"))
+        #expect(!spoken.contains("nan"))
+    }
+}
