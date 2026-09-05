@@ -103,7 +103,12 @@ public struct SignalSourceRail: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            ForEach(items) { item in row(item) }
+            ForEach(items) { item in
+                SignalSourceRailRow(item: item,
+                                    isSelected: selection == item.source,
+                                    onSelect: { selection = item.source },
+                                    onConfigure: onConfigure)
+            }
             Spacer(minLength: 0)
         }
         .padding(.vertical, AinkradSpacing.xs + 2)
@@ -126,9 +131,31 @@ public struct SignalSourceRail: View {
         return parts.joined(separator: ", ")
     }
 
-    private func row(_ item: SignalSourceRailItem) -> some View {
-        let isSelected = selection == item.source
-        return Button { selection = item.source } label: {
+}
+
+/// One rail row, split out so it can own its own hover state — a rail of ten
+/// sources cannot share one `isHovered` without every row lighting up at once.
+private struct SignalSourceRailRow: View {
+    let item: SignalSourceRailItem
+    let isSelected: Bool
+    let onSelect: () -> Void
+    let onConfigure: (SignalSource) -> Void
+
+    @State private var isHovered = false
+    @Environment(\.ainkradTheme) private var theme
+    @Environment(\.ainkradStatusColors) private var status
+    @Environment(\.ainkradTypography) private var typo
+    @Environment(\.ainkradReduceMotion) private var reduceMotion
+
+    /// Selected wins over hovered: a hover tint on the selected row would make
+    /// selection ambiguous exactly while the pointer is on it.
+    private var fillOpacity: Double {
+        if isSelected { return 0.9 }
+        return isHovered ? 0.45 : 0
+    }
+
+    var body: some View {
+        Button(action: onSelect) {
             HStack(spacing: AinkradSpacing.xs + 2) {
                 Circle()
                     .fill(item.worstUnread.map {
@@ -139,7 +166,8 @@ public struct SignalSourceRail: View {
                     .font(AinkradFontResolver.font(size: 11.5,
                                                    weight: isSelected ? .semibold : .regular,
                                                    typography: typo))
-                    .foregroundStyle(theme.foreground.opacity(isSelected ? 1 : 0.72))
+                    .foregroundStyle(theme.foreground
+                        .opacity(isSelected ? 1 : (isHovered ? 0.9 : 0.72)))
                     .lineLimit(1)
                 Spacer(minLength: AinkradSpacing.xs)
                 if item.unread > 0 {
@@ -156,23 +184,31 @@ public struct SignalSourceRail: View {
             .padding(.vertical, AinkradSpacing.xs + 1)
             .background(
                 ChamferShape(cut: AinkradRadius.sm)
-                    .fill(theme.surfaceElevated.opacity(isSelected ? 0.9 : 0)))
+                    .fill(theme.surfaceElevated.opacity(fillOpacity)))
             .overlay(alignment: .leading) {
                 // An accent edge, not a separator — the design language forbids
                 // rules, and selection still has to read instantly.
-                if isSelected {
-                    Capsule().fill(theme.accentSecondary)
-                        .frame(width: 2).padding(.vertical, 4)
-                }
+                //
+                // Always present, scaled to nothing when unselected, so the
+                // marker GROWS into place as selection moves down the rail
+                // rather than blinking out of one row and into another.
+                Capsule().fill(theme.accentSecondary)
+                    .frame(width: 2)
+                    .padding(.vertical, 4)
+                    .scaleEffect(y: isSelected ? 1 : 0, anchor: .center)
+                    .opacity(isSelected ? 1 : 0)
             }
             .contentShape(ChamferShape(cut: AinkradRadius.sm))
         }
         .buttonStyle(.plain)
+        .animation(reduceMotion ? nil : AinkradMotion.hover, value: isHovered)
+        .animation(reduceMotion ? nil : AinkradMotion.hover, value: isSelected)
+        .onHover { isHovered = $0 }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Self.label(for: item))
+        .accessibilityLabel(SignalSourceRail.label(for: item))
         .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
         .ainkradContextMenu(item.source.map { source in
-            [AinkradMenuItem(title: "Notification settings…", systemName: "slider.horizontal.3",
+            [AinkradMenuItem(title: "Notification settings\u{2026}", systemName: "slider.horizontal.3",
                              action: { onConfigure(source) })]
         } ?? [])
     }
